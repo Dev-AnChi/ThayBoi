@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔮 Thầy Bói Thần Thánh - Mystical Fortune Teller</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Animated background -->
+    <div class="mystical-bg">
+        <div class="stars"></div>
+        <div class="stars2"></div>
+        <div class="stars3"></div>
+    </div>
+
+    <!-- Main container -->
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="title">
+                <span class="crystal">🔮</span>
+                <span class="title-text">Thầy Bói Thần Thánh</span>
+                <span class="crystal">🔮</span>
+            </h1>
+            <p class="subtitle">
+                Khám phá vận mệnh qua đường chỉ tay
+            </p>
+            
+        </header>
+
+        <!-- Upload section -->
+        <div class="upload-section">
+            <div class="upload-card">
+                
+                <!-- Auto Camera section -->
+                <div class="camera-section" id="cameraSection">
+                    <div class="camera-view">
+                        <video id="cameraVideo" autoplay playsinline></video>
+                        <div class="camera-overlay">
+                            <div class="hand-detection-box" id="handDetectionBox"></div>
+                            <div class="auto-capture-indicator" id="autoCaptureIndicator">
+                                <div class="pulse-ring"></div>
+                                <div class="pulse-ring delay-1"></div>
+                                <div class="pulse-ring delay-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="camera-status" id="cameraStatus">
+                        <p>🔮 Đưa lòng bàn tay rõ ràng vào khung để tự động quét và bói</p>
+                        <button class="action-btn primary" id="startCameraBtn" style="margin-top: 1rem;">🎥 Bật camera</button>
+                    </div>
+                    <!-- Hidden canvas for capture -->
+                    <canvas id="captureCanvas" class="hidden"></canvas>
+                </div>
+
+                <button class="fortune-btn" id="fortuneBtn" disabled>
+                    <span class="btn-text">
+                        🔮 Bắt đầu xem bói
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading section -->
+        <div class="loading-section hidden" id="loadingSection">
+            <div class="crystal-ball">
+                <div class="crystal-shine"></div>
+                <div class="crystal-inner"></div>
+            </div>
+            <p class="loading-text">
+                Thầy bói đang nhìn thấu vận mệnh của bạn...
+            </p>
+            <div class="loading-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <!-- Result section -->
+        <div class="result-section hidden" id="resultSection">
+            <div class="result-card">
+                <div class="result-header">
+                    <h2 class="result-title">
+                        🌟 Vận Mệnh Của Bạn 🌟
+                    </h2>
+                </div>
+                <div class="result-content" id="fortuneResult">
+                    <!-- Fortune sections will be inserted here -->
+                    <div class="fortune-section" id="introSection">
+                        <h3 class="section-title">🌟 Lời chào</h3>
+                        <p class="section-content" id="introContent"></p>
+                    </div>
+                    
+                    <div class="fortune-section" id="palmLinesSection">
+                        <h3 class="section-title">✋ Phân tích đường chỉ tay</h3>
+                        <p class="section-content" id="palmLinesContent"></p>
+                    </div>
+                    
+                    <div class="fortune-section" id="loveSection">
+                        <h3 class="section-title">💕 Tình duyên</h3>
+                        <p class="section-content" id="loveContent"></p>
+                    </div>
+                    
+                    <div class="fortune-section" id="careerSection">
+                        <h3 class="section-title">💼 Sự nghiệp & Tài lộc</h3>
+                        <p class="section-content" id="careerContent"></p>
+                    </div>
+                    
+                    <div class="fortune-section" id="healthSection">
+                        <h3 class="section-title">🏥 Sức khỏe & May mắn</h3>
+                        <p class="section-content" id="healthContent"></p>
+                    </div>
+                    
+                    <div class="fortune-section" id="adviceSection">
+                        <h3 class="section-title">💡 Lời khuyên</h3>
+                        <p class="section-content" id="adviceContent"></p>
+                    </div>
+                </div>
+                <div class="result-actions">
+                    <button class="action-btn primary" id="newReadingBtn">
+                        <span>🔮 Xem bói lại</span>
+                    </button>
+                    <button class="action-btn secondary" id="shareBtn">
+                        <span>📤 Chia sẻ</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>
+                Được phát triển với ❤️ và ✨ ma thuật AI
+            </p>
+            <p class="disclaimer">
+                ⚠️ Chỉ để giải trí, đừng nghiêm túc quá nhé! 😄
+            </p>
+        </footer>
+    </div>
+
+    <!-- Floating fortune-teller popup -->
+    <div class="fortune-popup" aria-live="polite">
+        <div class="fortune-popup-inner">
+            <div class="fortune-teller-avatar small">
+                <div class="fortune-teller-face">🧙‍♂️</div>
+                <div class="fortune-teller-crystal-ball">🔮</div>
+            </div>
+            <div class="fortune-popup-text" id="fortuneTellerText">Chào bạn! Hãy đưa lòng bàn tay vào khung nhé ✋</div>
+        </div>
+    </div>
+
+    <!-- MediaPipe for hand detection -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    
+    <script src="app.js"></script>
+</body>
+</html>
+
