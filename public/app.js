@@ -350,6 +350,18 @@ function createSparkles() {
 // ================================
 // CAMERA HANDLING
 // ================================
+async function getPreferredBackCameraDeviceId() {
+    try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoInputs = devices.filter(d => d.kind === 'videoinput');
+        // Prefer labels that look like back/environment
+        const backLike = videoInputs.find(d => /back|environment|rear/i.test(d.label));
+        return (backLike || videoInputs[0])?.deviceId || null;
+    } catch (e) {
+        return null;
+    }
+}
+
 async function startCamera() {
     console.log('🎥 Starting camera...');
     
@@ -361,33 +373,61 @@ async function startCamera() {
 
     try {
         console.log('📹 Requesting camera access...');
+        // Ensure any prior tracks are fully stopped to avoid NotReadableError
+        if (cameraStream) {
+            try { stopCamera(); } catch (_) {}
+        }
         
+        // Try to pick a concrete back camera device when possible
+        let preferredDeviceId = await getPreferredBackCameraDeviceId();
+        
+        const attempts = [];
+        if (preferredDeviceId) {
+            attempts.push({
+                audio: false,
+                video: {
+                    deviceId: { exact: preferredDeviceId },
+                    width: { ideal: 640, max: 1280 },
+                    height: { ideal: 480, max: 720 },
+                    frameRate: { ideal: 30, max: 60 }
+                }
+            });
+        }
         // Mobile-friendly camera constraints
-        const constraints = {
+        attempts.push({
+            audio: false,
             video: {
                 facingMode: { ideal: 'environment' },
                 width: { ideal: 640, max: 1280 },
                 height: { ideal: 480, max: 720 },
                 frameRate: { ideal: 30, max: 60 }
             }
-        };
-        
-        // Try with ideal constraints first
-        try {
-            cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
-        } catch (e) {
-            console.log('Falling back to basic constraints...');
-            // Fallback to basic constraints
-            cameraStream = await navigator.mediaDevices.getUserMedia({ 
-                video: { 
-                    facingMode: 'environment',
-                    width: 640,
-                    height: 480
-                } 
-            });
+        });
+        // Basic fallback
+        attempts.push({ audio: false, video: { facingMode: 'environment', width: 640, height: 480 } });
+        // Last resort
+        attempts.push({ audio: false, video: true });
+
+        let lastError = null;
+        for (const attempt of attempts) {
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia(attempt);
+                break;
+            } catch (e) {
+                lastError = e;
+                console.log('getUserMedia attempt failed:', e?.name || e);
+                // If NotReadableError, try a short delay and retry next attempt
+                if (e && e.name === 'NotReadableError') {
+                    try { stopCamera(); } catch (_) {}
+                    await new Promise(r => setTimeout(r, 300));
+                }
+            }
         }
+        if (!cameraStream) throw lastError || new Error('Unable to start camera');
         
         elements.cameraVideo.srcObject = cameraStream;
+        // Help autoplay on mobile
+        try { elements.cameraVideo.setAttribute('muted', ''); elements.cameraVideo.muted = true; } catch(_) {}
         
         // Ensure playback starts (important on re-initialization)
         try {
