@@ -491,20 +491,18 @@ async function startCamera() {
             // Different message for mobile vs desktop
             if (isMobile()) {
                 elements.cameraStatus.innerHTML = `
-                    <p style="color: #e74c3c; font-weight: bold;">⚠️ CAMERA KHÔNG KHẢ DỤNG</p>
-                    <p style="font-size: 0.9rem; margin: 1rem 0; line-height: 1.6;">
-                        Camera đang được sử dụng bởi ứng dụng khác hoặc bị chặn.<br><br>
-                        <strong>Bạn có thể:</strong><br>
-                        1️⃣ Thử chế độ upload ảnh bên dưới<br>
-                        2️⃣ Đóng tất cả ứng dụng camera khác<br>
-                        3️⃣ Làm mới trang này
+                    <p style="color: #e74c3c; font-weight: bold; margin-bottom: 1rem;">⚠️ CAMERA KHÔNG KHẢ DỤNG</p>
+                    <p style="font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5;">
+                        Camera đang được sử dụng bởi ứng dụng khác hoặc bị chặn.
                     </p>
-                    <button class="action-btn primary" onclick="showMobileUploadInterface()" style="margin-top: 1rem;">
-                        📷 Chuyển sang chế độ upload
-                    </button>
-                    <button class="action-btn secondary" onclick="window.location.reload()" style="margin-top: 0.5rem;">
-                        🔄 Làm mới trang
-                    </button>
+                    <div style="margin-bottom: 1rem;">
+                        <button class="action-btn primary" onclick="showMobileUploadInterface()" style="width: 100%; padding: 1rem; margin-bottom: 0.5rem;">
+                            📷 Chuyển sang chế độ upload
+                        </button>
+                        <button class="action-btn secondary" onclick="window.location.reload()" style="width: 100%; padding: 0.8rem; font-size: 0.9rem;">
+                            🔄 Làm mới trang
+                        </button>
+                    </div>
                 `;
             } else {
                 elements.cameraStatus.innerHTML = `
@@ -540,8 +538,8 @@ async function startCamera() {
         setTimeout(() => {
             if (isMobile()) {
                 elements.cameraStatus.innerHTML = `
-                    <p>🔮 Đưa lòng bàn tay rõ ràng vào khung để tự động quét và bói</p>
-                    <button class="action-btn secondary" onclick="showMobileUploadInterface()" style="margin-top: 1rem; font-size: 0.9rem;">
+                    <p style="margin-bottom: 1rem;">🔮 Đưa lòng bàn tay rõ ràng vào khung để tự động quét và bói</p>
+                    <button class="action-btn secondary" onclick="showMobileUploadInterface()" style="width: 100%; padding: 0.8rem 1rem; font-size: 0.9rem; margin-top: 0.5rem;">
                         📷 Hoặc chụp ảnh thủ công
                     </button>
                 `;
@@ -669,13 +667,12 @@ function showMobileUploadInterface() {
     const mobileUploadHTML = `
         <div class="mobile-upload-container">
             <div class="upload-icon-large">🖐️</div>
-            <h3 style="color: #9b59b6; margin: 1rem 0; font-size: 1.5rem;">Chụp ảnh lòng bàn tay</h3>
-            <p style="margin-bottom: 2rem; line-height: 1.6; color: #bdc3c7;">
-                📱 Trên điện thoại, hãy chụp ảnh lòng bàn tay rõ ràng<br>
-                hoặc chọn từ thư viện ảnh
+            <h3 style="color: #9b59b6; margin: 1rem 0;">Chụp ảnh lòng bàn tay</h3>
+            <p style="margin-bottom: 1.5rem; line-height: 1.5; color: #bdc3c7; font-size: 0.95rem;">
+                Chụp ảnh lòng bàn tay rõ ràng hoặc chọn từ thư viện
             </p>
             
-            <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
+            <div style="margin-bottom: 1.5rem;">
                 <button class="action-btn primary large" id="mobileCameraBtn">
                     📷 Chụp ảnh mới
                 </button>
@@ -685,10 +682,9 @@ function showMobileUploadInterface() {
                 </button>
             </div>
             
-            <div style="padding: 1rem; background: rgba(155, 89, 182, 0.1); border-radius: 10px; border: 1px solid rgba(155, 89, 182, 0.3);">
-                <p style="font-size: 0.9rem; color: #9b59b6; margin: 0; line-height: 1.5;">
-                    💡 <strong>Mẹo:</strong> Chụp ảnh lòng bàn tay với ánh sáng tốt, 
-                    đặt tay phẳng và rõ ràng để có kết quả chính xác nhất
+            <div style="padding: 0.8rem; background: rgba(155, 89, 182, 0.08); border-radius: 8px; border: 1px solid rgba(155, 89, 182, 0.2);">
+                <p style="font-size: 0.85rem; color: #9b59b6; margin: 0; line-height: 1.4;">
+                    💡 <strong>Mẹo:</strong> Chụp với ánh sáng tốt, đặt tay phẳng và rõ ràng
                 </p>
             </div>
         </div>

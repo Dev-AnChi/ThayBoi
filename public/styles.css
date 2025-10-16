@@ -860,25 +860,90 @@ body {
    ================================ */
 .mobile-upload-container {
     text-align: center;
-    padding: 2rem 1rem;
+    padding: 1.5rem 1rem;
+    max-width: 100%;
 }
 
 .upload-icon-large {
-    font-size: 4rem;
+    font-size: 3.5rem;
     margin-bottom: 1rem;
     animation: float 3s ease-in-out infinite;
 }
 
 .action-btn.large {
     width: 100%;
-    padding: 1rem 2rem;
-    font-size: 1.1rem;
-    margin: 0.5rem 0;
+    padding: 1.2rem 1.5rem;
+    font-size: 1rem;
+    margin: 0.8rem 0;
+    border-radius: 12px;
+    font-weight: 600;
+    min-height: 50px;
 }
 
 @keyframes float {
     0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+    50% { transform: translateY(-8px); }
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+    .mobile-upload-container h3 {
+        font-size: 1.3rem !important;
+        margin: 0.8rem 0 !important;
+    }
+    
+    .mobile-upload-container p {
+        font-size: 0.95rem !important;
+        margin-bottom: 1.5rem !important;
+        padding: 0 0.5rem;
+    }
+    
+    .action-btn.large {
+        padding: 1.1rem 1.2rem;
+        font-size: 0.95rem;
+        margin: 0.7rem 0;
+    }
+    
+    .upload-icon-large {
+        font-size: 3rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    /* Camera section mobile improvements */
+    .camera-section {
+        padding: 1rem 0.5rem;
+    }
+    
+    .camera-status {
+        padding: 1rem 0.5rem;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+    
+    .camera-status p {
+        margin: 0.5rem 0;
+        font-size: 0.9rem;
+    }
+    
+    .camera-status button {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        font-size: 0.9rem;
+        margin: 0.5rem 0;
+    }
+    
+    /* Camera video mobile */
+    .camera-video {
+        max-height: 50vh;
+        border-radius: 8px;
+    }
+    
+    /* Auto capture indicator mobile */
+    .auto-capture-indicator {
+        font-size: 0.8rem;
+        padding: 0.5rem 0.8rem;
+        margin: 0.5rem 0;
+    }
 }
 
 /* ================================
