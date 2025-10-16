@@ -361,7 +361,25 @@ async function startCamera() {
 
     try {
         console.log('📹 Requesting camera access...');
-        cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        
+        // Mobile-friendly camera constraints
+        const constraints = {
+            video: {
+                facingMode: 'environment',
+                width: { ideal: 640, max: 1280 },
+                height: { ideal: 480, max: 720 },
+                frameRate: { ideal: 30, max: 60 }
+            }
+        };
+        
+        // Try with constraints first, fallback to basic if fails
+        try {
+            cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+        } catch (constraintError) {
+            console.log('⚠️ Constraint failed, trying basic video...');
+            cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+        }
+        
         elements.cameraVideo.srcObject = cameraStream;
         
         // Ensure playback starts (important on re-initialization)
@@ -398,11 +416,28 @@ async function startCamera() {
         
     } catch (e) {
         console.error('❌ Camera error:', e);
-        alert(messages.cameraPermissionDenied);
+        
+        // Better error messages for mobile
+        let errorMessage = messages.cameraPermissionDenied;
+        if (e.name === 'NotAllowedError') {
+            errorMessage = 'Vui lòng cho phép truy cập camera để sử dụng tính năng bói toán! 📷';
+        } else if (e.name === 'NotFoundError') {
+            errorMessage = 'Không tìm thấy camera. Vui lòng kiểm tra thiết bị! 📱';
+        } else if (e.name === 'NotReadableError') {
+            errorMessage = 'Camera đang được sử dụng bởi ứng dụng khác. Vui lòng thử lại! 🔄';
+        } else if (e.name === 'OverconstrainedError') {
+            errorMessage = 'Camera không hỗ trợ cài đặt này. Đang thử cài đặt khác... ⚙️';
+        }
+        
+        alert(errorMessage);
+        
         // Show start button again if failed
         if (elements.startCameraBtn) {
             elements.startCameraBtn.style.display = 'block';
         }
+        
+        // Update fortune teller speech
+        updateFortuneTellerSpeech("Camera gặp sự cố! Hãy thử lại nhé! 📷", 5000);
     }
 }
 
@@ -1070,9 +1105,30 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🔮 Mystical Fortune Teller initialized!');
     
+    // Check if mobile device
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+        // Add mobile-specific classes
+        document.body.classList.add('mobile-device');
+        
+        // Prevent zoom on double tap
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    }
+    
     // Fortune teller greets on startup
     setTimeout(() => {
-        updateFortuneTellerSpeech("Chào mừng! Tôi là thầy bói thần thánh! 🔮", 4000);
+        const greeting = isMobile ? 
+            "Chào mừng! Hãy cho phép camera để bắt đầu bói toán! 📱" :
+            "Chào mừng! Tôi là thầy bói thần thánh! 🔮";
+        updateFortuneTellerSpeech(greeting, 4000);
     }, 1500);
     
     // Auto start camera
