@@ -487,19 +487,40 @@ async function startCamera() {
         // If no camera works, show helpful message but don't crash
         if (!cameraSuccess) {
             console.log('⚠️ No camera available, showing fallback message');
-            elements.cameraStatus.innerHTML = `
-                <p style="color: #e74c3c; font-weight: bold;">⚠️ CAMERA KHÔNG KHẢ DỤNG</p>
-                <p style="font-size: 0.9rem; margin: 1rem 0; line-height: 1.6;">
-                    Camera đang được sử dụng bởi ứng dụng khác hoặc bị chặn.<br><br>
-                    <strong>Hãy thử:</strong><br>
-                    1️⃣ Đóng tất cả ứng dụng camera khác<br>
-                    2️⃣ Làm mới trang này<br>
-                    3️⃣ Kiểm tra quyền camera trong cài đặt trình duyệt
-                </p>
-                <button class="action-btn primary" onclick="window.location.reload()" style="margin-top: 1rem;">
-                    🔄 Làm mới trang
-                </button>
-            `;
+            
+            // Different message for mobile vs desktop
+            if (isMobile()) {
+                elements.cameraStatus.innerHTML = `
+                    <p style="color: #e74c3c; font-weight: bold;">⚠️ CAMERA KHÔNG KHẢ DỤNG</p>
+                    <p style="font-size: 0.9rem; margin: 1rem 0; line-height: 1.6;">
+                        Camera đang được sử dụng bởi ứng dụng khác hoặc bị chặn.<br><br>
+                        <strong>Bạn có thể:</strong><br>
+                        1️⃣ Thử chế độ upload ảnh bên dưới<br>
+                        2️⃣ Đóng tất cả ứng dụng camera khác<br>
+                        3️⃣ Làm mới trang này
+                    </p>
+                    <button class="action-btn primary" onclick="showMobileUploadInterface()" style="margin-top: 1rem;">
+                        📷 Chuyển sang chế độ upload
+                    </button>
+                    <button class="action-btn secondary" onclick="window.location.reload()" style="margin-top: 0.5rem;">
+                        🔄 Làm mới trang
+                    </button>
+                `;
+            } else {
+                elements.cameraStatus.innerHTML = `
+                    <p style="color: #e74c3c; font-weight: bold;">⚠️ CAMERA KHÔNG KHẢ DỤNG</p>
+                    <p style="font-size: 0.9rem; margin: 1rem 0; line-height: 1.6;">
+                        Camera đang được sử dụng bởi ứng dụng khác hoặc bị chặn.<br><br>
+                        <strong>Hãy thử:</strong><br>
+                        1️⃣ Đóng tất cả ứng dụng camera khác<br>
+                        2️⃣ Làm mới trang này<br>
+                        3️⃣ Kiểm tra quyền camera trong cài đặt trình duyệt
+                    </p>
+                    <button class="action-btn primary" onclick="window.location.reload()" style="margin-top: 1rem;">
+                        🔄 Làm mới trang
+                    </button>
+                `;
+            }
             return; // Exit gracefully without throwing
         }
         
@@ -517,7 +538,16 @@ async function startCamera() {
         
         // Wait a bit then show final message
         setTimeout(() => {
-            elements.cameraStatus.innerHTML = '<p>🔮 Đưa lòng bàn tay rõ ràng vào khung để tự động quét và bói</p>';
+            if (isMobile()) {
+                elements.cameraStatus.innerHTML = `
+                    <p>🔮 Đưa lòng bàn tay rõ ràng vào khung để tự động quét và bói</p>
+                    <button class="action-btn secondary" onclick="showMobileUploadInterface()" style="margin-top: 1rem; font-size: 0.9rem;">
+                        📷 Hoặc chụp ảnh thủ công
+                    </button>
+                `;
+            } else {
+                elements.cameraStatus.innerHTML = '<p>🔮 Đưa lòng bàn tay rõ ràng vào khung để tự động quét và bói</p>';
+            }
         }, 2000);
         
         console.log('📊 Camera starting with flags:', { isProcessing, handDetected, hasShownResult, autoMode });
@@ -1395,24 +1425,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Fortune teller greets on startup
     setTimeout(() => {
-        if (isMobile()) {
-            updateFortuneTellerSpeech("Chào bạn! Hãy chụp ảnh lòng bàn tay nhé! 📷✋", 3000);
-        } else {
-            updateFortuneTellerSpeech("Chào bạn! Đang khởi động camera... 🔮", 3000);
-        }
+        updateFortuneTellerSpeech("Chào bạn! Đang khởi động camera... 🔮", 3000);
     }, 500);
     
-    // Check if mobile and use different approach
-    if (isMobile()) {
-        console.log('📱 Mobile detected - using file upload approach');
-        showMobileUploadInterface();
-    } else {
-        console.log('💻 Desktop detected - using camera approach');
-        // Auto start camera with delay to avoid conflicts
-        setTimeout(() => {
-            startCamera();
-        }, 2000);
-    }
+    // Auto start camera with delay to avoid conflicts (both mobile and desktop)
+    setTimeout(() => {
+        startCamera();
+    }, 2000);
     
     // Add some mystical console art
     console.log(`
