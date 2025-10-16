@@ -856,6 +856,32 @@ body {
 }
 
 /* ================================
+   MOBILE UPLOAD INTERFACE
+   ================================ */
+.mobile-upload-container {
+    text-align: center;
+    padding: 2rem 1rem;
+}
+
+.upload-icon-large {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: float 3s ease-in-out infinite;
+}
+
+.action-btn.large {
+    width: 100%;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    margin: 0.5rem 0;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+/* ================================
    RESPONSIVE
    ================================ */
 @media (max-width: 768px) {

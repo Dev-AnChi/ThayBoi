@@ -632,6 +632,91 @@ function closeCamera() {
     updateFortuneTellerSpeech("Chụp hoặc tải ảnh lòng bàn tay lên nhé! 📷", 5000);
 }
 
+function showMobileUploadInterface() {
+    console.log('📱 Setting up mobile upload interface...');
+    
+    // Hide camera section
+    elements.cameraSection.classList.add('hidden');
+    
+    // Create mobile-friendly upload interface
+    const mobileUploadHTML = `
+        <div class="mobile-upload-container">
+            <div class="upload-icon-large">🖐️</div>
+            <h3 style="color: #9b59b6; margin: 1rem 0;">Chụp ảnh lòng bàn tay</h3>
+            <p style="margin-bottom: 2rem; line-height: 1.6;">
+                📱 Trên điện thoại, hãy chụp ảnh lòng bàn tay rõ ràng<br>
+                hoặc chọn từ thư viện ảnh
+            </p>
+            
+            <button class="action-btn primary large" id="mobileCameraBtn" style="margin-bottom: 1rem;">
+                📷 Chụp ảnh mới
+            </button>
+            
+            <button class="action-btn secondary large" id="mobileGalleryBtn">
+                🖼️ Chọn từ thư viện
+            </button>
+            
+            <div style="margin-top: 2rem; padding: 1rem; background: rgba(155, 89, 182, 0.1); border-radius: 10px;">
+                <p style="font-size: 0.9rem; color: #9b59b6; margin: 0;">
+                    💡 <strong>Mẹo:</strong> Chụp ảnh lòng bàn tay với ánh sáng tốt, 
+                    đặt tay phẳng và rõ ràng
+                </p>
+            </div>
+        </div>
+    `;
+    
+    // Replace camera status with mobile upload interface
+    elements.cameraStatus.innerHTML = mobileUploadHTML;
+    
+    // Add event listeners for mobile buttons
+    const mobileCameraBtn = document.getElementById('mobileCameraBtn');
+    const mobileGalleryBtn = document.getElementById('mobileGalleryBtn');
+    
+    if (mobileCameraBtn) {
+        mobileCameraBtn.addEventListener('click', () => {
+            // Create file input for camera
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.capture = 'environment'; // Use back camera
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    handleFileSelect(file);
+                    // Auto trigger fortune after file is ready
+                    setTimeout(() => {
+                        getFortune();
+                    }, 100);
+                }
+            };
+            input.click();
+        });
+    }
+    
+    if (mobileGalleryBtn) {
+        mobileGalleryBtn.addEventListener('click', () => {
+            // Create file input for gallery
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    handleFileSelect(file);
+                    // Auto trigger fortune after file is ready
+                    setTimeout(() => {
+                        getFortune();
+                    }, 100);
+                }
+            };
+            input.click();
+        });
+    }
+    
+    // Update fortune teller message
+    updateFortuneTellerSpeech("Chào bạn! Hãy chụp ảnh lòng bàn tay nhé! 📷✋", 5000);
+}
+
 async function switchCamera() {
     console.log('🔄 Switching camera...');
     
@@ -1306,13 +1391,24 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Fortune teller greets on startup
     setTimeout(() => {
-        updateFortuneTellerSpeech("Chào bạn! Đang khởi động camera... 🔮", 3000);
+        if (isMobile()) {
+            updateFortuneTellerSpeech("Chào bạn! Hãy chụp ảnh lòng bàn tay nhé! 📷✋", 3000);
+        } else {
+            updateFortuneTellerSpeech("Chào bạn! Đang khởi động camera... 🔮", 3000);
+        }
     }, 500);
     
-    // Auto start camera with delay to avoid conflicts
-    setTimeout(() => {
-        startCamera();
-    }, 2000); // Longer delay for mobile
+    // Check if mobile and use different approach
+    if (isMobile()) {
+        console.log('📱 Mobile detected - using file upload approach');
+        showMobileUploadInterface();
+    } else {
+        console.log('💻 Desktop detected - using camera approach');
+        // Auto start camera with delay to avoid conflicts
+        setTimeout(() => {
+            startCamera();
+        }, 2000);
+    }
     
     // Add some mystical console art
     console.log(`
