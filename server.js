@@ -84,6 +84,38 @@ function sanitizePlainText(text) {
   return t.trim();
 }
 
+async function generateFortuneFromImage(base64Image, mimeType) {
+  const prompt = fortunePrompt;
+  const modelCandidates = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-pro-vision'];
+  const maxRetries = 3;
+
+  let lastError = null;
+  for (const modelName of modelCandidates) {
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent([
+          prompt,
+          { inlineData: { mimeType, data: base64Image } }
+        ]);
+        return { ok: true, text: result.response.text(), model: modelName };
+      } catch (err) {
+        lastError = err;
+        // If overloaded (503) or rate limited (429), backoff then retry
+        const msg = String(err && err.message || '');
+        const isRetryable = /\b(503|429|overloaded|exhausted)\b/i.test(msg);
+        if (isRetryable && attempt < maxRetries - 1) {
+          const delay = 500 * Math.pow(2, attempt); // 500ms, 1000ms, 2000ms
+          await new Promise(r => setTimeout(r, delay));
+          continue;
+        }
+        break; // non-retryable or out of retries → try next model
+      }
+    }
+  }
+  return { ok: false, error: lastError };
+}
+
 // API endpoint for fortune telling (Vercel compatibility)
 app.post('/api/fortune-telling', upload.single('palmImage'), async (req, res) => {
   try {
@@ -91,27 +123,20 @@ app.post('/api/fortune-telling', upload.single('palmImage'), async (req, res) =>
       return res.status(400).json({ error: 'No image uploaded' });
     }
 
-    const prompt = fortunePrompt;
-
     // Read the uploaded image
     const imagePath = req.file.path;
     const imageData = fs.readFileSync(imagePath);
     const base64Image = imageData.toString('base64');
 
-    // Use Gemini Vision model
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    // Call Gemini with retries and fallbacks
+    const gen = await generateFortuneFromImage(base64Image, req.file.mimetype);
+    if (!gen.ok) {
+      const msg = String(gen.error && gen.error.message || 'Model error');
+      const overloaded = /\b(503|overloaded|exhausted)\b/i.test(msg);
+      throw Object.assign(new Error(msg), { statusCode: overloaded ? 503 : 500, overloaded });
+    }
 
-    const result = await model.generateContent([
-      prompt,
-      {
-        inlineData: {
-          mimeType: req.file.mimetype,
-          data: base64Image
-        }
-      }
-    ]);
-
-    const rawResponse = result.response.text();
+    const rawResponse = gen.text;
     
     // Try to parse JSON response
     let fortuneData;
@@ -148,11 +173,13 @@ app.post('/api/fortune-telling', upload.single('palmImage'), async (req, res) =>
       fs.unlinkSync(req.file.path);
     }
 
-    res.status(500).json({
+    const statusCode = error.statusCode || 500;
+    const payload = {
       success: false,
-      error: 'Failed to generate fortune',
-      message: error.message
-    });
+      error: statusCode === 503 ? 'MODEL_OVERLOADED' : 'Failed to generate fortune',
+      message: statusCode === 503 ? 'Dịch vụ AI đang quá tải. Vui lòng thử lại sau ít phút.' : error.message
+    };
+    res.status(statusCode).json(payload);
   }
 });
 
@@ -163,27 +190,19 @@ app.post('/api/fortune', upload.single('palmImage'), async (req, res) => {
       return res.status(400).json({ error: 'No image uploaded' });
     }
 
-    const prompt = fortunePrompt;
-
     // Read the uploaded image
     const imagePath = req.file.path;
     const imageData = fs.readFileSync(imagePath);
     const base64Image = imageData.toString('base64');
 
-    // Use Gemini Vision model
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const gen = await generateFortuneFromImage(base64Image, req.file.mimetype);
+    if (!gen.ok) {
+      const msg = String(gen.error && gen.error.message || 'Model error');
+      const overloaded = /\b(503|overloaded|exhausted)\b/i.test(msg);
+      throw Object.assign(new Error(msg), { statusCode: overloaded ? 503 : 500, overloaded });
+    }
 
-    const result = await model.generateContent([
-      prompt,
-      {
-        inlineData: {
-          mimeType: req.file.mimetype,
-          data: base64Image
-        }
-      }
-    ]);
-
-    const rawResponse = result.response.text();
+    const rawResponse = gen.text;
     
     // Try to parse JSON response
     let fortuneData;
@@ -220,11 +239,13 @@ app.post('/api/fortune', upload.single('palmImage'), async (req, res) => {
       fs.unlinkSync(req.file.path);
     }
 
-    res.status(500).json({
+    const statusCode = error.statusCode || 500;
+    const payload = {
       success: false,
-      error: 'Failed to generate fortune',
-      message: error.message
-    });
+      error: statusCode === 503 ? 'MODEL_OVERLOADED' : 'Failed to generate fortune',
+      message: statusCode === 503 ? 'Dịch vụ AI đang quá tải. Vui lòng thử lại sau ít phút.' : error.message
+    };
+    res.status(statusCode).json(payload);
   }
 });
 

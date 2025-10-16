@@ -151,6 +151,12 @@ async function getFortune() {
 
         console.log('📥 Received response, status:', response.status);
         const data = await response.json();
+        if (!response.ok) {
+            if (data && data.error === 'MODEL_OVERLOADED') {
+                throw new Error('MODEL_OVERLOADED');
+            }
+            throw new Error(data && data.message || 'API error');
+        }
         console.log('📊 Response data:', data);
 
         if (data.success) {
@@ -198,10 +204,14 @@ async function getFortune() {
         elements.loadingSection.classList.add('hidden');
         document.querySelector('.upload-section').classList.remove('hidden');
         
-        // Fortune teller apologizes
-        updateFortuneTellerSpeech("Có sự cố! Thử lại nhé! 😅", 5000);
-        
-        alert(messages.fortuneError);
+        if (String(error && error.message) === 'MODEL_OVERLOADED') {
+            updateFortuneTellerSpeech("AI đang đông khách quá! Đợi vài giây rồi thử lại nhé ✨", 6000);
+            alert('Dịch vụ AI đang quá tải. Vui lòng thử lại sau ít phút.');
+        } else {
+            // Fortune teller apologizes
+            updateFortuneTellerSpeech("Có sự cố! Thử lại nhé! 😅", 5000);
+            alert(messages.fortuneError);
+        }
     } finally {
         console.log('🏁 Fortune process completed, resetting isProcessing flag');
         if (!hasShownResult) {
