@@ -412,66 +412,90 @@ async function startCamera() {
             }
         };
         
-        // Try to get camera stream with simple constraints first
-        try {
-            cameraStream = await navigator.mediaDevices.getUserMedia(simpleConstraints);
-            console.log('✅ Camera started with simple constraints');
-        } catch (firstError) {
-            console.log('❌ Simple constraints failed:', firstError.name, firstError.message);
-            
-            // If NotReadableError on mobile, try to continue anyway (sometimes still works)
-            if (firstError.name === 'NotReadableError') {
-                console.log('⚠️ NotReadableError - trying to continue anyway...');
-                // Don't throw - try fallback cameras instead
+        // Try multiple camera strategies silently
+        let cameraSuccess = false;
+        
+        // Strategy 1: Simple back camera with retry and timeout
+        for (let retry = 0; retry < 3 && !cameraSuccess; retry++) {
+            try {
+                if (retry > 0) {
+                    console.log(`🔄 Retry ${retry} for back camera...`);
+                    await new Promise(resolve => setTimeout(resolve, 500 * retry)); // Progressive delay
+                }
+                
+                // Try with timeout to avoid hanging
+                const cameraPromise = navigator.mediaDevices.getUserMedia(simpleConstraints);
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Camera timeout')), 5000)
+                );
+                
+                cameraStream = await Promise.race([cameraPromise, timeoutPromise]);
+                console.log('✅ Camera started with simple constraints');
+                cameraSuccess = true;
+            } catch (e) {
+                console.log(`❌ Simple constraints failed (attempt ${retry + 1}):`, e.name, e.message);
             }
-            
-            // Try fallback: front camera
-            console.log('🔄 Trying front camera fallback...');
+        }
+        
+        // Strategy 2: Front camera if back failed
+        if (!cameraSuccess) {
             try {
                 cameraStream = await navigator.mediaDevices.getUserMedia({
                     audio: false,
                     video: { facingMode: 'user' }
                 });
                 console.log('✅ Front camera worked!');
-                elements.cameraStatus.innerHTML = '<p style="color: #f39c12;">📱 Đang dùng camera trước. Hãy xoay điện thoại hoặc làm mới để dùng camera sau.</p>';
-            } catch (secondError) {
-                console.log('❌ Front camera also failed:', secondError.name);
-                
-                // Last resort: try any camera
-                console.log('🔄 Trying any camera...');
-                try {
-                    cameraStream = await navigator.mediaDevices.getUserMedia({
-                        audio: false,
-                        video: true
-                    });
-                    console.log('✅ Got some camera!');
-                } catch (thirdError) {
-                    console.log('❌ All cameras failed');
-                    // Show error message
-                    elements.cameraStatus.innerHTML = `
-                        <p style="color: #e74c3c; font-weight: bold;">⚠️ KHÔNG THỂ TRUY CẬP CAMERA</p>
-                        <p style="font-size: 0.9rem; margin: 1rem 0; line-height: 1.6;">
-                            Camera đang được sử dụng bởi ứng dụng khác.<br><br>
-                            <strong>Hãy làm theo:</strong><br>
-                            1️⃣ Đóng TẤT CẢ ứng dụng (Zalo, Camera, Instagram, TikTok...)<br>
-                            2️⃣ Tắt đèn flash nếu đang bật<br>
-                            3️⃣ Đóng tất cả tab trình duyệt khác<br>
-                            4️⃣ Khởi động lại điện thoại nếu cần<br>
-                            5️⃣ Quay lại trang này và làm mới
-                        </p>
-                        <button class="action-btn primary" onclick="window.location.reload()" style="margin-top: 1rem;">
-                            🔄 Làm mới trang
-                        </button>
-                    `;
-                    throw thirdError;
-                }
+                cameraSuccess = true;
+            } catch (e) {
+                console.log('❌ Front camera failed:', e.name);
             }
         }
         
-        // Check if we got a camera stream
-        if (!cameraStream) {
-            console.log('❌ No camera stream available');
-            throw new Error('No camera available');
+        // Strategy 3: Any camera with minimal constraints
+        if (!cameraSuccess) {
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({
+                    audio: false,
+                    video: { width: 320, height: 240 }
+                });
+                console.log('✅ Minimal camera worked!');
+                cameraSuccess = true;
+            } catch (e) {
+                console.log('❌ Minimal camera failed:', e.name);
+            }
+        }
+        
+        // Strategy 4: Last resort - any video
+        if (!cameraSuccess) {
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({
+                    audio: false,
+                    video: true
+                });
+                console.log('✅ Any camera worked!');
+                cameraSuccess = true;
+            } catch (e) {
+                console.log('❌ All cameras failed:', e.name);
+            }
+        }
+        
+        // If no camera works, show helpful message but don't crash
+        if (!cameraSuccess) {
+            console.log('⚠️ No camera available, showing fallback message');
+            elements.cameraStatus.innerHTML = `
+                <p style="color: #e74c3c; font-weight: bold;">⚠️ CAMERA KHÔNG KHẢ DỤNG</p>
+                <p style="font-size: 0.9rem; margin: 1rem 0; line-height: 1.6;">
+                    Camera đang được sử dụng bởi ứng dụng khác hoặc bị chặn.<br><br>
+                    <strong>Hãy thử:</strong><br>
+                    1️⃣ Đóng tất cả ứng dụng camera khác<br>
+                    2️⃣ Làm mới trang này<br>
+                    3️⃣ Kiểm tra quyền camera trong cài đặt trình duyệt
+                </p>
+                <button class="action-btn primary" onclick="window.location.reload()" style="margin-top: 1rem;">
+                    🔄 Làm mới trang
+                </button>
+            `;
+            return; // Exit gracefully without throwing
         }
         
         elements.cameraVideo.srcObject = cameraStream;
@@ -1272,10 +1296,10 @@ document.addEventListener('DOMContentLoaded', () => {
         updateFortuneTellerSpeech("Chào bạn! Đang khởi động camera... 🔮", 3000);
     }, 500);
     
-    // Auto start camera
+    // Auto start camera with delay to avoid conflicts
     setTimeout(() => {
         startCamera();
-    }, 1000);
+    }, 2000); // Longer delay for mobile
     
     // Add some mystical console art
     console.log(`
