@@ -419,24 +419,10 @@ async function startCamera() {
         } catch (firstError) {
             console.log('❌ Simple constraints failed:', firstError.name, firstError.message);
             
-            // If NotReadableError on mobile, show helpful message
+            // If NotReadableError on mobile, try to continue anyway (sometimes still works)
             if (firstError.name === 'NotReadableError') {
-                elements.cameraStatus.innerHTML = `
-                    <p style="color: #e74c3c; font-weight: bold;">⚠️ CAMERA ĐANG BỊ KHÓA</p>
-                    <p style="font-size: 0.9rem; margin: 1rem 0; line-height: 1.6;">
-                        Camera đang được sử dụng bởi ứng dụng khác.<br><br>
-                        <strong>Hãy làm theo:</strong><br>
-                        1️⃣ Đóng TẤT CẢ ứng dụng (Zalo, Camera, Instagram, TikTok...)<br>
-                        2️⃣ Tắt đèn flash nếu đang bật<br>
-                        3️⃣ Đóng tất cả tab trình duyệt khác<br>
-                        4️⃣ Khởi động lại điện thoại nếu cần<br>
-                        5️⃣ Quay lại trang này và làm mới
-                    </p>
-                    <button class="action-btn primary" onclick="window.location.reload()" style="margin-top: 1rem;">
-                        🔄 Làm mới trang
-                    </button>
-                `;
-                throw firstError;
+                console.log('⚠️ NotReadableError - trying to continue anyway...');
+                // Don't throw - try fallback cameras instead
             }
             
             // Try fallback: front camera
@@ -447,11 +433,45 @@ async function startCamera() {
                     video: { facingMode: 'user' }
                 });
                 console.log('✅ Front camera worked!');
-                elements.cameraStatus.innerHTML = '<p style="color: #f39c12;">⚠️ Đang dùng camera trước. Hãy xoay điện thoại.</p>';
+                elements.cameraStatus.innerHTML = '<p style="color: #f39c12;">📱 Đang dùng camera trước. Hãy xoay điện thoại hoặc làm mới để dùng camera sau.</p>';
             } catch (secondError) {
                 console.log('❌ Front camera also failed:', secondError.name);
-                throw firstError; // Throw original error
+                
+                // Last resort: try any camera
+                console.log('🔄 Trying any camera...');
+                try {
+                    cameraStream = await navigator.mediaDevices.getUserMedia({
+                        audio: false,
+                        video: true
+                    });
+                    console.log('✅ Got some camera!');
+                } catch (thirdError) {
+                    console.log('❌ All cameras failed');
+                    // Show error message
+                    elements.cameraStatus.innerHTML = `
+                        <p style="color: #e74c3c; font-weight: bold;">⚠️ KHÔNG THỂ TRUY CẬP CAMERA</p>
+                        <p style="font-size: 0.9rem; margin: 1rem 0; line-height: 1.6;">
+                            Camera đang được sử dụng bởi ứng dụng khác.<br><br>
+                            <strong>Hãy làm theo:</strong><br>
+                            1️⃣ Đóng TẤT CẢ ứng dụng (Zalo, Camera, Instagram, TikTok...)<br>
+                            2️⃣ Tắt đèn flash nếu đang bật<br>
+                            3️⃣ Đóng tất cả tab trình duyệt khác<br>
+                            4️⃣ Khởi động lại điện thoại nếu cần<br>
+                            5️⃣ Quay lại trang này và làm mới
+                        </p>
+                        <button class="action-btn primary" onclick="window.location.reload()" style="margin-top: 1rem;">
+                            🔄 Làm mới trang
+                        </button>
+                    `;
+                    throw thirdError;
+                }
             }
+        }
+        
+        // Check if we got a camera stream
+        if (!cameraStream) {
+            console.log('❌ No camera stream available');
+            throw new Error('No camera available');
         }
         
         elements.cameraVideo.srcObject = cameraStream;
