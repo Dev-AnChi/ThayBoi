@@ -40,6 +40,8 @@ const elements = {
     cameraStatus: document.getElementById('cameraStatus'),
     startCameraBtn: document.getElementById('startCameraBtn'),
     switchCameraBtn: document.getElementById('switchCameraBtn'),
+    closeCameraBtn: document.getElementById('closeCameraBtn'),
+    uploadBtn: document.getElementById('uploadBtn'),
     fortuneTellerText: document.getElementById('fortuneTellerText')
 };
 
@@ -391,9 +393,14 @@ async function getPreferredBackCameraDeviceId() {
 async function startCamera() {
     console.log('🎥 Starting camera...');
     
+    // Hide upload area, show camera section
+    elements.uploadArea.classList.add('hidden');
+    elements.cameraSection.classList.remove('hidden');
+    
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         console.log('❌ Camera not supported');
         alert(messages.cameraNotSupported);
+        closeCamera();
         return;
     }
 
@@ -671,6 +678,17 @@ function stopCamera() {
     }
     
     console.log('✅ Camera stopped completely');
+}
+
+function closeCamera() {
+    console.log('❌ Closing camera...');
+    stopCamera();
+    
+    // Hide camera section, show upload area
+    elements.cameraSection.classList.add('hidden');
+    elements.uploadArea.classList.remove('hidden');
+    
+    updateFortuneTellerSpeech("Chụp hoặc tải ảnh lòng bàn tay lên nhé! 📷", 5000);
 }
 
 async function switchCamera() {
@@ -1328,6 +1346,28 @@ if (elements.switchCameraBtn) {
     console.log('❌ Switch camera button not found during initialization');
 }
 
+// Close camera button
+if (elements.closeCameraBtn) {
+    elements.closeCameraBtn.addEventListener('click', (e) => {
+        console.log('❌ Close camera button clicked!', e);
+        closeCamera();
+    });
+    console.log('✅ Close camera button event listener attached');
+} else {
+    console.log('❌ Close camera button not found during initialization');
+}
+
+// Upload button
+if (elements.uploadBtn) {
+    elements.uploadBtn.addEventListener('click', (e) => {
+        console.log('📷 Upload button clicked!', e);
+        elements.palmInput.click();
+    });
+    console.log('✅ Upload button event listener attached');
+} else {
+    console.log('❌ Upload button not found during initialization');
+}
+
 
 
 // ================================
@@ -1363,28 +1403,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check if mobile
     if (isMobile()) {
         console.log('📱 Mobile device detected');
-        // Add mobile-specific instructions
-        const mobileInstructions = document.createElement('div');
-        mobileInstructions.innerHTML = `
-            <div style="background: rgba(155, 89, 182, 0.1); border: 1px solid rgba(155, 89, 182, 0.3); border-radius: 10px; padding: 1rem; margin: 1rem 0; text-align: center;">
-                <p style="margin: 0; font-size: 0.9rem; color: #9b59b6;">
-                    📱 <strong>Hướng dẫn cho điện thoại:</strong><br>
-                    • Cho phép truy cập camera khi được yêu cầu<br>
-                    • Đảm bảo không có ứng dụng nào khác đang sử dụng camera<br>
-                    • Nếu camera không hoạt động, hãy chọn ảnh từ thư viện
-                </p>
-            </div>
-        `;
-        document.querySelector('.camera-section').insertBefore(mobileInstructions, document.querySelector('.camera-view'));
     }
     
     // Fortune teller greets on startup
     setTimeout(() => {
-        updateFortuneTellerSpeech("Chào mừng! Tôi là thầy bói thần thánh! 🔮", 4000);
+        updateFortuneTellerSpeech("Chào bạn! Hãy chụp hoặc tải ảnh lòng bàn tay lên nhé! 📷✋", 5000);
     }, 1500);
-    
-    // Auto start camera
-    startCamera();
     
     // Add some mystical console art
     console.log(`
