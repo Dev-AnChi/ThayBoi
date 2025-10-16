@@ -412,13 +412,27 @@ async function startCamera() {
             console.log('Permission API not supported, continuing...');
         }
         
-        // Ensure any prior tracks are fully stopped to avoid NotReadableError
-        if (cameraStream) {
-            try { stopCamera(); } catch (_) {}
+        // Force stop ALL media tracks to avoid NotReadableError
+        try {
+            // Stop current stream
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => {
+                    track.stop();
+                    console.log('🛑 Stopped track:', track.kind);
+                });
+                cameraStream = null;
+            }
+            
+            // Clear video element
+            if (elements.cameraVideo) {
+                elements.cameraVideo.srcObject = null;
+            }
+        } catch (e) {
+            console.log('Media cleanup error (ignored):', e);
         }
         
-        // Wait a bit for cleanup
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Wait longer for cleanup on mobile
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
         // Get available cameras first
         await getAvailableCameras();
@@ -427,6 +441,8 @@ async function startCamera() {
         let preferredDeviceId = await getPreferredBackCameraDeviceId();
         
         const attempts = [];
+        
+        // Try specific device first if available
         if (preferredDeviceId) {
             attempts.push({
                 audio: false,
@@ -438,6 +454,20 @@ async function startCamera() {
                 }
             });
         }
+        
+        // Try all available cameras individually
+        for (const camera of availableCameras) {
+            attempts.push({
+                audio: false,
+                video: {
+                    deviceId: { exact: camera.deviceId },
+                    width: { ideal: 640, max: 1280 },
+                    height: { ideal: 480, max: 720 },
+                    frameRate: { ideal: 30, max: 60 }
+                }
+            });
+        }
+        
         // Mobile-friendly camera constraints
         attempts.push({
             audio: false,
@@ -448,27 +478,57 @@ async function startCamera() {
                 frameRate: { ideal: 30, max: 60 }
             }
         });
+        
+        // Try front camera
+        attempts.push({
+            audio: false,
+            video: {
+                facingMode: { ideal: 'user' },
+                width: { ideal: 640, max: 1280 },
+                height: { ideal: 480, max: 720 },
+                frameRate: { ideal: 30, max: 60 }
+            }
+        });
+        
         // Basic fallback
-        attempts.push({ audio: false, video: { facingMode: 'environment', width: 640, height: 480 } });
-        // Last resort
+        attempts.push({ audio: false, video: { facingMode: 'environment' } });
+        attempts.push({ audio: false, video: { facingMode: 'user' } });
+        
+        // Minimal constraints
+        attempts.push({ audio: false, video: { width: 320, height: 240 } });
+        attempts.push({ audio: false, video: { width: 640, height: 480 } });
+        
+        // Last resort - any camera
         attempts.push({ audio: false, video: true });
 
         let lastError = null;
+        let attemptCount = 0;
+        
         for (const attempt of attempts) {
+            attemptCount++;
+            console.log(`📷 Camera attempt ${attemptCount}/${attempts.length}:`, attempt);
+            
             try {
                 cameraStream = await navigator.mediaDevices.getUserMedia(attempt);
+                console.log(`✅ Camera started successfully on attempt ${attemptCount}`);
                 break;
             } catch (e) {
                 lastError = e;
-                console.log('getUserMedia attempt failed:', e?.name || e);
-                // If NotReadableError, try a short delay and retry next attempt
+                console.log(`❌ Attempt ${attemptCount} failed:`, e?.name || e, e?.message);
+                
+                // If NotReadableError, try a longer delay and retry next attempt
                 if (e && e.name === 'NotReadableError') {
+                    console.log('🔄 NotReadableError detected, waiting longer...');
                     try { stopCamera(); } catch (_) {}
-                    await new Promise(r => setTimeout(r, 300));
+                    await new Promise(r => setTimeout(r, 1000));
                 }
             }
         }
-        if (!cameraStream) throw lastError || new Error('Unable to start camera');
+        
+        if (!cameraStream) {
+            console.log('❌ All camera attempts failed. Last error:', lastError);
+            throw lastError || new Error('Unable to start camera after all attempts');
+        }
         
         elements.cameraVideo.srcObject = cameraStream;
         // Help autoplay on mobile
@@ -520,7 +580,7 @@ async function startCamera() {
         let showRetryButton = false;
         
         if (e.name === 'NotReadableError') {
-            errorMessage = 'Camera đang được sử dụng bởi ứng dụng khác hoặc bị lỗi. Hãy thử các bước sau:\n\n1. Đóng tất cả ứng dụng camera khác\n2. Khởi động lại trình duyệt\n3. Thử lại';
+            errorMessage = '⚠️ LỖI CAMERA TRÊN MOBILE ⚠️\n\nCamera đang được sử dụng bởi ứng dụng khác. Hãy làm theo thứ tự:\n\n1. Đóng TẤT CẢ ứng dụng camera (Zalo, camera app, video call, Instagram, TikTok...)\n2. Đóng TẤT CẢ tab trình duyệt khác\n3. Khởi động lại trình duyệt hoàn toàn\n4. Mở lại trang này\n5. Nếu vẫn lỗi → dùng "Chọn ảnh từ thư viện"';
             showRetryButton = true;
         } else if (e.name === 'NotAllowedError') {
             errorMessage = 'Vui lòng cho phép truy cập camera:\n\n1. Nhấn vào biểu tượng camera trên thanh địa chỉ\n2. Chọn "Cho phép"\n3. Làm mới trang và thử lại';
@@ -540,6 +600,9 @@ async function startCamera() {
                 <p>❌ Không thể truy cập camera</p>
                 <button class="action-btn primary" onclick="startCamera()" style="margin-top: 1rem;">
                     🔄 Thử lại camera
+                </button>
+                <button class="action-btn secondary" onclick="window.location.reload()" style="margin-top: 0.5rem;">
+                    🔃 Làm mới trang
                 </button>
                 <button class="action-btn secondary" onclick="document.getElementById('palmInput').click()" style="margin-top: 0.5rem;">
                     📷 Chọn ảnh từ thư viện
@@ -1363,4 +1426,5 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
 

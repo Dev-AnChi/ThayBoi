@@ -7,11 +7,11 @@ YÊU CẦU ĐẦU RA (QUAN TRỌNG):
 - Trả lời theo định dạng JSON với các trường sau:
 {
   "intro": "Lời mở đầu ngắn gọn, không tự giới thiệu",
-  "palmLines": "Phân tích đường chỉ tay (tim, trí tuệ, đời) - khoảng 20-30 từ",
-  "love": "Dự đoán tình duyên hơi troll - khoảng 20-30 từ", 
-  "career": "Dự đoán sự nghiệp và tài lộc - khoảng 20-30 từ",
-  "health": "Sức khỏe và may mắn - khoảng 20-30 từ",
-  "advice": "Lời khuyên vui nhộn cuối cùng - khoảng 20-30 từ"
+  "palmLines": "Phân tích đường chỉ tay (tim, trí tuệ, đời) - khoảng 30-40 từ",
+  "love": "Dự đoán tình duyên hơi troll - khoảng 30-40 từ", 
+  "career": "Dự đoán sự nghiệp và tài lộc - khoảng 30-40 từ",
+  "health": "Sức khỏe và may mắn - khoảng 30-40 từ",
+  "advice": "Lời khuyên vui nhộn cuối cùng - khoảng 30-40 từ"
 }
 
 Phong cách: Vui vẻ, hài hước, có chút troll nhưng không quá đà. Sử dụng emoji phù hợp.
