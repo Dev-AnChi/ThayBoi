@@ -23,17 +23,13 @@ Lấy API key từ: https://makersuite.google.com/app/apikey
 
 ### 3. Cấu trúc API
 
-- `GET /api/health` - Kiểm tra trạng thái server
-- `POST /api/fortune` - Bói toán từ hình ảnh bàn tay
+- `POST /api/fortune-telling` - Bói toán từ hình ảnh bàn tay
 
 ### 4. Test API
 
 ```bash
-# Test health endpoint
-curl https://your-app.vercel.app/api/health
-
 # Test fortune endpoint
-curl -X POST https://your-app.vercel.app/api/fortune \
+curl -X POST https://your-app.vercel.app/api/fortune-telling \
   -F "palmImage=@hand.jpg"
 ```
 

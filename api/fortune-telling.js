@@ -48,7 +48,6 @@ export default async function handler(req, res) {
   try {
     // Check if API key is available
     if (!process.env.GEMINI_API_KEY) {
-      console.error('❌ GEMINI_API_KEY not found in environment variables');
       return res.status(500).json({ 
         success: false, 
         error: 'Server configuration error',
@@ -63,7 +62,6 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Content-Type must be multipart/form-data' });
     }
 
-    console.log('📸 Form data received, processing...');
     
     // Parse the request body manually
     const boundary = contentType.split('boundary=')[1];
@@ -107,7 +105,6 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'No image found in request' });
     }
 
-    console.log('📸 Image received, type:', imageType, 'size:', imageData.length);
 
     // Convert to base64
     const base64Image = Buffer.from(imageData, 'binary').toString('base64');
@@ -128,7 +125,6 @@ export default async function handler(req, res) {
     ]);
 
     const rawResponse = result.response.text();
-    console.log('🤖 Raw AI response:', rawResponse.substring(0, 200) + '...');
     
     // Try to parse JSON response
     let fortuneData;
@@ -137,7 +133,6 @@ export default async function handler(req, res) {
       fortuneData = JSON.parse(cleanedResponse);
     } catch (parseError) {
       // If JSON parsing fails, fallback to plain text
-      console.log('JSON parse failed, using plain text fallback');
       fortuneData = {
         intro: "Chào bạn! 🔮",
         palmLines: sanitizePlainText(rawResponse),
@@ -148,7 +143,6 @@ export default async function handler(req, res) {
       };
     }
 
-    console.log('✅ Fortune generated successfully');
 
     res.json({
       success: true,
@@ -156,8 +150,6 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('❌ Fortune telling error:', error);
-    
     res.status(500).json({
       success: false,
       error: 'Failed to generate fortune',
