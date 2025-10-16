@@ -12,6 +12,8 @@ let hasShownResult = false; // prevent retrigger after result
 let mpCamera = null; // MediaPipe camera instance
 let handTimerId = null; // stability timer
 let mediaPipeFailed = false; // Track if MediaPipe has failed
+let currentCameraIndex = 0;
+let availableCameras = [];
 
 // ================================
 // DOM ELEMENTS
@@ -37,6 +39,7 @@ const elements = {
     autoCaptureIndicator: document.getElementById('autoCaptureIndicator'),
     cameraStatus: document.getElementById('cameraStatus'),
     startCameraBtn: document.getElementById('startCameraBtn'),
+    switchCameraBtn: document.getElementById('switchCameraBtn'),
     fortuneTellerText: document.getElementById('fortuneTellerText')
 };
 
@@ -360,6 +363,19 @@ function createSparkles() {
 // ================================
 // CAMERA HANDLING
 // ================================
+async function getAvailableCameras() {
+    try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoInputs = devices.filter(d => d.kind === 'videoinput');
+        availableCameras = videoInputs;
+        console.log('📷 Available cameras:', videoInputs.map(d => ({ id: d.deviceId, label: d.label })));
+        return videoInputs;
+    } catch (e) {
+        console.log('Failed to enumerate devices:', e);
+        return [];
+    }
+}
+
 async function getPreferredBackCameraDeviceId() {
     try {
         const devices = await navigator.mediaDevices.enumerateDevices();
@@ -383,10 +399,29 @@ async function startCamera() {
 
     try {
         console.log('📹 Requesting camera access...');
+        
+        // Check if we have permission first
+        try {
+            const permissionStatus = await navigator.permissions.query({ name: 'camera' });
+            console.log('📋 Camera permission status:', permissionStatus.state);
+            if (permissionStatus.state === 'denied') {
+                alert('Vui lòng cho phép truy cập camera trong cài đặt trình duyệt và thử lại.');
+                return;
+            }
+        } catch (e) {
+            console.log('Permission API not supported, continuing...');
+        }
+        
         // Ensure any prior tracks are fully stopped to avoid NotReadableError
         if (cameraStream) {
             try { stopCamera(); } catch (_) {}
         }
+        
+        // Wait a bit for cleanup
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Get available cameras first
+        await getAvailableCameras();
         
         // Try to pick a concrete back camera device when possible
         let preferredDeviceId = await getPreferredBackCameraDeviceId();
@@ -452,6 +487,12 @@ async function startCamera() {
         if (elements.startCameraBtn) {
             elements.startCameraBtn.style.display = 'none';
         }
+        
+        // Show switch camera button if multiple cameras available
+        if (availableCameras.length > 1 && elements.switchCameraBtn) {
+            elements.switchCameraBtn.style.display = 'block';
+        }
+        
         elements.cameraStatus.innerHTML = '<p>🔮 Đưa lòng bàn tay rõ ràng vào khung để tự động quét và bói</p>';
         
         console.log('📊 Camera starting with flags:', { isProcessing, handDetected, hasShownResult, autoMode });
@@ -476,17 +517,35 @@ async function startCamera() {
         
         // Better error messages for mobile
         let errorMessage = messages.cameraPermissionDenied;
+        let showRetryButton = false;
+        
         if (e.name === 'NotReadableError') {
-            errorMessage = 'Camera đang được sử dụng bởi ứng dụng khác. Hãy đóng các ứng dụng khác và thử lại.';
+            errorMessage = 'Camera đang được sử dụng bởi ứng dụng khác hoặc bị lỗi. Hãy thử các bước sau:\n\n1. Đóng tất cả ứng dụng camera khác\n2. Khởi động lại trình duyệt\n3. Thử lại';
+            showRetryButton = true;
         } else if (e.name === 'NotAllowedError') {
-            errorMessage = 'Vui lòng cho phép truy cập camera trong cài đặt trình duyệt.';
+            errorMessage = 'Vui lòng cho phép truy cập camera:\n\n1. Nhấn vào biểu tượng camera trên thanh địa chỉ\n2. Chọn "Cho phép"\n3. Làm mới trang và thử lại';
+            showRetryButton = true;
         } else if (e.name === 'NotFoundError') {
             errorMessage = 'Không tìm thấy camera. Vui lòng kiểm tra thiết bị.';
         } else if (e.name === 'OverconstrainedError') {
             errorMessage = 'Camera không hỗ trợ cài đặt hiện tại.';
+            showRetryButton = true;
         }
         
         alert(errorMessage);
+        
+        if (showRetryButton) {
+            // Show retry button after error
+            elements.cameraStatus.innerHTML = `
+                <p>❌ Không thể truy cập camera</p>
+                <button class="action-btn primary" onclick="startCamera()" style="margin-top: 1rem;">
+                    🔄 Thử lại camera
+                </button>
+                <button class="action-btn secondary" onclick="document.getElementById('palmInput').click()" style="margin-top: 0.5rem;">
+                    📷 Chọn ảnh từ thư viện
+                </button>
+            `;
+        }
         
         // Show start button again if failed
         if (elements.startCameraBtn) {
@@ -549,6 +608,57 @@ function stopCamera() {
     }
     
     console.log('✅ Camera stopped completely');
+}
+
+async function switchCamera() {
+    console.log('🔄 Switching camera...');
+    
+    if (availableCameras.length <= 1) {
+        alert('Chỉ có 1 camera khả dụng');
+        return;
+    }
+    
+    // Cycle through cameras
+    currentCameraIndex = (currentCameraIndex + 1) % availableCameras.length;
+    const selectedCamera = availableCameras[currentCameraIndex];
+    
+    console.log(`📷 Switching to camera ${currentCameraIndex}:`, selectedCamera.label);
+    
+    // Stop current camera
+    stopCamera();
+    
+    // Wait a bit
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Start with selected camera
+    try {
+        const constraints = {
+            audio: false,
+            video: {
+                deviceId: { exact: selectedCamera.deviceId },
+                width: { ideal: 640, max: 1280 },
+                height: { ideal: 480, max: 720 },
+                frameRate: { ideal: 30, max: 60 }
+            }
+        };
+        
+        cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+        elements.cameraVideo.srcObject = cameraStream;
+        
+        // Help autoplay on mobile
+        try { elements.cameraVideo.setAttribute('muted', ''); elements.cameraVideo.muted = true; } catch(_) {}
+        
+        await elements.cameraVideo.play();
+        
+        console.log('✅ Camera switched successfully');
+        updateFortuneTellerSpeech(`Đã chuyển sang camera ${currentCameraIndex + 1}! ✨`, 3000);
+        
+    } catch (e) {
+        console.error('❌ Camera switch failed:', e);
+        alert('Không thể chuyển camera. Thử lại nhé!');
+        // Fallback to normal start
+        startCamera();
+    }
 }
 
 function captureFrameToFile() {
@@ -1142,6 +1252,17 @@ if (elements.startCameraBtn) {
     console.log('✅ Camera button event listener attached');
 } else {
     console.log('❌ Camera button not found during initialization');
+}
+
+// Switch camera button
+if (elements.switchCameraBtn) {
+    elements.switchCameraBtn.addEventListener('click', (e) => {
+        console.log('🔄 Switch camera button clicked!', e);
+        switchCamera();
+    });
+    console.log('✅ Switch camera button event listener attached');
+} else {
+    console.log('❌ Switch camera button not found during initialization');
 }
 
 
