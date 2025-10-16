@@ -38,10 +38,6 @@ const elements = {
     handDetectionBox: document.getElementById('handDetectionBox'),
     autoCaptureIndicator: document.getElementById('autoCaptureIndicator'),
     cameraStatus: document.getElementById('cameraStatus'),
-    startCameraBtn: document.getElementById('startCameraBtn'),
-    switchCameraBtn: document.getElementById('switchCameraBtn'),
-    closeCameraBtn: document.getElementById('closeCameraBtn'),
-    uploadBtn: document.getElementById('uploadBtn'),
     fortuneTellerText: document.getElementById('fortuneTellerText')
 };
 
@@ -393,148 +389,69 @@ async function getPreferredBackCameraDeviceId() {
 async function startCamera() {
     console.log('🎥 Starting camera...');
     
-    // Hide upload area, show camera section
-    elements.uploadArea.classList.add('hidden');
-    elements.cameraSection.classList.remove('hidden');
-    
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         console.log('❌ Camera not supported');
-        alert(messages.cameraNotSupported);
-        closeCamera();
+        elements.cameraStatus.innerHTML = `
+            <p style="color: #e74c3c;">❌ Trình duyệt không hỗ trợ camera</p>
+            <p style="font-size: 0.9rem; margin-top: 0.5rem;">Vui lòng sử dụng trình duyệt hiện đại hơn (Chrome, Safari, Firefox)</p>
+        `;
         return;
     }
 
     try {
         console.log('📹 Requesting camera access...');
+        elements.cameraStatus.innerHTML = '<p>🔮 Đang yêu cầu quyền truy cập camera...</p>';
         
-        // Check if we have permission first
-        try {
-            const permissionStatus = await navigator.permissions.query({ name: 'camera' });
-            console.log('📋 Camera permission status:', permissionStatus.state);
-            if (permissionStatus.state === 'denied') {
-                alert('Vui lòng cho phép truy cập camera trong cài đặt trình duyệt và thử lại.');
-                return;
-            }
-        } catch (e) {
-            console.log('Permission API not supported, continuing...');
-        }
-        
-        // Force stop ALL media tracks to avoid NotReadableError
-        try {
-            // Stop current stream
-            if (cameraStream) {
-                cameraStream.getTracks().forEach(track => {
-                    track.stop();
-                    console.log('🛑 Stopped track:', track.kind);
-                });
-                cameraStream = null;
-            }
-            
-            // Clear video element
-            if (elements.cameraVideo) {
-                elements.cameraVideo.srcObject = null;
-            }
-        } catch (e) {
-            console.log('Media cleanup error (ignored):', e);
-        }
-        
-        // Wait longer for cleanup on mobile
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Get available cameras first
-        await getAvailableCameras();
-        
-        // Try to pick a concrete back camera device when possible
-        let preferredDeviceId = await getPreferredBackCameraDeviceId();
-        
-        const attempts = [];
-        
-        // Try specific device first if available
-        if (preferredDeviceId) {
-            attempts.push({
-                audio: false,
-                video: {
-                    deviceId: { exact: preferredDeviceId },
-                    width: { ideal: 640, max: 1280 },
-                    height: { ideal: 480, max: 720 },
-                    frameRate: { ideal: 30, max: 60 }
-                }
-            });
-        }
-        
-        // Try all available cameras individually
-        for (const camera of availableCameras) {
-            attempts.push({
-                audio: false,
-                video: {
-                    deviceId: { exact: camera.deviceId },
-                    width: { ideal: 640, max: 1280 },
-                    height: { ideal: 480, max: 720 },
-                    frameRate: { ideal: 30, max: 60 }
-                }
-            });
-        }
-        
-        // Mobile-friendly camera constraints
-        attempts.push({
+        // Simple, mobile-friendly constraints - start minimal
+        const simpleConstraints = {
             audio: false,
             video: {
-                facingMode: { ideal: 'environment' },
-                width: { ideal: 640, max: 1280 },
-                height: { ideal: 480, max: 720 },
-                frameRate: { ideal: 30, max: 60 }
+                facingMode: 'environment',  // Back camera on mobile
+                width: { ideal: 640 },
+                height: { ideal: 480 }
             }
-        });
+        };
         
-        // Try front camera
-        attempts.push({
-            audio: false,
-            video: {
-                facingMode: { ideal: 'user' },
-                width: { ideal: 640, max: 1280 },
-                height: { ideal: 480, max: 720 },
-                frameRate: { ideal: 30, max: 60 }
-            }
-        });
-        
-        // Basic fallback
-        attempts.push({ audio: false, video: { facingMode: 'environment' } });
-        attempts.push({ audio: false, video: { facingMode: 'user' } });
-        
-        // Minimal constraints
-        attempts.push({ audio: false, video: { width: 320, height: 240 } });
-        attempts.push({ audio: false, video: { width: 640, height: 480 } });
-        
-        // Last resort - any camera
-        attempts.push({ audio: false, video: true });
-
-        let lastError = null;
-        let attemptCount = 0;
-        
-        for (const attempt of attempts) {
-            attemptCount++;
-            console.log(`📷 Camera attempt ${attemptCount}/${attempts.length}:`, attempt);
+        // Try to get camera stream with simple constraints first
+        try {
+            cameraStream = await navigator.mediaDevices.getUserMedia(simpleConstraints);
+            console.log('✅ Camera started with simple constraints');
+        } catch (firstError) {
+            console.log('❌ Simple constraints failed:', firstError.name, firstError.message);
             
+            // If NotReadableError on mobile, show helpful message
+            if (firstError.name === 'NotReadableError') {
+                elements.cameraStatus.innerHTML = `
+                    <p style="color: #e74c3c; font-weight: bold;">⚠️ CAMERA ĐANG BỊ KHÓA</p>
+                    <p style="font-size: 0.9rem; margin: 1rem 0; line-height: 1.6;">
+                        Camera đang được sử dụng bởi ứng dụng khác.<br><br>
+                        <strong>Hãy làm theo:</strong><br>
+                        1️⃣ Đóng TẤT CẢ ứng dụng (Zalo, Camera, Instagram, TikTok...)<br>
+                        2️⃣ Tắt đèn flash nếu đang bật<br>
+                        3️⃣ Đóng tất cả tab trình duyệt khác<br>
+                        4️⃣ Khởi động lại điện thoại nếu cần<br>
+                        5️⃣ Quay lại trang này và làm mới
+                    </p>
+                    <button class="action-btn primary" onclick="window.location.reload()" style="margin-top: 1rem;">
+                        🔄 Làm mới trang
+                    </button>
+                `;
+                throw firstError;
+            }
+            
+            // Try fallback: front camera
+            console.log('🔄 Trying front camera fallback...');
             try {
-                cameraStream = await navigator.mediaDevices.getUserMedia(attempt);
-                console.log(`✅ Camera started successfully on attempt ${attemptCount}`);
-                break;
-            } catch (e) {
-                lastError = e;
-                console.log(`❌ Attempt ${attemptCount} failed:`, e?.name || e, e?.message);
-                
-                // If NotReadableError, try a longer delay and retry next attempt
-                if (e && e.name === 'NotReadableError') {
-                    console.log('🔄 NotReadableError detected, waiting longer...');
-                    try { stopCamera(); } catch (_) {}
-                    await new Promise(r => setTimeout(r, 1000));
-                }
+                cameraStream = await navigator.mediaDevices.getUserMedia({
+                    audio: false,
+                    video: { facingMode: 'user' }
+                });
+                console.log('✅ Front camera worked!');
+                elements.cameraStatus.innerHTML = '<p style="color: #f39c12;">⚠️ Đang dùng camera trước. Hãy xoay điện thoại.</p>';
+            } catch (secondError) {
+                console.log('❌ Front camera also failed:', secondError.name);
+                throw firstError; // Throw original error
             }
-        }
-        
-        if (!cameraStream) {
-            console.log('❌ All camera attempts failed. Last error:', lastError);
-            throw lastError || new Error('Unable to start camera after all attempts');
         }
         
         elements.cameraVideo.srcObject = cameraStream;
@@ -549,16 +466,6 @@ async function startCamera() {
         }
         
         console.log('✅ Camera started successfully');
-        
-        // Hide start button and show status
-        if (elements.startCameraBtn) {
-            elements.startCameraBtn.style.display = 'none';
-        }
-        
-        // Show switch camera button if multiple cameras available
-        if (availableCameras.length > 1 && elements.switchCameraBtn) {
-            elements.switchCameraBtn.style.display = 'block';
-        }
         
         elements.cameraStatus.innerHTML = '<p>🔮 Đưa lòng bàn tay rõ ràng vào khung để tự động quét và bói</p>';
         
@@ -582,54 +489,31 @@ async function startCamera() {
     } catch (e) {
         console.error('❌ Camera error:', e);
         
-        // Better error messages for mobile
-        let errorMessage = messages.cameraPermissionDenied;
-        let showRetryButton = false;
-        
-        if (e.name === 'NotReadableError') {
-            errorMessage = '⚠️ LỖI CAMERA TRÊN MOBILE ⚠️\n\nCamera đang được sử dụng bởi ứng dụng khác. Hãy làm theo thứ tự:\n\n1. Đóng TẤT CẢ ứng dụng camera (Zalo, camera app, video call, Instagram, TikTok...)\n2. Đóng TẤT CẢ tab trình duyệt khác\n3. Khởi động lại trình duyệt hoàn toàn\n4. Mở lại trang này\n5. Nếu vẫn lỗi → dùng "Chọn ảnh từ thư viện"';
-            showRetryButton = true;
-        } else if (e.name === 'NotAllowedError') {
-            errorMessage = 'Vui lòng cho phép truy cập camera:\n\n1. Nhấn vào biểu tượng camera trên thanh địa chỉ\n2. Chọn "Cho phép"\n3. Làm mới trang và thử lại';
-            showRetryButton = true;
-        } else if (e.name === 'NotFoundError') {
-            errorMessage = 'Không tìm thấy camera. Vui lòng kiểm tra thiết bị.';
-        } else if (e.name === 'OverconstrainedError') {
-            errorMessage = 'Camera không hỗ trợ cài đặt hiện tại.';
-            showRetryButton = true;
-        }
-        
-        alert(errorMessage);
-        
-        if (showRetryButton) {
-            // Show retry button after error
+        // Error messages for different error types
+        if (e.name === 'NotAllowedError') {
             elements.cameraStatus.innerHTML = `
-                <p>❌ Không thể truy cập camera</p>
-                <button class="action-btn primary" onclick="startCamera()" style="margin-top: 1rem;">
-                    🔄 Thử lại camera
+                <p style="color: #e74c3c; font-weight: bold;">❌ QUYỀN CAMERA BỊ TỪ CHỐI</p>
+                <p style="font-size: 0.9rem; margin: 1rem 0; line-height: 1.6;">
+                    Bạn cần cho phép truy cập camera để sử dụng tính năng này.<br><br>
+                    <strong>Hãy làm theo:</strong><br>
+                    1️⃣ Nhấn vào biểu tượng camera trên thanh địa chỉ<br>
+                    2️⃣ Chọn "Cho phép" camera<br>
+                    3️⃣ Làm mới trang
+                </p>
+                <button class="action-btn primary" onclick="window.location.reload()" style="margin-top: 1rem;">
+                    🔄 Làm mới trang
                 </button>
-                <button class="action-btn secondary" onclick="window.location.reload()" style="margin-top: 0.5rem;">
-                    🔃 Làm mới trang
-                </button>
-                <button class="action-btn secondary" onclick="document.getElementById('palmInput').click()" style="margin-top: 0.5rem;">
-                    📷 Chọn ảnh từ thư viện
+            `;
+        } else if (e.name !== 'NotReadableError') {
+            // Other errors (NotFoundError, OverconstrainedError, etc.)
+            elements.cameraStatus.innerHTML = `
+                <p style="color: #e74c3c;">❌ Lỗi camera: ${e.message || e.name}</p>
+                <button class="action-btn primary" onclick="window.location.reload()" style="margin-top: 1rem;">
+                    🔄 Thử lại
                 </button>
             `;
         }
-        
-        // Show start button again if failed
-        if (elements.startCameraBtn) {
-            elements.startCameraBtn.style.display = 'block';
-        }
-        
-        // Show fallback upload option
-        elements.cameraStatus.innerHTML = `
-            <p>❌ Không thể truy cập camera</p>
-            <p>Vui lòng sử dụng tùy chọn tải ảnh lên bên dưới</p>
-            <button class="action-btn secondary" onclick="document.getElementById('palmInput').click()" style="margin-top: 1rem;">
-                📷 Chọn ảnh từ thư viện
-            </button>
-        `;
+        // NotReadableError already handled above with detailed instructions
     }
 }
 
@@ -1324,49 +1208,7 @@ elements.newReadingBtn.addEventListener('click', () => {
 // Share button
 elements.shareBtn.addEventListener('click', shareFortune);
 
-// Start camera button
-if (elements.startCameraBtn) {
-    elements.startCameraBtn.addEventListener('click', (e) => {
-        console.log('🎥 Camera button clicked!', e);
-        startCamera();
-    });
-    console.log('✅ Camera button event listener attached');
-} else {
-    console.log('❌ Camera button not found during initialization');
-}
-
-// Switch camera button
-if (elements.switchCameraBtn) {
-    elements.switchCameraBtn.addEventListener('click', (e) => {
-        console.log('🔄 Switch camera button clicked!', e);
-        switchCamera();
-    });
-    console.log('✅ Switch camera button event listener attached');
-} else {
-    console.log('❌ Switch camera button not found during initialization');
-}
-
-// Close camera button
-if (elements.closeCameraBtn) {
-    elements.closeCameraBtn.addEventListener('click', (e) => {
-        console.log('❌ Close camera button clicked!', e);
-        closeCamera();
-    });
-    console.log('✅ Close camera button event listener attached');
-} else {
-    console.log('❌ Close camera button not found during initialization');
-}
-
-// Upload button
-if (elements.uploadBtn) {
-    elements.uploadBtn.addEventListener('click', (e) => {
-        console.log('📷 Upload button clicked!', e);
-        elements.palmInput.click();
-    });
-    console.log('✅ Upload button event listener attached');
-} else {
-    console.log('❌ Upload button not found during initialization');
-}
+// No manual camera button - auto start only
 
 
 
@@ -1407,8 +1249,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Fortune teller greets on startup
     setTimeout(() => {
-        updateFortuneTellerSpeech("Chào bạn! Hãy chụp hoặc tải ảnh lòng bàn tay lên nhé! 📷✋", 5000);
-    }, 1500);
+        updateFortuneTellerSpeech("Chào bạn! Đang khởi động camera... 🔮", 3000);
+    }, 500);
+    
+    // Auto start camera
+    setTimeout(() => {
+        startCamera();
+    }, 1000);
     
     // Add some mystical console art
     console.log(`

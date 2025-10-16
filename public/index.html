@@ -36,30 +36,10 @@
         <div class="upload-section">
             <div class="upload-card">
                 
-                <!-- File Upload Section -->
-                <div class="upload-area" id="uploadArea">
-                    <input type="file" id="palmInput" accept="image/*" capture="environment" class="hidden">
-                    <div class="upload-placeholder" id="uploadPlaceholder">
-                        <div class="upload-icon">🖐️</div>
-                        <p class="upload-text">Chụp hoặc tải ảnh lòng bàn tay lên</p>
-                        <button class="action-btn primary" id="uploadBtn">
-                            📷 Chọn ảnh bàn tay
-                        </button>
-                        <p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.7;">hoặc</p>
-                        <button class="action-btn secondary" id="startCameraBtn" style="margin-top: 0.5rem;">
-                            🎥 Bật camera (thử nghiệm)
-                        </button>
-                    </div>
-                    <div class="image-preview hidden" id="imagePreview">
-                        <img id="previewImg" src="" alt="Palm preview">
-                        <button class="remove-btn" id="removeBtn">✕</button>
-                    </div>
-                </div>
-                
-                <!-- Camera section (hidden by default) -->
-                <div class="camera-section hidden" id="cameraSection">
+                <!-- Auto Camera section -->
+                <div class="camera-section" id="cameraSection">
                     <div class="camera-view">
-                        <video id="cameraVideo" autoplay playsinline></video>
+                        <video id="cameraVideo" autoplay playsinline muted></video>
                         <div class="camera-overlay">
                             <div class="hand-detection-box" id="handDetectionBox"></div>
                             <div class="auto-capture-indicator" id="autoCaptureIndicator">
@@ -70,9 +50,7 @@
                         </div>
                     </div>
                     <div class="camera-status" id="cameraStatus">
-                        <p>🔮 Đưa lòng bàn tay rõ ràng vào khung để tự động quét và bói</p>
-                        <button class="action-btn secondary" id="switchCameraBtn" style="margin-top: 0.5rem; display: none;">🔄 Đổi camera</button>
-                        <button class="action-btn secondary" id="closeCameraBtn" style="margin-top: 0.5rem;">❌ Đóng camera</button>
+                        <p>🔮 Đang khởi động camera...</p>
                     </div>
                     <!-- Hidden canvas for capture -->
                     <canvas id="captureCanvas" class="hidden"></canvas>
