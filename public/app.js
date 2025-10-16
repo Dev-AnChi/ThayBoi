@@ -144,7 +144,7 @@ async function getFortune() {
 
         console.log('📤 Sending request to API...');
         // Call API
-        const response = await fetch('/api/fortune', {
+        const response = await fetch('/api/fortune-telling', {
             method: 'POST',
             body: formData
         });
