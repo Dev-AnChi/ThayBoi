@@ -1,5 +1,5 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const multer = require('multer');
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import multer from 'multer';
 
 // Configure multer for memory storage (Vercel doesn't support disk storage)
 const upload = multer({ 
