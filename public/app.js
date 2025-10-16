@@ -419,8 +419,10 @@ async function startCamera() {
         for (let retry = 0; retry < 3 && !cameraSuccess; retry++) {
             try {
                 if (retry > 0) {
-                    console.log(`🔄 Retry ${retry} for back camera...`);
+                    elements.cameraStatus.innerHTML = `<p>🔄 Thử lại camera lần ${retry + 1}...</p>`;
                     await new Promise(resolve => setTimeout(resolve, 500 * retry)); // Progressive delay
+                } else {
+                    elements.cameraStatus.innerHTML = '<p>📷 Đang thử camera sau...</p>';
                 }
                 
                 // Try with timeout to avoid hanging
@@ -430,52 +432,55 @@ async function startCamera() {
                 );
                 
                 cameraStream = await Promise.race([cameraPromise, timeoutPromise]);
-                console.log('✅ Camera started with simple constraints');
+                elements.cameraStatus.innerHTML = '<p style="color: #27ae60;">✅ Camera sau hoạt động!</p>';
                 cameraSuccess = true;
             } catch (e) {
-                console.log(`❌ Simple constraints failed (attempt ${retry + 1}):`, e.name, e.message);
+                elements.cameraStatus.innerHTML = `<p style="color: #e67e22;">⚠️ Camera sau thất bại lần ${retry + 1}: ${e.name}</p>`;
             }
         }
         
         // Strategy 2: Front camera if back failed
         if (!cameraSuccess) {
             try {
+                elements.cameraStatus.innerHTML = '<p>📱 Đang thử camera trước...</p>';
                 cameraStream = await navigator.mediaDevices.getUserMedia({
                     audio: false,
                     video: { facingMode: 'user' }
                 });
-                console.log('✅ Front camera worked!');
+                elements.cameraStatus.innerHTML = '<p style="color: #27ae60;">✅ Camera trước hoạt động!</p>';
                 cameraSuccess = true;
             } catch (e) {
-                console.log('❌ Front camera failed:', e.name);
+                elements.cameraStatus.innerHTML = `<p style="color: #e67e22;">⚠️ Camera trước thất bại: ${e.name}</p>`;
             }
         }
         
         // Strategy 3: Any camera with minimal constraints
         if (!cameraSuccess) {
             try {
+                elements.cameraStatus.innerHTML = '<p>🔧 Đang thử camera với cài đặt tối thiểu...</p>';
                 cameraStream = await navigator.mediaDevices.getUserMedia({
                     audio: false,
                     video: { width: 320, height: 240 }
                 });
-                console.log('✅ Minimal camera worked!');
+                elements.cameraStatus.innerHTML = '<p style="color: #27ae60;">✅ Camera tối thiểu hoạt động!</p>';
                 cameraSuccess = true;
             } catch (e) {
-                console.log('❌ Minimal camera failed:', e.name);
+                elements.cameraStatus.innerHTML = `<p style="color: #e67e22;">⚠️ Camera tối thiểu thất bại: ${e.name}</p>`;
             }
         }
         
         // Strategy 4: Last resort - any video
         if (!cameraSuccess) {
             try {
+                elements.cameraStatus.innerHTML = '<p>🎯 Thử camera cuối cùng...</p>';
                 cameraStream = await navigator.mediaDevices.getUserMedia({
                     audio: false,
                     video: true
                 });
-                console.log('✅ Any camera worked!');
+                elements.cameraStatus.innerHTML = '<p style="color: #27ae60;">✅ Camera cuối cùng hoạt động!</p>';
                 cameraSuccess = true;
             } catch (e) {
-                console.log('❌ All cameras failed:', e.name);
+                elements.cameraStatus.innerHTML = `<p style="color: #e74c3c;">❌ Tất cả camera thất bại: ${e.name}</p>`;
             }
         }
         
@@ -505,21 +510,29 @@ async function startCamera() {
         // Ensure playback starts (important on re-initialization)
         try {
             await elements.cameraVideo.play();
+            elements.cameraStatus.innerHTML = '<p style="color: #27ae60;">✅ Camera đang chạy! Đang khởi tạo quét bàn tay...</p>';
         } catch (e) {
-            console.log('Video play deferred:', e);
+            elements.cameraStatus.innerHTML = '<p style="color: #e67e22;">⚠️ Camera chạy nhưng video chưa phát</p>';
         }
         
-        console.log('✅ Camera started successfully');
-        
-        elements.cameraStatus.innerHTML = '<p>🔮 Đưa lòng bàn tay rõ ràng vào khung để tự động quét và bói</p>';
+        // Wait a bit then show final message
+        setTimeout(() => {
+            elements.cameraStatus.innerHTML = '<p>🔮 Đưa lòng bàn tay rõ ràng vào khung để tự động quét và bói</p>';
+        }, 2000);
         
         console.log('📊 Camera starting with flags:', { isProcessing, handDetected, hasShownResult, autoMode });
         
         // Initialize MediaPipe hands only after video metadata is ready
         const initHands = () => {
+            elements.cameraStatus.innerHTML = '<p style="color: #3498db;">🔧 Đang khởi tạo quét bàn tay...</p>';
             console.log('ℹ️ Video metadata ready, initializing hand detection');
             initializeHandDetection();
             elements.autoCaptureIndicator.classList.add('active');
+            
+            // Show success message after MediaPipe is ready
+            setTimeout(() => {
+                elements.cameraStatus.innerHTML = '<p style="color: #27ae60;">✅ Sẵn sàng quét bàn tay! Đưa lòng bàn tay vào khung</p>';
+            }, 1000);
         };
         if (elements.cameraVideo.readyState >= 2 && elements.cameraVideo.videoWidth > 0) {
             initHands();
@@ -764,7 +777,7 @@ function initializeHandDetection() {
         console.log('❌ MediaPipe not loaded, using fallback detection');
         mediaPipeFailed = true;
         // Fallback: show manual capture button
-        elements.cameraStatus.innerHTML = '<p>🔮 Đưa lòng bàn tay vào khung và bấm nút bên dưới để bói</p>';
+        elements.cameraStatus.innerHTML = '<p style="color: #e67e22;">⚠️ MediaPipe không tải được. Dùng chế độ thủ công.</p>';
         
         const fallbackBtn = document.createElement('button');
         fallbackBtn.id = 'fallbackCaptureBtn';
@@ -860,7 +873,7 @@ function initializeHandDetection() {
         console.error('❌ MediaPipe initialization failed, switching to fallback:', e);
         mediaPipeFailed = true;
         // Fallback: show manual capture button
-        elements.cameraStatus.innerHTML = '<p>🔮 Đưa lòng bàn tay vào khung và bấm nút bên dưới để bói</p>';
+        elements.cameraStatus.innerHTML = `<p style="color: #e74c3c;">❌ MediaPipe lỗi: ${e.message || e.name}. Dùng chế độ thủ công.</p>`;
         
         const fallbackBtn = document.createElement('button');
         fallbackBtn.id = 'fallbackCaptureBtn';
