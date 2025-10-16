@@ -63,20 +63,92 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Content-Type must be multipart/form-data' });
     }
 
-    // For now, return a test response until we fix the form parsing
     console.log('📸 Form data received, processing...');
     
-    // Test response
-    const fortuneData = {
-      intro: "Chào bạn! 🔮",
-      palmLines: "Đây là test response từ Vercel API! Tôi đã nhận được request của bạn.",
-      love: "Tình duyên sẽ tốt đẹp! 💕",
-      career: "Sự nghiệp thăng tiến! 💼", 
-      health: "Sức khỏe dồi dào! 💪",
-      advice: "Hãy luôn tích cực! ✨"
-    };
+    // Parse the request body manually
+    const boundary = contentType.split('boundary=')[1];
+    if (!boundary) {
+      return res.status(400).json({ error: 'No boundary found in multipart data' });
+    }
 
-    console.log('✅ Test fortune generated successfully');
+    // Read the raw body
+    const chunks = [];
+    for await (const chunk of req) {
+      chunks.push(chunk);
+    }
+    const buffer = Buffer.concat(chunks);
+    
+    // Parse multipart data
+    const parts = buffer.toString('binary').split(`--${boundary}`);
+    let imageData = null;
+    let imageType = null;
+    
+    for (const part of parts) {
+      if (part.includes('name="palmImage"')) {
+        const headerEnd = part.indexOf('\r\n\r\n');
+        if (headerEnd !== -1) {
+          const header = part.substring(0, headerEnd);
+          const content = part.substring(headerEnd + 4);
+          
+          // Extract content type
+          const contentTypeMatch = header.match(/Content-Type:\s*([^\r\n]+)/);
+          if (contentTypeMatch) {
+            imageType = contentTypeMatch[1].trim();
+          }
+          
+          // Get image data (remove trailing boundary markers)
+          imageData = content.replace(/\r\n--$/, '');
+          break;
+        }
+      }
+    }
+    
+    if (!imageData) {
+      return res.status(400).json({ error: 'No image found in request' });
+    }
+
+    console.log('📸 Image received, type:', imageType, 'size:', imageData.length);
+
+    // Convert to base64
+    const base64Image = Buffer.from(imageData, 'binary').toString('base64');
+
+    // Initialize Gemini AI
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+    // Call Gemini API
+    const result = await model.generateContent([
+      fortunePrompt,
+      {
+        inlineData: {
+          mimeType: imageType || 'image/jpeg',
+          data: base64Image
+        }
+      }
+    ]);
+
+    const rawResponse = result.response.text();
+    console.log('🤖 Raw AI response:', rawResponse.substring(0, 200) + '...');
+    
+    // Try to parse JSON response
+    let fortuneData;
+    try {
+      const cleanedResponse = rawResponse.replace(/```json|```/g, '').trim();
+      fortuneData = JSON.parse(cleanedResponse);
+    } catch (parseError) {
+      // If JSON parsing fails, fallback to plain text
+      console.log('JSON parse failed, using plain text fallback');
+      fortuneData = {
+        intro: "Chào bạn! 🔮",
+        palmLines: sanitizePlainText(rawResponse),
+        love: "",
+        career: "",
+        health: "",
+        advice: ""
+      };
+    }
+
+    console.log('✅ Fortune generated successfully');
 
     res.json({
       success: true,
