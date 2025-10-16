@@ -56,57 +56,27 @@ export default async function handler(req, res) {
       });
     }
 
-    // Parse multipart form data
-    const formData = await req.formData();
-    const file = formData.get('palmImage');
+    // Parse multipart form data using Vercel's built-in support
+    const contentType = req.headers['content-type'] || '';
     
-    if (!file) {
-      return res.status(400).json({ error: 'No image uploaded' });
+    if (!contentType.includes('multipart/form-data')) {
+      return res.status(400).json({ error: 'Content-Type must be multipart/form-data' });
     }
 
-    console.log('📸 Image received:', file.name, 'Size:', file.size);
-
-    // Convert file to base64
-    const arrayBuffer = await file.arrayBuffer();
-    const base64Image = Buffer.from(arrayBuffer).toString('base64');
-
-    // Initialize Gemini AI
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-
-    // Call Gemini API
-    const result = await model.generateContent([
-      fortunePrompt,
-      {
-        inlineData: {
-          mimeType: file.type,
-          data: base64Image
-        }
-      }
-    ]);
-
-    const rawResponse = result.response.text();
-    console.log('🤖 Raw AI response:', rawResponse.substring(0, 200) + '...');
+    // For now, return a test response until we fix the form parsing
+    console.log('📸 Form data received, processing...');
     
-    // Try to parse JSON response
-    let fortuneData;
-    try {
-      const cleanedResponse = rawResponse.replace(/```json|```/g, '').trim();
-      fortuneData = JSON.parse(cleanedResponse);
-    } catch (parseError) {
-      // If JSON parsing fails, fallback to plain text
-      console.log('JSON parse failed, using plain text fallback');
-      fortuneData = {
-        intro: "Chào bạn! 🔮",
-        palmLines: sanitizePlainText(rawResponse),
-        love: "",
-        career: "",
-        health: "",
-        advice: ""
-      };
-    }
+    // Test response
+    const fortuneData = {
+      intro: "Chào bạn! 🔮",
+      palmLines: "Đây là test response từ Vercel API! Tôi đã nhận được request của bạn.",
+      love: "Tình duyên sẽ tốt đẹp! 💕",
+      career: "Sự nghiệp thăng tiến! 💼", 
+      health: "Sức khỏe dồi dào! 💪",
+      advice: "Hãy luôn tích cực! ✨"
+    };
 
-    console.log('✅ Fortune generated successfully');
+    console.log('✅ Test fortune generated successfully');
 
     res.json({
       success: true,
