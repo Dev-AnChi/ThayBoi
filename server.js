@@ -57,11 +57,11 @@ YÊU CẦU ĐẦU RA (QUAN TRỌNG):
 - Trả lời theo định dạng JSON với các trường sau:
 {
   "intro": "Lời mở đầu ngắn gọn, không tự giới thiệu",
-  "palmLines": "Phân tích đường chỉ tay (tim, trí tuệ, đời) - khoảng 50-70 từ",
-  "love": "Dự đoán tình duyên hơi troll - khoảng 50-70 từ", 
-  "career": "Dự đoán sự nghiệp và tài lộc - khoảng 50-70 từ",
-  "health": "Sức khỏe và may mắn - khoảng 50-70 từ",
-  "advice": "Lời khuyên vui nhộn cuối cùng - khoảng 30-50 từ"
+  "palmLines": "Phân tích đường chỉ tay (tim, trí tuệ, đời) - khoảng 20-30 từ",
+  "love": "Dự đoán tình duyên hơi troll - khoảng 20-30 từ", 
+  "career": "Dự đoán sự nghiệp và tài lộc - khoảng 20-30 từ",
+  "health": "Sức khỏe và may mắn - khoảng 20-30 từ",
+  "advice": "Lời khuyên vui nhộn cuối cùng - khoảng 20-30 từ"
 }
 
 Phong cách: Vui vẻ, hài hước, có chút troll nhưng không quá đà. Sử dụng emoji phù hợp.
@@ -84,7 +84,79 @@ function sanitizePlainText(text) {
   return t.trim();
 }
 
-// API endpoint for fortune telling
+// API endpoint for fortune telling (Vercel compatibility)
+app.post('/api/fortune-telling', upload.single('palmImage'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No image uploaded' });
+    }
+
+    const prompt = fortunePrompt;
+
+    // Read the uploaded image
+    const imagePath = req.file.path;
+    const imageData = fs.readFileSync(imagePath);
+    const base64Image = imageData.toString('base64');
+
+    // Use Gemini Vision model
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+    const result = await model.generateContent([
+      prompt,
+      {
+        inlineData: {
+          mimeType: req.file.mimetype,
+          data: base64Image
+        }
+      }
+    ]);
+
+    const rawResponse = result.response.text();
+    
+    // Try to parse JSON response
+    let fortuneData;
+    try {
+      // Clean the response first
+      const cleanedResponse = rawResponse.replace(/```json|```/g, '').trim();
+      fortuneData = JSON.parse(cleanedResponse);
+    } catch (parseError) {
+      // If JSON parsing fails, fallback to plain text
+      console.log('JSON parse failed, using plain text fallback');
+      fortuneData = {
+        intro: "Chào bạn! 🔮",
+        palmLines: sanitizePlainText(rawResponse),
+        love: "",
+        career: "",
+        health: "",
+        advice: ""
+      };
+    }
+
+    // Clean up uploaded file after processing
+    fs.unlinkSync(imagePath);
+
+    res.json({
+      success: true,
+      fortune: fortuneData
+    });
+
+  } catch (error) {
+    console.error('Fortune telling error:', error);
+    
+    // Clean up uploaded file if it exists
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate fortune',
+      message: error.message
+    });
+  }
+});
+
+// API endpoint for fortune telling (legacy)
 app.post('/api/fortune', upload.single('palmImage'), async (req, res) => {
   try {
     if (!req.file) {
