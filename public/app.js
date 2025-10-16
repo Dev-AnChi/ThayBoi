@@ -635,38 +635,42 @@ function closeCamera() {
 function showMobileUploadInterface() {
     console.log('📱 Setting up mobile upload interface...');
     
-    // Hide camera section
-    elements.cameraSection.classList.add('hidden');
-    
-    // Create mobile-friendly upload interface
+    // Replace entire camera section with mobile upload interface
     const mobileUploadHTML = `
         <div class="mobile-upload-container">
             <div class="upload-icon-large">🖐️</div>
-            <h3 style="color: #9b59b6; margin: 1rem 0;">Chụp ảnh lòng bàn tay</h3>
-            <p style="margin-bottom: 2rem; line-height: 1.6;">
+            <h3 style="color: #9b59b6; margin: 1rem 0; font-size: 1.5rem;">Chụp ảnh lòng bàn tay</h3>
+            <p style="margin-bottom: 2rem; line-height: 1.6; color: #bdc3c7;">
                 📱 Trên điện thoại, hãy chụp ảnh lòng bàn tay rõ ràng<br>
                 hoặc chọn từ thư viện ảnh
             </p>
             
-            <button class="action-btn primary large" id="mobileCameraBtn" style="margin-bottom: 1rem;">
-                📷 Chụp ảnh mới
-            </button>
+            <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
+                <button class="action-btn primary large" id="mobileCameraBtn">
+                    📷 Chụp ảnh mới
+                </button>
+                
+                <button class="action-btn secondary large" id="mobileGalleryBtn">
+                    🖼️ Chọn từ thư viện
+                </button>
+            </div>
             
-            <button class="action-btn secondary large" id="mobileGalleryBtn">
-                🖼️ Chọn từ thư viện
-            </button>
-            
-            <div style="margin-top: 2rem; padding: 1rem; background: rgba(155, 89, 182, 0.1); border-radius: 10px;">
-                <p style="font-size: 0.9rem; color: #9b59b6; margin: 0;">
+            <div style="padding: 1rem; background: rgba(155, 89, 182, 0.1); border-radius: 10px; border: 1px solid rgba(155, 89, 182, 0.3);">
+                <p style="font-size: 0.9rem; color: #9b59b6; margin: 0; line-height: 1.5;">
                     💡 <strong>Mẹo:</strong> Chụp ảnh lòng bàn tay với ánh sáng tốt, 
-                    đặt tay phẳng và rõ ràng
+                    đặt tay phẳng và rõ ràng để có kết quả chính xác nhất
                 </p>
             </div>
         </div>
     `;
     
-    // Replace camera status with mobile upload interface
-    elements.cameraStatus.innerHTML = mobileUploadHTML;
+    // Replace entire camera section content
+    elements.cameraSection.innerHTML = mobileUploadHTML;
+    
+    // Hide fortune button on mobile (not needed with auto-trigger)
+    if (elements.fortuneBtn) {
+        elements.fortuneBtn.style.display = 'none';
+    }
     
     // Add event listeners for mobile buttons
     const mobileCameraBtn = document.getElementById('mobileCameraBtn');
