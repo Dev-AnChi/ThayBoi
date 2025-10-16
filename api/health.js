@@ -1,7 +1,4 @@
-export const config = {
-  maxDuration: 10,
-};
-
+// Simple health check endpoint
 export default function handler(req, res) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -21,6 +18,7 @@ export default function handler(req, res) {
     status: 'ok', 
     message: 'Fortune telling server is running!',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'production',
+    apiKey: process.env.GEMINI_API_KEY ? 'configured' : 'missing'
   });
 }
