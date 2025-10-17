@@ -222,6 +222,13 @@ async function getFortune() {
             
             // Display fortune sections
             console.log('🎨 Displaying fortune sections...');
+            
+            // Debug info
+            if (data.debug) {
+                console.log('🎭 API Debug - Master Type:', data.debug.masterType);
+                console.log('🎭 API Debug - Available:', data.debug.availableMasters);
+            }
+            
             displayFortuneSections(data.fortune);
         } else {
             console.log('❌ Fortune telling failed:', data.message);

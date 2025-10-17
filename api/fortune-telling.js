@@ -166,15 +166,19 @@ export default async function handler(req, res) {
     let masterType = 'funny'; // Default fortune master type
     
     for (const part of parts) {
-      // Parse master type
-      if (part.includes('name="masterType"')) {
+      // Parse master type - check multiple patterns
+      if (part.includes('name="masterType"') || part.includes("name='masterType'") || part.includes('name=masterType')) {
         const headerEnd = part.indexOf('\r\n\r\n');
         if (headerEnd !== -1) {
           const dataStart = headerEnd + 4;
           const dataEnd = part.lastIndexOf('\r\n');
           if (dataEnd > dataStart) {
-            masterType = part.substring(dataStart, dataEnd).trim();
-            console.log('🎭 Received master type:', masterType);
+            const rawValue = part.substring(dataStart, dataEnd).trim();
+            // Remove any quotes or extra whitespace
+            masterType = rawValue.replace(/['"]/g, '').trim();
+            console.log('🎭 Raw master type value:', rawValue);
+            console.log('🎭 Cleaned master type:', masterType);
+            console.log('🎭 Is valid master?', Object.keys(fortuneMasterPrompts).includes(masterType));
           }
         }
       }
@@ -210,11 +214,18 @@ export default async function handler(req, res) {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-    // Get appropriate prompt based on master type
+    // Validate and get appropriate prompt based on master type
+    const validMasters = Object.keys(fortuneMasterPrompts);
+    if (!validMasters.includes(masterType)) {
+      console.warn(`⚠️ Invalid master type "${masterType}", falling back to "funny"`);
+      masterType = 'funny';
+    }
+    
     const prompt = getFortuneMasterPrompt(masterType);
     console.log(`🎭 Using ${masterType} prompt`);
-    console.log(`🎭 Available masters:`, Object.keys(fortuneMasterPrompts));
+    console.log(`🎭 Available masters:`, validMasters);
     console.log(`🎭 Selected master:`, masterType);
+    console.log(`🎭 Prompt preview:`, prompt.substring(0, 100) + '...');
 
     // Call Gemini API
     const result = await model.generateContent([
@@ -247,9 +258,16 @@ export default async function handler(req, res) {
     }
 
 
+    // Add debug info to response
+    res.setHeader('X-Fortune-Master', masterType);
+    
     res.json({
       success: true,
-      fortune: fortuneData
+      fortune: fortuneData,
+      debug: {
+        masterType: masterType,
+        availableMasters: Object.keys(fortuneMasterPrompts)
+      }
     });
 
   } catch (error) {
