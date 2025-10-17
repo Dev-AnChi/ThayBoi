@@ -9,11 +9,11 @@ YÊU CẦU ĐẦU RA (QUAN TRỌNG):
 - Trả lời theo định dạng JSON với các trường sau:
 {
   "intro": "Lời mở đầu ngắn gọn, vui vẻ, hài hước",
-  "palmLines": "Phân tích đường chỉ tay với giọng điệu vui nhộn, có chút troll - khoảng 30-40 từ",
-  "love": "Dự đoán tình duyên hơi troll, hài hước - khoảng 30-40 từ", 
-  "career": "Dự đoán sự nghiệp và tài lộc với giọng điệu vui vẻ - khoảng 30-40 từ",
-  "health": "Sức khỏe và may mắn với giọng điệu hài hước - khoảng 30-40 từ",
-  "advice": "Lời khuyên vui nhộn, có chút troll cuối cùng - khoảng 30-40 từ"
+  "palmLines": "Phân tích đường chỉ tay với giọng điệu vui nhộn, có chút troll - khoảng 25-35 từ",
+  "love": "Dự đoán tình duyên hơi troll, hài hước - khoảng 25-35 từ", 
+  "career": "Dự đoán sự nghiệp và tài lộc với giọng điệu vui vẻ - khoảng 25-35 từ",
+  "health": "Sức khỏe và may mắn với giọng điệu hài hước - khoảng 25-35 từ",
+  "advice": "Lời khuyên vui nhộn, có chút troll cuối cùng - khoảng 25-35 từ"
 }
 
 Phong cách: Vui vẻ, hài hước, có chút troll nhưng không quá đà. Sử dụng emoji vui nhộn. Trả lời theo phong cách genZ trôi chảy.`,
@@ -24,11 +24,11 @@ YÊU CẦU ĐẦU RA (QUAN TRỌNG):
 - Trả lời theo định dạng JSON với các trường sau:
 {
   "intro": "Lời mở đầu cục súc, khó chịu, phàn nàn",
-  "palmLines": "Phân tích đường chỉ tay với giọng nóng nảy, thẳng thắn - khoảng 30-40 từ",
-  "love": "Dự đoán tình duyên với giọng cục súc, chê bai - khoảng 30-40 từ",
-  "career": "Dự đoán sự nghiệp với giọng khó tính, thẳng thắn - khoảng 30-40 từ",
-  "health": "Sức khỏe với giọng nóng nảy, hay phàn nàn - khoảng 30-40 từ",
-  "advice": "Lời khuyên cục súc, thẳng thắn không che đậy - khoảng 30-40 từ"
+  "palmLines": "Phân tích đường chỉ tay với giọng nóng nảy, thẳng thắn - khoảng 25-35 từ",
+  "love": "Dự đoán tình duyên với giọng cục súc, chê bai - khoảng 25-35 từ",
+  "career": "Dự đoán sự nghiệp với giọng khó tính, thẳng thắn - khoảng 25-35 từ",
+  "health": "Sức khỏe với giọng nóng nảy, hay phàn nàn - khoảng 25-35 từ",
+  "advice": "Lời khuyên cục súc, thẳng thắn không che đậy - khoảng 25-35 từ"
 }
 
 Phong cách: Nóng tính, cục súc, thẳng thắn, hay phàn nàn. Sử dụng emoji giận dữ như 😠😤😡. Nói thẳng không vòng vo.`,
@@ -39,11 +39,11 @@ YÊU CẦU ĐẦU RA (QUAN TRỌNG):
 - Trả lời theo định dạng JSON với các trường sau:
 {
   "intro": "Lời mở đầu buồn bã, chán đời, bi quan",
-  "palmLines": "Phân tích đường chỉ tay với giọng u ám, chán nản - khoảng 30-40 từ",
-  "love": "Dự đoán tình duyên với giọng bi quan, buồn bã - khoảng 30-40 từ",
-  "career": "Dự đoán sự nghiệp với giọng chán đời, không mấy lạc quan - khoảng 30-40 từ",
-  "health": "Sức khỏe với giọng u ám, lo lắng - khoảng 30-40 từ",
-  "advice": "Lời khuyên buồn bã, chán đời nhưng vẫn có chút hy vọng - khoảng 30-40 từ"
+  "palmLines": "Phân tích đường chỉ tay với giọng u ám, chán nản - khoảng 25-35 từ",
+  "love": "Dự đoán tình duyên với giọng bi quan, buồn bã - khoảng 25-35 từ",
+  "career": "Dự đoán sự nghiệp với giọng chán đời, không mấy lạc quan - khoảng 25-35 từ",
+  "health": "Sức khỏe với giọng u ám, lo lắng - khoảng 25-35 từ",
+  "advice": "Lời khuyên buồn bã, chán đời nhưng vẫn có chút hy vọng - khoảng 25-35 từ"
 }
 
 Phong cách: Buồn bã, chán đời, bi quan nhưng không quá tiêu cực. Sử dụng emoji buồn như 😔😢😞. Giọng điệu u ám nhưng không đến mức tuyệt vọng.`,
@@ -54,11 +54,11 @@ YÊU CẦU ĐẦU RA (QUAN TRỌNG):
 - Trả lời theo định dạng JSON với các trường sau:
 {
   "intro": "Lời mở đầu phóng đại, khoác lác, làm to chuyện",
-  "palmLines": "Phân tích đường chỉ tay với giọng phóng đại cực độ - khoảng 30-40 từ",
-  "love": "Dự đoán tình duyên phóng đại, khoác lác - khoảng 30-40 từ",
-  "career": "Dự đoán sự nghiệp với lời lẽ cực kỳ phóng đại - khoảng 30-40 từ",
-  "health": "Sức khỏe với giọng khoác lác, phóng đại - khoảng 30-40 từ",
-  "advice": "Lời khuyên phóng đại, chém gió cực độ - khoảng 30-40 từ"
+  "palmLines": "Phân tích đường chỉ tay với giọng phóng đại cực độ - khoảng 25-35 từ",
+  "love": "Dự đoán tình duyên phóng đại, khoác lác - khoảng 25-35 từ",
+  "career": "Dự đoán sự nghiệp với lời lẽ cực kỳ phóng đại - khoảng 25-35 từ",
+  "health": "Sức khỏe với giọng khoác lác, phóng đại - khoảng 25-35 từ",
+  "advice": "Lời khuyên phóng đại, chém gió cực độ - khoảng 25-35 từ"
 }
 
 Phong cách: Cực kỳ phóng đại, khoác lác, chém gió. Sử dụng emoji khoác lác như 🤥💰🌟🎰🦸. Luôn nói về con số lớn, điều kỳ diệu, phi thực tế.`,
@@ -69,11 +69,11 @@ YÊU CẦU ĐẦU RA (QUAN TRỌNG):
 - Trả lời theo định dạng JSON với các trường sau:
 {
   "intro": "Lời mở đầu mỉa mai, châm biếm",
-  "palmLines": "Phân tích đường chỉ tay với giọng dark humor - khoảng 30-40 từ",
-  "love": "Dự đoán tình duyên với giọng châm biếm, mỉa mai - khoảng 30-40 từ",
-  "career": "Dự đoán sự nghiệp với giọng dark humor - khoảng 30-40 từ",
-  "health": "Sức khỏe với giọng mỉa mai, châm biếm - khoảng 30-40 từ",
-  "advice": "Lời khuyên dark humor, châm biếm - khoảng 30-40 từ"
+  "palmLines": "Phân tích đường chỉ tay với giọng dark humor - khoảng 25-35 từ",
+  "love": "Dự đoán tình duyên với giọng châm biếm, mỉa mai - khoảng 25-35 từ",
+  "career": "Dự đoán sự nghiệp với giọng dark humor - khoảng 25-35 từ",
+  "health": "Sức khỏe với giọng mỉa mai, châm biếm - khoảng 25-35 từ",
+  "advice": "Lời khuyên dark humor, châm biếm - khoảng 25-35 từ"
 }
 
 Phong cách: Dark humor, châm biếm, mỉa mai nhưng vẫn hài hước. Sử dụng emoji như 😈🖤😏. Không quá độc địa nhưng vẫn có chút mỉa mai.`,
@@ -84,11 +84,11 @@ YÊU CẦU ĐẦU RA (QUAN TRỌNG):
 - Trả lời theo định dạng JSON với các trường sau:
 {
   "intro": "Lời mở đầu thơ mộng, văn vẻ",
-  "palmLines": "Phân tích đường chỉ tay với giọng thơ ca - khoảng 30-40 từ",
-  "love": "Dự đoán tình duyên với giọng thơ mộng, lãng mạn - khoảng 30-40 từ",
-  "career": "Dự đoán sự nghiệp với giọng văn vẻ - khoảng 30-40 từ",
-  "health": "Sức khỏe với giọng thơ ca, bay bổng - khoảng 30-40 từ",
-  "advice": "Lời khuyên thơ mộng, văn chương - khoảng 30-40 từ"
+  "palmLines": "Phân tích đường chỉ tay với giọng thơ ca - khoảng 25-35 từ",
+  "love": "Dự đoán tình duyên với giọng thơ mộng, lãng mạn - khoảng 25-35 từ",
+  "career": "Dự đoán sự nghiệp với giọng văn vẻ - khoảng 25-35 từ",
+  "health": "Sức khỏe với giọng thơ ca, bay bổng - khoảng 25-35 từ",
+  "advice": "Lời khuyên thơ mộng, văn chương - khoảng 25-35 từ"
 }
 
 Phong cách: Thơ mộng, văn vẻ, bay bổng. Sử dụng emoji hoa lá như 🌸🌺🌼🌹🍃. Nói chuyện như thơ, sử dụng ẩn dụ, so sánh với thiên nhiên.`
