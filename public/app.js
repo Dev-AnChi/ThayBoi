@@ -152,6 +152,8 @@ async function getFortune() {
         // Create form data
         const formData = new FormData();
         formData.append('palmImage', selectedFile);
+        formData.append('masterType', selectedFortuneMaster); // Add selected fortune master
+        console.log('🎭 Sending fortune request with master:', selectedFortuneMaster);
         formData.append('language', 'vi');
 
         console.log('📤 Sending request to API...');
@@ -421,6 +423,13 @@ async function getPreferredBackCameraDeviceId() {
 
 async function startCamera() {
     console.log('🎥 Starting camera...');
+    
+    // Check if we're in the right section
+    const uploadSection = document.getElementById('uploadSection');
+    if (!uploadSection || uploadSection.classList.contains('hidden')) {
+        console.log('🎥 Upload section not visible, skipping camera start');
+        return;
+    }
     
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         console.log('❌ Camera not supported');
@@ -921,6 +930,80 @@ function initializeHandDetection() {
         mpCamera = null;
     }
     
+    // Wait a bit before creating new instances
+    setTimeout(() => {
+        try {
+            createMediaPipeInstances();
+        } catch (error) {
+            console.error('❌ Failed to create MediaPipe instances:', error);
+            mediaPipeFailed = true;
+            switchToFallbackMode();
+        }
+    }, 200);
+}
+
+// Separate function to create MediaPipe instances
+function createMediaPipeInstances() {
+    console.log('🎯 Creating MediaPipe instances...');
+    
+    try {
+        // Check if MediaPipe is available
+        if (typeof Hands === 'undefined') {
+            console.log('❌ MediaPipe Hands not loaded, using fallback mode');
+            mediaPipeFailed = true;
+            switchToFallbackMode();
+            return;
+        }
+        
+        hands = new Hands({
+            locateFile: (file) => {
+                return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+            }
+        });
+        
+        hands.setOptions({
+            maxNumHands: 1,
+            modelComplexity: 1,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
+        });
+        
+        // Add error handling for hands results
+        hands.onResults = (results) => {
+            try {
+                onHandResults(results);
+            } catch (error) {
+                console.error('❌ Error in onHandResults:', error);
+            }
+        };
+        
+        mpCamera = new Camera(elements.cameraVideo, {
+            onFrame: async () => {
+                if (hands && !mediaPipeFailed) {
+                    try {
+                        await hands.send({ image: elements.cameraVideo });
+                    } catch (error) {
+                        console.error('❌ Error sending frame to MediaPipe:', error);
+                        if (error.message.includes('Aborted') || error.message.includes('Module.arguments') || error.message.includes('Could not establish connection')) {
+                            console.log('🔄 MediaPipe WASM error detected, switching to fallback mode');
+                            mediaPipeFailed = true;
+                            switchToFallbackMode();
+                        }
+                    }
+                }
+            },
+            width: 640,
+            height: 480
+        });
+        
+        console.log('✅ MediaPipe instances created successfully');
+        
+    } catch (error) {
+        console.error('❌ Failed to create MediaPipe instances:', error);
+        mediaPipeFailed = true;
+        switchToFallbackMode();
+    }
+    
     if (typeof Hands === 'undefined') {
         console.log('❌ MediaPipe not loaded, using fallback detection');
         mediaPipeFailed = true;
@@ -1333,20 +1416,182 @@ function startNewReading() {
         console.log('🎥 New camera button clicked!', e);
         startCamera();
     });
-    elements.cameraStatus.appendChild(newBtn);
-    
-    // Update elements reference
-    elements.startCameraBtn = newBtn;
-    console.log('✅ New camera button created and attached');
-    
-    // Restart camera for new reading
-    stopCamera();
-    setTimeout(() => {
-        console.log('🔄 Restarting camera for new reading...');
-        console.log('📊 Current flags:', { isProcessing, handDetected, hasShownResult, autoMode });
-        startCamera();
-    }, 1000);
 }
+
+// Fortune master selection
+let selectedFortuneMaster = 'funny'; // Default to funny master
+
+// Initialize fortune master selection
+function initFortuneMasterSelection() {
+    console.log('🎭 Initializing fortune master selection...');
+    
+    // Wait for DOM to be ready
+    setTimeout(() => {
+        const fortuneMasterBtns = document.querySelectorAll('.fortune-master-btn');
+        console.log('🎭 Found fortune master buttons:', fortuneMasterBtns.length);
+        
+        fortuneMasterBtns.forEach((btn, index) => {
+            console.log(`🎭 Setting up button ${index}:`, btn.dataset.master);
+            btn.addEventListener('click', function() {
+                console.log('🎭 Button clicked:', this.dataset.master);
+                
+                // Remove active class from all buttons
+                fortuneMasterBtns.forEach(b => b.classList.remove('active'));
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Update selected master
+                selectedFortuneMaster = this.dataset.master;
+                console.log('🎭 Selected master:', selectedFortuneMaster);
+                
+                // Play selection sound
+                if (typeof playSound === 'function') {
+                    playSound('buttonClick');
+                }
+                
+                // Show selection feedback
+                const masterName = fortuneMasterPersonalities[selectedFortuneMaster].name;
+                if (typeof showFortunePopup === 'function') {
+                    showFortunePopup(`Đã chọn ${masterName}! 🎭`);
+                }
+            });
+        });
+        
+        // Handle start fortune button
+        const startFortuneBtn = document.getElementById('startFortuneBtn');
+        console.log('🎭 Start fortune button found:', !!startFortuneBtn);
+        
+        if (startFortuneBtn) {
+            startFortuneBtn.addEventListener('click', function() {
+                console.log('🎭 Start fortune button clicked');
+                
+                // Play button click sound
+                if (typeof playSound === 'function') {
+                    playSound('buttonClick');
+                }
+                
+                // Hide fortune master selection section
+                const fortuneMasterSection = document.getElementById('fortuneMasterSection');
+                if (fortuneMasterSection) {
+                    fortuneMasterSection.classList.add('hidden');
+                    console.log('🎭 Hidden fortune master section');
+                }
+                
+                // Show upload section (camera section)
+                const uploadSection = document.getElementById('uploadSection');
+                if (uploadSection) {
+                    uploadSection.classList.remove('hidden');
+                    console.log('🎭 Shown upload section');
+                }
+                
+                // Start camera after a short delay
+                setTimeout(() => {
+                    if (typeof startCamera === 'function') {
+                        startCamera();
+                    }
+                }, 500);
+            });
+        }
+    }, 100);
+}
+
+// Fortune master personalities
+const fortuneMasterPersonalities = {
+    funny: {
+        name: 'Thầy Vui Tính',
+        icon: '😄',
+        style: 'hài hước, troll, vui vẻ',
+        responses: {
+            positive: [
+                'Haha! Tay bạn đẹp quá, chắc chắn sẽ gặp may mắn! 😄',
+                'Ôi trời ơi! Đường chỉ tay này nói bạn sẽ trúng số! 🎰',
+                'Tuyệt vời! Bạn sẽ có một ngày đầy niềm vui! 🎉',
+                'Wow! Tay bạn đẹp như tay người mẫu! 😍'
+            ],
+            neutral: [
+                'Hmm, tay bạn bình thường thôi, nhưng vẫn đáng yêu! 😊',
+                'Đường chỉ tay này... ừm... khá ổn! 👍',
+                'Tay bạn có vẻ bình thường, nhưng tôi thích! 😄'
+            ],
+            negative: [
+                'Ôi không! Tay bạn có vấn đề... nhưng đừng lo, tôi đùa thôi! 😂',
+                'Haha! Tôi nói đùa, tay bạn vẫn ổn! 😄',
+                'Đừng tin tôi, tôi chỉ đang troll thôi! 😜'
+            ]
+        }
+    },
+    grumpy: {
+        name: 'Thầy Cục Súc',
+        icon: '😠',
+        style: 'nóng tính, thẳng thắn, cục súc',
+        responses: {
+            positive: [
+                'Hmph! Tay bạn cũng tạm được, không tệ lắm! 😤',
+                'Ừm... đường chỉ tay này không đến nỗi nào! 😠',
+                'Tay bạn ổn, nhưng đừng tự mãn! 😡',
+                'Khá ổn, nhưng còn nhiều việc phải làm! 😤'
+            ],
+            neutral: [
+                'Tay bạn bình thường, không có gì đặc biệt! 😠',
+                'Đường chỉ tay này... ừm... tạm được! 😤',
+                'Không tệ, nhưng cũng không hay! 😡'
+            ],
+            negative: [
+                'Tay bạn có vấn đề! Cần phải cẩn thận hơn! 😠',
+                'Đường chỉ tay này không tốt! Phải thay đổi! 😡',
+                'Tay bạn xấu! Cần phải cải thiện ngay! 😤'
+            ]
+        }
+    },
+    sad: {
+        name: 'Thầy Buồn',
+        icon: '😔',
+        style: 'chán đời, bi quan, buồn bã',
+        responses: {
+            positive: [
+                'Tay bạn đẹp... nhưng cuộc đời vẫn buồn... 😔',
+                'Đường chỉ tay tốt... nhưng tôi vẫn thấy buồn... 😢',
+                'Tay bạn ổn... nhưng tôi không vui... 😔',
+                'Khá đẹp... nhưng tôi vẫn chán đời... 😞'
+            ],
+            neutral: [
+                'Tay bạn bình thường... như tôi... 😔',
+                'Đường chỉ tay này... ừm... tôi vẫn buồn... 😢',
+                'Không tệ... nhưng tôi vẫn chán... 😞'
+            ],
+            negative: [
+                'Tay bạn có vấn đề... như tôi... 😔',
+                'Đường chỉ tay xấu... tôi cũng buồn... 😢',
+                'Tay bạn không tốt... tôi cũng thế... 😞'
+            ]
+        }
+    },
+    bluff: {
+        name: 'Thầy Chém Gió',
+        icon: '🤥',
+        style: 'khoác lác, phóng đại, chém gió',
+        responses: {
+            positive: [
+                'WOW! Tay bạn đẹp nhất thế giới! Sẽ trở thành tỷ phú! 💰',
+                'INCREDIBLE! Đường chỉ tay này nói bạn sẽ sống 200 tuổi! 🎉',
+                'AMAZING! Bạn sẽ trúng số 10 lần liên tiếp! 🎰',
+                'FANTASTIC! Tay bạn đẹp hơn cả tay người mẫu! 😍'
+            ],
+            neutral: [
+                'Tay bạn bình thường... NHƯNG sẽ trở thành siêu sao! 🌟',
+                'Đường chỉ tay này... ừm... SẼ THAY ĐỔI THẾ GIỚI! 🌍',
+                'Không tệ... NHƯNG SẼ TRỞ THÀNH TỶ PHÚ! 💎'
+            ],
+            negative: [
+                'Tay bạn có vấn đề... NHƯNG SẼ TRỞ THÀNH SIÊU ANH HÙNG! 🦸',
+                'Đường chỉ tay xấu... NHƯNG SẼ CỨU THẾ GIỚI! 🌟',
+                'Tay bạn không tốt... NHƯNG SẼ TRỞ THÀNH THIÊN TÀI! 🧠'
+            ]
+        }
+    }
+};
+
 
 // ================================
 // EVENT LISTENERS
@@ -1404,26 +1649,46 @@ if (elements.removeBtn) {
 }
 
 // Fortune button
-elements.fortuneBtn.addEventListener('click', () => {
-    playSound('buttonClick');
-    getFortune();
-});
+if (elements.fortuneBtn) {
+    elements.fortuneBtn.addEventListener('click', () => {
+        if (typeof playSound === 'function') {
+            playSound('buttonClick');
+        }
+        if (typeof getFortune === 'function') {
+            getFortune();
+        }
+    });
+}
 
-// New reading button - simple full reload to avoid MediaPipe WASM issues
-elements.newReadingBtn.addEventListener('click', () => {
-    playSound('buttonClick');
-    playSound('mysticalWhoosh'); // Add magical transition sound
-    stopBackgroundMusic(); // Stop any playing music before reload
-    console.log('🔄 Reloading page for a fresh reading...');
-    // Use location.reload(true) behavior: force reload from server if possible
-    window.location.reload();
-});
+// New reading button - reload page from beginning
+if (elements.newReadingBtn) {
+    elements.newReadingBtn.addEventListener('click', () => {
+        if (typeof playSound === 'function') {
+            playSound('buttonClick');
+            playSound('mysticalWhoosh'); // Add magical transition sound
+        }
+        if (typeof stopBackgroundMusic === 'function') {
+            stopBackgroundMusic(); // Stop any playing music before reload
+        }
+        
+        console.log('🔄 Reloading page for new reading...');
+        
+        // Reload the page from the beginning
+        window.location.reload();
+    });
+}
 
 // Share button
-elements.shareBtn.addEventListener('click', () => {
-    playSound('success');
-    shareFortune();
-});
+if (elements.shareBtn) {
+    elements.shareBtn.addEventListener('click', () => {
+        if (typeof playSound === 'function') {
+            playSound('success');
+        }
+        if (typeof shareFortune === 'function') {
+            shareFortune();
+        }
+    });
+}
 
 // No manual camera button - auto start only
 
@@ -1836,6 +2101,11 @@ function isMobile() {
 // ================================
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🔮 Mystical Fortune Teller initialized!');
+    console.log('🔮 DOM elements check:');
+    console.log('- fortuneMasterSection:', !!document.getElementById('fortuneMasterSection'));
+    console.log('- uploadSection:', !!document.getElementById('uploadSection'));
+    console.log('- startFortuneBtn:', !!document.getElementById('startFortuneBtn'));
+    console.log('- fortune master buttons:', document.querySelectorAll('.fortune-master-btn').length);
     
     // Sound is always enabled now
     soundEnabled = true;
@@ -1865,8 +2135,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Also start on first user interaction as backup
     document.addEventListener('click', () => {
         if (soundEnabled && !isBackgroundPlaying) {
-            playSound('ambient'); // Play subtle ambient sound on first interaction
-            startHomepageMusic();
+            if (typeof playSound === 'function') {
+                playSound('ambient'); // Play subtle ambient sound on first interaction
+            }
+            if (typeof startHomepageMusic === 'function') {
+                startHomepageMusic();
+            }
         }
     }, { once: true });
     
@@ -1879,17 +2153,27 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Fortune teller greets on startup
     setTimeout(() => {
-        updateFortuneTellerSpeech("Chào bạn! Đang khởi động camera... 🔮", 3000);
+        if (typeof updateFortuneTellerSpeech === 'function') {
+            updateFortuneTellerSpeech("Chào bạn! Hãy chọn thầy bói để bắt đầu... 🔮", 3000);
+        }
         // Add mystical sparkle when fortune teller greets
         setTimeout(() => {
-            playSound('mysticalSparkle');
+            if (typeof playSound === 'function') {
+                playSound('mysticalSparkle');
+            }
         }, 1000);
     }, 500);
     
-    // Auto start camera with delay to avoid conflicts (both mobile and desktop)
+    // Initialize fortune master selection with delay
     setTimeout(() => {
-        startCamera();
-    }, 2000);
+        if (typeof initFortuneMasterSelection === 'function') {
+            initFortuneMasterSelection();
+        } else {
+            console.error('❌ initFortuneMasterSelection function not found');
+        }
+    }, 500);
+    
+    // Don't auto start camera - wait for user to select fortune master first
     
     // Add some mystical console art
     console.log(`
