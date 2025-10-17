@@ -1589,6 +1589,52 @@ const fortuneMasterPersonalities = {
                 'Tay bạn không tốt... NHƯNG SẼ TRỞ THÀNH THIÊN TÀI! 🧠'
             ]
         }
+    },
+    dark: {
+        name: 'Thầy Hài Hước Đen',
+        icon: '😈',
+        style: 'dark humor, châm biếm, mỉa mai',
+        responses: {
+            positive: [
+                'Tay đẹp vậy mà vẫn độc thân à? Chắc tính cách có vấn đề 😈',
+                'Đường đời tốt thế này... chắc sắp hết rồi 🖤',
+                'May mắn quá! Nhưng may mắn thường không kéo dài đâu 😏',
+                'Tay đẹp như thế này... chắc ai đó đang ghen tị lắm đây 😈'
+            ],
+            neutral: [
+                'Tay bình thường... như cuộc đời bạn vậy 😏',
+                'Không tốt không xấu... cũng như mọi thứ khác của bạn 🖤',
+                'Đường chỉ tay này... ừm... cũng bình thường thôi, đừng mơ 😈'
+            ],
+            negative: [
+                'Tay xấu vậy mà vẫn dám xem bói? Dũng cảm đấy 😈',
+                'Đường đời khó khăn... nhưng ít ra bạn đã quen rồi nhỉ? 🖤',
+                'Vận xui thế này... may là bạn đã quen sống với nó 😏'
+            ]
+        }
+    },
+    poetic: {
+        name: 'Thầy Thơ Mộng',
+        icon: '🌸',
+        style: 'thơ ca, văn vẻ, bay bổng',
+        responses: {
+            positive: [
+                'Lòng bàn tay như cánh hoa anh đào nở rộ... Vận mệnh rực rỡ như bình minh 🌸',
+                'Đường chỉ tay như dòng suối trong veo... Cuộc đời ngập tràn hạnh phúc 🌺',
+                'Như mây trắng bay trên trời cao... Tương lai tươi sáng như ánh dương 🌼',
+                'Lòng bàn tay như vườn xuân... May mắn như hoa tươi nở rộ 🌹'
+            ],
+            neutral: [
+                'Đường đời như gió nhẹ... Không mạnh mẽ nhưng cũng không yếu đuối 🌸',
+                'Như mây trôi... Không biết đâu là nơi về 🌺',
+                'Lòng bàn tay như thu... Có chút buồn nhưng cũng có chút đẹp 🍂'
+            ],
+            negative: [
+                'Như mưa thu buồn... Nhưng sau mưa trời sẽ sáng 🌧️',
+                'Đường đời như đêm đông... Lạnh lẽo nhưng sẽ có xuân về 🌸',
+                'Như lá úa rơi... Nhưng rồi sẽ có lá non mọc 🍃'
+            ]
+        }
     }
 };
 
