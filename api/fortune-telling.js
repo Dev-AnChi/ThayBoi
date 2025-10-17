@@ -159,29 +159,31 @@ export default async function handler(req, res) {
     }
     const buffer = Buffer.concat(chunks);
     
-    // Parse multipart data
-    const parts = buffer.toString('binary').split(`--${boundary}`);
+    // Try to parse using a more robust method
     let imageData = null;
     let imageType = null;
     let masterType = 'funny'; // Default fortune master type
     
-    for (const part of parts) {
-      // Parse master type - check multiple patterns
-      if (part.includes('name="masterType"') || part.includes("name='masterType'") || part.includes('name=masterType')) {
-        const headerEnd = part.indexOf('\r\n\r\n');
-        if (headerEnd !== -1) {
-          const dataStart = headerEnd + 4;
-          const dataEnd = part.lastIndexOf('\r\n');
-          if (dataEnd > dataStart) {
-            const rawValue = part.substring(dataStart, dataEnd).trim();
-            // Remove any quotes or extra whitespace
-            masterType = rawValue.replace(/['"]/g, '').trim();
-            console.log('🎭 Raw master type value:', rawValue);
-            console.log('🎭 Cleaned master type:', masterType);
-            console.log('🎭 Is valid master?', Object.keys(fortuneMasterPrompts).includes(masterType));
-          }
-        }
-      }
+    // First, try to extract masterType from the raw buffer
+    const bufferStr = buffer.toString('binary');
+    console.log('🔍 Buffer preview:', bufferStr.substring(0, 500) + '...');
+    
+    // Look for masterType in the buffer
+    const masterTypeMatch = bufferStr.match(/name="masterType"[^\r\n]*\r\n\r\n([^\r\n]+)/);
+    if (masterTypeMatch) {
+      masterType = masterTypeMatch[1].trim();
+      console.log('🎭 Found masterType via regex:', masterType);
+    } else {
+      console.log('⚠️ No masterType found via regex, using default');
+    }
+    
+    // Parse multipart data for image
+    const parts = buffer.toString('binary').split(`--${boundary}`);
+    console.log('🔍 Total parts found:', parts.length);
+    
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      
       // Parse image
       if (part.includes('name="palmImage"')) {
         const headerEnd = part.indexOf('\r\n\r\n');
