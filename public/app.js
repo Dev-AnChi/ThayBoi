@@ -21,7 +21,7 @@ let sounds = {};
 let soundEnabled = true; // Sound toggle state
 let backgroundMusic = null; // Background music audio element
 let isBackgroundPlaying = false; // Background music state
-let backgroundVolume = 0.3; // Background music volume (0-1)
+let backgroundVolume = 0.6; // Background music volume (0-1) - increased for better audibility
 
 // ================================
 // DOM ELEMENTS
@@ -1830,10 +1830,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Sound is always enabled now
     soundEnabled = true;
     
-    // Load volume preference from localStorage
+    // Load volume preference from localStorage (default to 60% if not set)
     const savedVolume = localStorage.getItem('backgroundVolume');
     if (savedVolume !== null) {
         backgroundVolume = savedVolume / 100;
+    } else {
+        // Set default volume to 60% if no saved preference
+        backgroundVolume = 0.6;
+        localStorage.setItem('backgroundVolume', '60');
     }
     
     // Preload audio files
