@@ -1757,6 +1757,7 @@ function playBackgroundMusic(type) {
         const audio = new Audio();
         audio.loop = true;
         audio.volume = backgroundVolume;
+        audio.preload = 'auto';
         
         // Set audio source based on type
         if (type === 'homepage') {
@@ -1765,14 +1766,23 @@ function playBackgroundMusic(type) {
             audio.src = 'audio/fortune-bg.mp3';
         }
         
-        // Play the music
-        audio.play().then(() => {
-            backgroundMusic = audio;
-            isBackgroundPlaying = true;
-            console.log(`🎵 Playing ${type} background music`);
-        }).catch(error => {
-            console.log('Error playing background music:', error);
-        });
+        // Play the music with retry logic
+        const playMusic = () => {
+            audio.play().then(() => {
+                backgroundMusic = audio;
+                isBackgroundPlaying = true;
+                console.log(`🎵 Playing ${type} background music`);
+            }).catch(error => {
+                console.log('Error playing background music:', error);
+                // Retry after a short delay
+                setTimeout(() => {
+                    playMusic();
+                }, 1000);
+            });
+        };
+        
+        // Start playing
+        playMusic();
         
     } catch (error) {
         console.log('Error creating background music:', error);
@@ -1843,15 +1853,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Preload audio files
     preloadAudioFiles();
     
-    // Initialize audio context on first user interaction
+    // Initialize audio context and start music immediately
+    initAudioContext();
+    if (soundEnabled) {
+        // Start homepage music immediately
+        setTimeout(() => {
+            startHomepageMusic();
+        }, 1000);
+    }
+    
+    // Also start on first user interaction as backup
     document.addEventListener('click', () => {
-        initAudioContext();
-        if (soundEnabled) {
+        if (soundEnabled && !isBackgroundPlaying) {
             playSound('ambient'); // Play subtle ambient sound on first interaction
-            // Start homepage music after a short delay
-            setTimeout(() => {
-                startHomepageMusic();
-            }, 2000);
+            startHomepageMusic();
         }
     }, { once: true });
     
