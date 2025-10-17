@@ -153,9 +153,6 @@ async function getFortune() {
         const formData = new FormData();
         formData.append('palmImage', selectedFile);
         formData.append('masterType', selectedFortuneMaster); // Add selected fortune master
-        console.log('🎭 Sending fortune request with master:', selectedFortuneMaster);
-        console.log('🎭 Available masters:', Object.keys(fortuneMasterPersonalities));
-        console.log('🎭 Selected master details:', fortuneMasterPersonalities[selectedFortuneMaster]);
         formData.append('language', 'vi');
 
         console.log('📤 Sending request to API...');
@@ -222,13 +219,6 @@ async function getFortune() {
             
             // Display fortune sections
             console.log('🎨 Displaying fortune sections...');
-            
-            // Debug info
-            if (data.debug) {
-                console.log('🎭 API Debug - Master Type:', data.debug.masterType);
-                console.log('🎭 API Debug - Available:', data.debug.availableMasters);
-            }
-            
             displayFortuneSections(data.fortune);
         } else {
             console.log('❌ Fortune telling failed:', data.message);

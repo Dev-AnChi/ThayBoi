@@ -169,7 +169,6 @@ function sanitizePlainText(text) {
 
 async function generateFortuneFromImage(base64Image, mimeType, masterType = 'funny') {
   const prompt = getFortuneMasterPrompt(masterType);
-  console.log(`🎭 Using ${masterType} prompt for generation`);
   const modelCandidates = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-pro-vision'];
   const maxRetries = 3;
 
@@ -209,9 +208,6 @@ app.post('/api/fortune-telling', upload.single('palmImage'), async (req, res) =>
 
     // Get fortune master type from request body (default to 'funny')
     const masterType = req.body.masterType || 'funny';
-    console.log('🎭 Fortune master type:', masterType);
-    console.log('🎭 Available masters:', Object.keys(fortuneMasterPrompts));
-    console.log('🎭 Request body:', req.body);
 
     // Read the uploaded image
     const imagePath = req.file.path;

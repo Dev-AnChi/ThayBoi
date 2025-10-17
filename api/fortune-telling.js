@@ -166,20 +166,15 @@ export default async function handler(req, res) {
     
     // First, try to extract masterType from the raw buffer
     const bufferStr = buffer.toString('binary');
-    console.log('🔍 Buffer preview:', bufferStr.substring(0, 500) + '...');
     
     // Look for masterType in the buffer
     const masterTypeMatch = bufferStr.match(/name="masterType"[^\r\n]*\r\n\r\n([^\r\n]+)/);
     if (masterTypeMatch) {
       masterType = masterTypeMatch[1].trim();
-      console.log('🎭 Found masterType via regex:', masterType);
-    } else {
-      console.log('⚠️ No masterType found via regex, using default');
     }
     
     // Parse multipart data for image
     const parts = buffer.toString('binary').split(`--${boundary}`);
-    console.log('🔍 Total parts found:', parts.length);
     
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i];
@@ -219,15 +214,10 @@ export default async function handler(req, res) {
     // Validate and get appropriate prompt based on master type
     const validMasters = Object.keys(fortuneMasterPrompts);
     if (!validMasters.includes(masterType)) {
-      console.warn(`⚠️ Invalid master type "${masterType}", falling back to "funny"`);
       masterType = 'funny';
     }
     
     const prompt = getFortuneMasterPrompt(masterType);
-    console.log(`🎭 Using ${masterType} prompt`);
-    console.log(`🎭 Available masters:`, validMasters);
-    console.log(`🎭 Selected master:`, masterType);
-    console.log(`🎭 Prompt preview:`, prompt.substring(0, 100) + '...');
 
     // Call Gemini API
     const result = await model.generateContent([
@@ -260,16 +250,9 @@ export default async function handler(req, res) {
     }
 
 
-    // Add debug info to response
-    res.setHeader('X-Fortune-Master', masterType);
-    
     res.json({
       success: true,
-      fortune: fortuneData,
-      debug: {
-        masterType: masterType,
-        availableMasters: Object.keys(fortuneMasterPrompts)
-      }
+      fortune: fortuneData
     });
 
   } catch (error) {
