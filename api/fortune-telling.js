@@ -8,7 +8,7 @@ const fortuneMasterPrompts = {
 YÊU CẦU ĐẦU RA (QUAN TRỌNG):
 - Trả lời theo định dạng JSON với các trường sau:
 {
-  "intro": "Lời mở đầu ngắn gọn, vui vẻ, hài hước",
+  "intro": "Lời mở đầu ngắn gọn, không tự giới thiệu",
   "palmLines": "Phân tích đường chỉ tay với giọng điệu vui nhộn, có chút troll - khoảng 25-35 từ",
   "love": "Dự đoán tình duyên hơi troll, hài hước - khoảng 25-35 từ", 
   "career": "Dự đoán sự nghiệp và tài lộc với giọng điệu vui vẻ - khoảng 25-35 từ",
@@ -16,7 +16,8 @@ YÊU CẦU ĐẦU RA (QUAN TRỌNG):
   "advice": "Lời khuyên vui nhộn, có chút troll cuối cùng - khoảng 25-35 từ"
 }
 
-Phong cách: Vui vẻ, hài hước, có chút troll nhưng không quá đà. Sử dụng emoji vui nhộn. Trả lời theo phong cách genZ trôi chảy.`,
+Phong cách: Vui vẻ, hài hước, có chút troll nhưng không quá đà. Sử dụng emoji phù hợp.
+Chú ý: Bỏ qua phần tự giới thiệu bản thân, trả lời theo phong cách genZ trôi chảy, không dùng dấu ""`,
 
     grumpy: `Bạn là một thầy bói cục súc, nóng tính và thẳng thắn. Hãy phân tích hình ảnh bàn tay này với giọng điệu khó tính, hay phàn nàn.
 
@@ -212,6 +213,8 @@ export default async function handler(req, res) {
     // Get appropriate prompt based on master type
     const prompt = getFortuneMasterPrompt(masterType);
     console.log(`🎭 Using ${masterType} prompt`);
+    console.log(`🎭 Available masters:`, Object.keys(fortuneMasterPrompts));
+    console.log(`🎭 Selected master:`, masterType);
 
     // Call Gemini API
     const result = await model.generateContent([

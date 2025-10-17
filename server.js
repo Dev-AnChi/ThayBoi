@@ -210,6 +210,8 @@ app.post('/api/fortune-telling', upload.single('palmImage'), async (req, res) =>
     // Get fortune master type from request body (default to 'funny')
     const masterType = req.body.masterType || 'funny';
     console.log('🎭 Fortune master type:', masterType);
+    console.log('🎭 Available masters:', Object.keys(fortuneMasterPrompts));
+    console.log('🎭 Request body:', req.body);
 
     // Read the uploaded image
     const imagePath = req.file.path;

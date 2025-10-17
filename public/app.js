@@ -154,6 +154,8 @@ async function getFortune() {
         formData.append('palmImage', selectedFile);
         formData.append('masterType', selectedFortuneMaster); // Add selected fortune master
         console.log('🎭 Sending fortune request with master:', selectedFortuneMaster);
+        console.log('🎭 Available masters:', Object.keys(fortuneMasterPersonalities));
+        console.log('🎭 Selected master details:', fortuneMasterPersonalities[selectedFortuneMaster]);
         formData.append('language', 'vi');
 
         console.log('📤 Sending request to API...');
