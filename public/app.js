@@ -15,6 +15,14 @@ let mediaPipeFailed = false; // Track if MediaPipe has failed
 let currentCameraIndex = 0;
 let availableCameras = [];
 
+// Audio context and sounds
+let audioContext = null;
+let sounds = {};
+let soundEnabled = true; // Sound toggle state
+let backgroundMusic = null; // Background music audio element
+let isBackgroundPlaying = false; // Background music state
+let backgroundVolume = 0.3; // Background music volume (0-1)
+
 // ================================
 // DOM ELEMENTS
 // ================================
@@ -127,6 +135,9 @@ async function getFortune() {
     
     console.log('✅ Starting fortune telling process...');
     isProcessing = true;
+    playSound('startScanning'); // Play magical sparkle sound when starting
+    playSound('mysticalWhoosh'); // Add mystical transition effect
+    startFortuneMusic(); // Start suspenseful fortune music
 
     try {
         // Show loading
@@ -162,9 +173,24 @@ async function getFortune() {
 
         if (data.success) {
             console.log('✅ Fortune telling successful!');
-            // Show result
+            playSound('fortuneComplete'); // Play mystical completion sound
+            playSound('mysticalBell'); // Add ethereal bell effect
+            
+            // Show result with special sound effect
             elements.loadingSection.classList.add('hidden');
             elements.resultSection.classList.remove('hidden');
+            
+            // Play result reveal sound after a short delay
+            setTimeout(() => {
+                playSound('resultReveal'); // Special sound for showing result
+            }, 500);
+            
+            stopBackgroundMusic(); // Stop fortune music
+            
+            // Start homepage music after showing result
+            setTimeout(() => {
+                startHomepageMusic();
+            }, 3000);
             
             console.log('📱 Showing result screen...');
             // Stop camera after successful fortune reading
@@ -200,10 +226,17 @@ async function getFortune() {
 
     } catch (error) {
         console.error('❌ Fortune error:', error);
+        playSound('error'); // Play error sound
+        stopBackgroundMusic(); // Stop fortune music on error
         
         // Hide loading
         elements.loadingSection.classList.add('hidden');
         document.querySelector('.upload-section').classList.remove('hidden');
+        
+        // Start homepage music after error
+        setTimeout(() => {
+            startHomepageMusic();
+        }, 2000);
         
         if (String(error && error.message) === 'MODEL_OVERLOADED') {
             updateFortuneTellerSpeech("AI đang đông khách quá! Đợi vài giây rồi thử lại nhé ✨", 6000);
@@ -1040,6 +1073,8 @@ function onHandResults(results) {
         // Fortune teller acknowledges good palm (only once)
         if (!handDetected) {
             updateFortuneTellerSpeech("Tuyệt! Giữ yên nhé... 🔮", 3000);
+            playSound('handDetected'); // Play mystical chime when hand is first detected
+            playSound('mysticalSparkle'); // Add magical sparkle effect
         }
         
         // Calculate hand bounding box
@@ -1322,6 +1357,7 @@ function startNewReading() {
 if (elements.uploadArea && elements.palmInput) {
     elements.uploadArea.addEventListener('click', (e) => {
         if (!e.target.closest('.remove-btn')) {
+            playSound('buttonClick');
             elements.palmInput.click();
         }
     });
@@ -1368,17 +1404,26 @@ if (elements.removeBtn) {
 }
 
 // Fortune button
-elements.fortuneBtn.addEventListener('click', getFortune);
+elements.fortuneBtn.addEventListener('click', () => {
+    playSound('buttonClick');
+    getFortune();
+});
 
 // New reading button - simple full reload to avoid MediaPipe WASM issues
 elements.newReadingBtn.addEventListener('click', () => {
+    playSound('buttonClick');
+    playSound('mysticalWhoosh'); // Add magical transition sound
+    stopBackgroundMusic(); // Stop any playing music before reload
     console.log('🔄 Reloading page for a fresh reading...');
     // Use location.reload(true) behavior: force reload from server if possible
     window.location.reload();
 });
 
 // Share button
-elements.shareBtn.addEventListener('click', shareFortune);
+elements.shareBtn.addEventListener('click', () => {
+    playSound('success');
+    shareFortune();
+});
 
 // No manual camera button - auto start only
 
@@ -1401,6 +1446,374 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ================================
+// AUDIO SYSTEM
+// ================================
+
+// Initialize audio context
+function initAudioContext() {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+}
+
+// Create sound effects using Web Audio API
+function createSound(frequency, duration, type = 'sine', volume = 0.3) {
+    if (!audioContext) initAudioContext();
+    
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+    oscillator.type = type;
+    
+    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+    gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + 0.01);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + duration);
+}
+
+// Predefined sound effects
+const soundEffects = {
+    // Hand detection sound - clear and pleasant chime
+    handDetected: () => {
+        createSound(523, 0.2, 'sine', 0.15); // C5 - clear and pleasant
+        setTimeout(() => createSound(659, 0.2, 'sine', 0.12), 80); // E5 - perfect fifth
+        setTimeout(() => createSound(784, 0.3, 'sine', 0.1), 160); // G5 - perfect fifth
+    },
+    
+    // Start scanning sound - clear and pleasant sparkle
+    startScanning: () => {
+        createSound(440, 0.15, 'sine', 0.2); // A4 - clear and pleasant
+        setTimeout(() => createSound(554, 0.15, 'sine', 0.15), 60); // C#5 - major third
+        setTimeout(() => createSound(659, 0.15, 'sine', 0.12), 120); // E5 - perfect fifth
+        setTimeout(() => createSound(784, 0.2, 'sine', 0.1), 180); // G5 - perfect fifth
+    },
+    
+    // Fortune complete sound - clear and pleasant completion
+    fortuneComplete: () => {
+        createSound(330, 0.3, 'sine', 0.2); // E4 - clear and pleasant
+        setTimeout(() => createSound(440, 0.3, 'sine', 0.18), 150); // A4 - perfect fourth
+        setTimeout(() => createSound(554, 0.3, 'sine', 0.15), 300); // C#5 - major third
+        setTimeout(() => createSound(659, 0.4, 'sine', 0.12), 450); // E5 - perfect fifth
+    },
+    
+    // Button click sound - clear and pleasant click
+    buttonClick: () => {
+        createSound(800, 0.08, 'sine', 0.08); // Clear and pleasant click
+    },
+    
+    // Error sound - gentle and clear warning
+    error: () => {
+        createSound(400, 0.2, 'sine', 0.15); // Clear and gentle
+        setTimeout(() => createSound(350, 0.2, 'sine', 0.12), 100);
+    },
+    
+    // Success sound - clear and pleasant chime
+    success: () => {
+        createSound(523, 0.15, 'sine', 0.15); // C5 - clear and pleasant
+        setTimeout(() => createSound(659, 0.15, 'sine', 0.12), 80); // E5 - perfect fifth
+        setTimeout(() => createSound(784, 0.2, 'sine', 0.1), 160); // G5 - perfect fifth
+    },
+    
+    // Mystical sparkle - clear and pleasant twinkle
+    mysticalSparkle: () => {
+        createSound(880, 0.08, 'sine', 0.12); // A5 - clear and pleasant
+        setTimeout(() => createSound(1109, 0.08, 'sine', 0.1), 40); // C#6 - major third
+        setTimeout(() => createSound(1319, 0.08, 'sine', 0.08), 80); // E6 - perfect fifth
+        setTimeout(() => createSound(1568, 0.1, 'sine', 0.06), 120); // G6 - perfect fifth
+    },
+    
+    // Mystical whoosh - clear and pleasant transition
+    mysticalWhoosh: () => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        const filter = audioContext.createBiquadFilter();
+        
+        oscillator.connect(filter);
+        filter.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.type = 'sine'; // Clean sine wave
+        oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.4);
+        
+        filter.type = 'highpass'; // High-pass for clarity
+        filter.frequency.setValueAtTime(200, audioContext.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(1000, audioContext.currentTime + 0.4);
+        
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.08, audioContext.currentTime + 0.1);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.4);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.4);
+    },
+    
+    // Mystical bell - clear and pleasant chime
+    mysticalBell: () => {
+        const oscillator1 = audioContext.createOscillator();
+        const oscillator2 = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        const filter = audioContext.createBiquadFilter();
+        
+        oscillator1.connect(filter);
+        oscillator2.connect(filter);
+        filter.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        // Clear bell frequencies - perfect intervals
+        oscillator1.frequency.setValueAtTime(523, audioContext.currentTime); // C5 - clear and pleasant
+        oscillator2.frequency.setValueAtTime(659, audioContext.currentTime); // E5 - perfect fifth
+        
+        oscillator1.type = 'sine'; // Pure sine for clarity
+        oscillator2.type = 'sine'; // Pure sine for clarity
+        
+        filter.type = 'highpass'; // High-pass for clarity
+        filter.frequency.setValueAtTime(400, audioContext.currentTime);
+        filter.Q.setValueAtTime(0.5, audioContext.currentTime);
+        
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + 0.1);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1.5);
+        
+        oscillator1.start(audioContext.currentTime);
+        oscillator2.start(audioContext.currentTime);
+        
+        oscillator1.stop(audioContext.currentTime + 1.5);
+        oscillator2.stop(audioContext.currentTime + 1.5);
+    },
+    
+    // Result reveal sound - magical and satisfying
+    resultReveal: () => {
+        const oscillator1 = audioContext.createOscillator();
+        const oscillator2 = audioContext.createOscillator();
+        const oscillator3 = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        const filter = audioContext.createBiquadFilter();
+        
+        oscillator1.connect(filter);
+        oscillator2.connect(filter);
+        oscillator3.connect(filter);
+        filter.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        // Magical ascending scale - C major
+        oscillator1.frequency.setValueAtTime(523, audioContext.currentTime); // C5
+        oscillator2.frequency.setValueAtTime(659, audioContext.currentTime); // E5
+        oscillator3.frequency.setValueAtTime(784, audioContext.currentTime); // G5
+        
+        oscillator1.type = 'sine';
+        oscillator2.type = 'sine';
+        oscillator3.type = 'triangle';
+        
+        filter.type = 'highpass';
+        filter.frequency.setValueAtTime(300, audioContext.currentTime);
+        filter.Q.setValueAtTime(0.7, audioContext.currentTime);
+        
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.1);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 2);
+        
+        // Create magical ascending effect
+        const createAscendingEffect = () => {
+            const time = audioContext.currentTime;
+            oscillator1.frequency.setValueAtTime(523, time);
+            oscillator2.frequency.setValueAtTime(659, time);
+            oscillator3.frequency.setValueAtTime(784, time);
+            
+            // Ascend to higher notes
+            setTimeout(() => {
+                oscillator1.frequency.setValueAtTime(659, audioContext.currentTime); // E5
+                oscillator2.frequency.setValueAtTime(784, audioContext.currentTime); // G5
+                oscillator3.frequency.setValueAtTime(880, audioContext.currentTime); // A5
+            }, 200);
+            
+            setTimeout(() => {
+                oscillator1.frequency.setValueAtTime(784, audioContext.currentTime); // G5
+                oscillator2.frequency.setValueAtTime(880, audioContext.currentTime); // A5
+                oscillator3.frequency.setValueAtTime(1047, audioContext.currentTime); // C6
+            }, 400);
+        };
+        
+        oscillator1.start(audioContext.currentTime);
+        oscillator2.start(audioContext.currentTime);
+        oscillator3.start(audioContext.currentTime);
+        
+        createAscendingEffect();
+        
+        oscillator1.stop(audioContext.currentTime + 2);
+        oscillator2.stop(audioContext.currentTime + 2);
+        oscillator3.stop(audioContext.currentTime + 2);
+    },
+    
+    // Ambient background - clear and pleasant tone
+    ambient: () => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        const filter = audioContext.createBiquadFilter();
+        
+        oscillator.connect(filter);
+        filter.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4 - clear and pleasant
+        oscillator.type = 'sine'; // Pure sine for clarity
+        
+        filter.type = 'highpass'; // High-pass for clarity
+        filter.frequency.setValueAtTime(300, audioContext.currentTime);
+        filter.Q.setValueAtTime(0.5, audioContext.currentTime);
+        
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.03, audioContext.currentTime + 2);
+        
+        oscillator.start(audioContext.currentTime);
+        
+        // Stop after 8 seconds
+        setTimeout(() => {
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 2);
+            oscillator.stop(audioContext.currentTime + 2);
+        }, 6000);
+    },
+    
+    // Background music - now handled by generateHomepageMusic
+    backgroundMusic: () => {
+        // This is now handled by the new system
+        console.log('Background music now handled by new system');
+    },
+    
+    // Fortune telling music - now handled by generateFortuneMusic
+    fortuneMusic: () => {
+        // This is now handled by the new system
+        console.log('Fortune music now handled by new system');
+    },
+    
+    // Homepage ambient music - now handled by generateHomepageMusic
+    homepageMusic: () => {
+        // This is now handled by the new system
+        console.log('Homepage music now handled by new system');
+    }
+};
+
+// Play sound effect
+function playSound(soundName) {
+    try {
+        if (soundEnabled && soundEffects[soundName]) {
+            soundEffects[soundName]();
+        }
+    } catch (error) {
+        console.log('Audio not available:', error);
+    }
+}
+
+// Stop background music
+function stopBackgroundMusic() {
+    if (backgroundMusic && isBackgroundPlaying) {
+        try {
+            backgroundMusic.pause();
+            backgroundMusic.currentTime = 0;
+            backgroundMusic = null;
+            isBackgroundPlaying = false;
+        } catch (error) {
+            console.log('Error stopping background music:', error);
+            backgroundMusic = null;
+            isBackgroundPlaying = false;
+        }
+    }
+}
+
+// Start background music
+function startBackgroundMusic() {
+    if (soundEnabled && !isBackgroundPlaying) {
+        playBackgroundMusic('homepage');
+    }
+}
+
+// Start fortune music
+function startFortuneMusic() {
+    if (soundEnabled) {
+        playBackgroundMusic('fortune');
+    }
+}
+
+// Start homepage music
+function startHomepageMusic() {
+    if (soundEnabled && !isBackgroundPlaying) {
+        playBackgroundMusic('homepage');
+    }
+}
+
+// Play background music with HTML5 Audio
+function playBackgroundMusic(type) {
+    try {
+        // Stop current music
+        stopBackgroundMusic();
+        
+        // Create new audio element
+        const audio = new Audio();
+        audio.loop = true;
+        audio.volume = backgroundVolume;
+        
+        // Set audio source based on type
+        if (type === 'homepage') {
+            audio.src = 'audio/homepage-bg.mp3';
+        } else if (type === 'fortune') {
+            audio.src = 'audio/fortune-bg.mp3';
+        }
+        
+        // Play the music
+        audio.play().then(() => {
+            backgroundMusic = audio;
+            isBackgroundPlaying = true;
+            console.log(`🎵 Playing ${type} background music`);
+        }).catch(error => {
+            console.log('Error playing background music:', error);
+        });
+        
+    } catch (error) {
+        console.log('Error creating background music:', error);
+    }
+}
+
+// Sound is now always enabled - no toggle needed
+
+// Update background music volume
+function updateBackgroundVolume(volume) {
+    backgroundVolume = volume / 100; // Convert 0-100 to 0-1
+    localStorage.setItem('backgroundVolume', volume);
+    
+    // Update current background music volume if playing
+    if (backgroundMusic && isBackgroundPlaying) {
+        backgroundMusic.volume = backgroundVolume;
+    }
+}
+
+// Preload audio files for better performance
+function preloadAudioFiles() {
+    try {
+        // Preload homepage background music
+        const homepageAudio = new Audio();
+        homepageAudio.src = 'audio/homepage-bg.mp3';
+        homepageAudio.preload = 'auto';
+        
+        // Preload fortune background music
+        const fortuneAudio = new Audio();
+        fortuneAudio.src = 'audio/fortune-bg.mp3';
+        fortuneAudio.preload = 'auto';
+        
+        console.log('🎵 Audio files preloaded');
+    } catch (error) {
+        console.log('Error preloading audio files:', error);
+    }
+}
+
+// Music generation functions removed - now using real MP3 files
+
+// ================================
 // MOBILE DETECTION
 // ================================
 function isMobile() {
@@ -1414,6 +1827,32 @@ function isMobile() {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🔮 Mystical Fortune Teller initialized!');
     
+    // Sound is always enabled now
+    soundEnabled = true;
+    
+    // Load volume preference from localStorage
+    const savedVolume = localStorage.getItem('backgroundVolume');
+    if (savedVolume !== null) {
+        backgroundVolume = savedVolume / 100;
+    }
+    
+    // Preload audio files
+    preloadAudioFiles();
+    
+    // Initialize audio context on first user interaction
+    document.addEventListener('click', () => {
+        initAudioContext();
+        if (soundEnabled) {
+            playSound('ambient'); // Play subtle ambient sound on first interaction
+            // Start homepage music after a short delay
+            setTimeout(() => {
+                startHomepageMusic();
+            }, 2000);
+        }
+    }, { once: true });
+    
+    // Sound controls removed - sound is always enabled
+    
     // Check if mobile
     if (isMobile()) {
         console.log('📱 Mobile device detected');
@@ -1422,6 +1861,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fortune teller greets on startup
     setTimeout(() => {
         updateFortuneTellerSpeech("Chào bạn! Đang khởi động camera... 🔮", 3000);
+        // Add mystical sparkle when fortune teller greets
+        setTimeout(() => {
+            playSound('mysticalSparkle');
+        }, 1000);
     }, 500);
     
     // Auto start camera with delay to avoid conflicts (both mobile and desktop)
