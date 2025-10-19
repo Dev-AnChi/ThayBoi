@@ -62,7 +62,6 @@ const messages = {
     cameraPermissionDenied: '❌ Không thể truy cập camera. Vui lòng kiểm tra quyền truy cập.'
 };
 
-
 // ================================
 // FILE HANDLING
 // ================================
@@ -122,18 +121,14 @@ function resetUpload() {
 // FORTUNE TELLING
 // ================================
 async function getFortune() {
-    console.log('🔮 getFortune called, selectedFile:', !!selectedFile, 'isProcessing:', isProcessing);
     
     if (!selectedFile) {
-        console.log('❌ No selected file, aborting');
         return;
     }
     if (isProcessing) {
-        console.log('❌ Already processing, aborting');
         return;
     }
     
-    console.log('✅ Starting fortune telling process...');
     isProcessing = true;
     playSound('startScanning'); // Play magical sparkle sound when starting
     playSound('mysticalWhoosh'); // Add mystical transition effect
@@ -141,7 +136,6 @@ async function getFortune() {
 
     try {
         // Show loading
-        console.log('📱 Showing loading screen...');
         document.querySelector('.upload-section').classList.add('hidden');
         elements.resultSection.classList.add('hidden');
         elements.loadingSection.classList.remove('hidden');
@@ -155,14 +149,12 @@ async function getFortune() {
         formData.append('masterType', selectedFortuneMaster); // Add selected fortune master
         formData.append('language', 'vi');
 
-        console.log('📤 Sending request to API...');
         // Call API
         const response = await fetch('/api/fortune-telling', {
             method: 'POST',
             body: formData
         });
 
-        console.log('📥 Received response, status:', response.status);
         const data = await response.json();
         if (!response.ok) {
             if (data && data.error === 'MODEL_OVERLOADED') {
@@ -170,11 +162,7 @@ async function getFortune() {
             }
             throw new Error(data && data.message || 'API error');
         }
-        console.log('📊 Response data:', data);
-
         if (data.success) {
-            console.log('✅ Fortune telling successful!');
-            
             // Increment usage counter
             incrementUsageCount();
             
@@ -197,7 +185,6 @@ async function getFortune() {
                 startHomepageMusic();
             }, 3000);
             
-            console.log('📱 Showing result screen...');
             // Stop camera after successful fortune reading
             stopCamera();
             autoMode = false;
@@ -214,23 +201,18 @@ async function getFortune() {
                 "Tôi đã nhìn thấy tương lai của bạn rồi! 🎭"
             ];
             const randomMessage = fortuneMessages[Math.floor(Math.random() * fortuneMessages.length)];
-            // Text is now hardcoded in HTML
             
             // After showing result, keep quiet
             setTimeout(() => {
-                // Text is now hardcoded in HTML
             }, 3000);
             
             // Display fortune sections
-            console.log('🎨 Displaying fortune sections...');
             displayFortuneSections(data.fortune);
         } else {
-            console.log('❌ Fortune telling failed:', data.message);
             throw new Error(data.message || 'Fortune telling failed');
         }
 
     } catch (error) {
-        console.error('❌ Fortune error:', error);
         playSound('error'); // Play error sound
         stopBackgroundMusic(); // Stop fortune music on error
         
@@ -244,15 +226,12 @@ async function getFortune() {
         }, 2000);
         
         if (String(error && error.message) === 'MODEL_OVERLOADED') {
-            // Text is now hardcoded in HTML
             alert('Dịch vụ AI đang quá tải. Vui lòng thử lại sau ít phút.');
         } else {
             // Fortune teller apologizes
-            // Text is now hardcoded in HTML
             alert(messages.fortuneError);
         }
     } finally {
-        console.log('🏁 Fortune process completed, resetting isProcessing flag');
         if (!hasShownResult) {
             isProcessing = false;
         }
@@ -263,13 +242,9 @@ async function getFortune() {
 // DISPLAY FORTUNE SECTIONS
 // ================================
 function displayFortuneSections(fortuneData) {
-    console.log('🎨 Fortune data received:', fortuneData);
-    
     // Display single fortune text
     if (fortuneData.fortune) {
         const fortuneText = document.getElementById('fortuneText');
-        console.log('🎨 Fortune text element:', fortuneText);
-        
         if (fortuneText) {
             // Hide initially
             fortuneText.style.opacity = '0';
@@ -283,14 +258,10 @@ function displayFortuneSections(fortuneData) {
                 
                 // Typewriter effect
                 typeWriter(fortuneData.fortune, fortuneText, 15);
-                console.log('✅ Fortune text displayed:', fortuneData.fortune);
-            }, 500);
+                }, 500);
         } else {
-            console.error('❌ Fortune text element not found');
-        }
+            }
     } else {
-        console.error('❌ No fortune data found:', fortuneData);
-        
         // Fallback: try to display any available text
         const fortuneText = document.getElementById('fortuneText');
         if (fortuneText) {
@@ -323,9 +294,7 @@ function typeWriter(text, element, speed = 20) {
 // ================================
 // FORTUNE TELLER SPEECH
 // ================================
-// Function removed - text is now hardcoded in HTML
 
-// Function removed - text is now hardcoded in HTML
 
 // ================================
 // FORTUNE TELLER MAGIC EFFECTS
@@ -388,10 +357,8 @@ async function getAvailableCameras() {
         const devices = await navigator.mediaDevices.enumerateDevices();
         const videoInputs = devices.filter(d => d.kind === 'videoinput');
         availableCameras = videoInputs;
-        console.log('📷 Available cameras:', videoInputs.map(d => ({ id: d.deviceId, label: d.label })));
         return videoInputs;
     } catch (e) {
-        console.log('Failed to enumerate devices:', e);
         return [];
     }
 }
@@ -409,17 +376,13 @@ async function getPreferredBackCameraDeviceId() {
 }
 
 async function startCamera() {
-    console.log('🎥 Starting camera...');
-    
     // Check if we're in the right section
     const uploadSection = document.getElementById('uploadSection');
     if (!uploadSection || uploadSection.classList.contains('hidden')) {
-        console.log('🎥 Upload section not visible, skipping camera start');
         return;
     }
     
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        console.log('❌ Camera not supported');
         elements.cameraStatus.innerHTML = `
             <p style="color: #e74c3c;">❌ Trình duyệt không hỗ trợ camera</p>
             <p style="font-size: 0.9rem; margin-top: 0.5rem;">Vui lòng sử dụng trình duyệt hiện đại hơn (Chrome, Safari, Firefox)</p>
@@ -428,7 +391,6 @@ async function startCamera() {
     }
 
     try {
-        console.log('📹 Requesting camera access...');
         elements.cameraStatus.innerHTML = '<p>🔮 Đang yêu cầu quyền truy cập camera...</p>';
         
         // Simple, mobile-friendly constraints - start minimal
@@ -515,8 +477,6 @@ async function startCamera() {
         
         // If no camera works, show helpful message but don't crash
         if (!cameraSuccess) {
-            console.log('⚠️ No camera available, showing fallback message');
-            
             // Different message for mobile vs desktop
             if (isMobile()) {
                 elements.cameraStatus.innerHTML = `
@@ -577,12 +537,9 @@ async function startCamera() {
             }
         }, 2000);
         
-        console.log('📊 Camera starting with flags:', { isProcessing, handDetected, hasShownResult, autoMode });
-        
         // Initialize MediaPipe hands only after video metadata is ready
         const initHands = () => {
             elements.cameraStatus.innerHTML = '<p style="color: #3498db;">🔧 Đang khởi tạo quét bàn tay...</p>';
-            console.log('ℹ️ Video metadata ready, initializing hand detection');
             initializeHandDetection();
             elements.autoCaptureIndicator.classList.add('active');
             
@@ -598,11 +555,8 @@ async function startCamera() {
         }
         
         // Fortune teller welcomes user
-        // Text is now hardcoded in HTML
         
     } catch (e) {
-        console.error('❌ Camera error:', e);
-        
         // Error messages for different error types
         if (e.name === 'NotAllowedError') {
             elements.cameraStatus.innerHTML = `
@@ -632,8 +586,6 @@ async function startCamera() {
 }
 
 function stopCamera() {
-    console.log('🛑 Stopping camera...');
-    
     // Stop camera stream
     if (cameraStream) {
         cameraStream.getTracks().forEach(t => t.stop());
@@ -645,8 +597,7 @@ function stopCamera() {
         try {
             mpCamera.stop();
         } catch (e) {
-            console.log('Camera stop error (ignored):', e);
-        }
+            }
         mpCamera = null;
     }
     
@@ -655,8 +606,7 @@ function stopCamera() {
         try {
             hands.close();
         } catch (e) {
-            console.log('Hands close error (ignored):', e);
-        }
+            }
         hands = null;
     }
     
@@ -675,11 +625,9 @@ function stopCamera() {
         elements.cameraVideo.srcObject = null;
     }
     
-    console.log('✅ Camera stopped completely');
-}
+    }
 
 function closeCamera() {
-    console.log('❌ Closing camera...');
     stopCamera();
     
     // Hide camera section, show upload area
@@ -699,8 +647,6 @@ function closeCamera() {
 }
 
 function showMobileUploadInterface() {
-    console.log('📱 Setting up mobile upload interface...');
-    
     // Replace entire camera section with mobile upload interface
     const mobileUploadHTML = `
         <div class="mobile-upload-container">
@@ -795,8 +741,6 @@ function showMobileUploadInterface() {
 }
 
 async function switchCamera() {
-    console.log('🔄 Switching camera...');
-    
     if (availableCameras.length <= 1) {
         alert('Chỉ có 1 camera khả dụng');
         return;
@@ -805,8 +749,6 @@ async function switchCamera() {
     // Cycle through cameras
     currentCameraIndex = (currentCameraIndex + 1) % availableCameras.length;
     const selectedCamera = availableCameras[currentCameraIndex];
-    
-    console.log(`📷 Switching to camera ${currentCameraIndex}:`, selectedCamera.label);
     
     // Stop current camera
     stopCamera();
@@ -834,11 +776,8 @@ async function switchCamera() {
         
         await elements.cameraVideo.play();
         
-        console.log('✅ Camera switched successfully');
-        // Text is now hardcoded in HTML
         
     } catch (e) {
-        console.error('❌ Camera switch failed:', e);
         alert('Không thể chuyển camera. Thử lại nhé!');
         // Fallback to normal start
         startCamera();
@@ -846,17 +785,12 @@ async function switchCamera() {
 }
 
 function captureFrameToFile() {
-    console.log('📷 captureFrameToFile called');
-    
     const video = elements.cameraVideo;
     const canvas = elements.captureCanvas;
     const width = video.videoWidth;
     const height = video.videoHeight;
     
-    console.log('📐 Video dimensions:', width, 'x', height);
-    
     if (!width || !height) {
-        console.log('❌ Invalid video dimensions, aborting capture');
         return;
     }
 
@@ -865,34 +799,22 @@ function captureFrameToFile() {
     const ctx = canvas.getContext('2d');
     ctx.drawImage(video, 0, 0, width, height);
 
-    console.log('🖼️ Canvas drawn, converting to blob...');
-
     canvas.toBlob((blob) => {
         if (!blob) {
-            console.log('❌ Failed to create blob');
             return;
         }
-        console.log('✅ Blob created, size:', blob.size, 'bytes');
-        
         const file = new File([blob], `camera-palm-${Date.now()}.png`, { type: 'image/png' });
-        console.log('📁 File created:', file.name);
-        
         handleFileSelect(file);
         // Auto trigger fortune after file is ready
         setTimeout(() => {
-            console.log('🔮 Auto triggering getFortune...');
             getFortune();
         }, 100);
     }, 'image/png', 0.95);
 }
 
-
 function initializeHandDetection() {
-    console.log('🔍 Initializing hand detection...');
-    
     // If MediaPipe has failed before, use fallback mode
     if (mediaPipeFailed) {
-        console.log('⚠️ MediaPipe previously failed, using fallback mode');
         // Don't auto capture immediately, wait for user to put hand in frame
         // Show instruction and wait for manual trigger
         elements.cameraStatus.innerHTML = '<p>🔮 Đưa lòng bàn tay vào khung và bấm nút bên dưới để bói</p>';
@@ -905,14 +827,12 @@ function initializeHandDetection() {
         fallbackBtn.textContent = '📸 Chụp ảnh bàn tay';
         fallbackBtn.addEventListener('click', () => {
             if (!isProcessing) {
-                console.log('🔄 Fallback: Manual capture triggered');
                 autoCapture();
             }
         });
         elements.cameraStatus.appendChild(fallbackBtn);
         
         // Update fortune teller speech
-        // Text is now hardcoded in HTML
         return;
     }
     
@@ -921,8 +841,7 @@ function initializeHandDetection() {
         try {
             hands.close();
         } catch (e) {
-            console.log('Closing existing hands instance:', e);
-        }
+            }
         hands = null;
     }
     
@@ -930,8 +849,7 @@ function initializeHandDetection() {
         try {
             mpCamera.stop();
         } catch (e) {
-            console.log('Stopping existing camera:', e);
-        }
+            }
         mpCamera = null;
     }
     
@@ -940,7 +858,6 @@ function initializeHandDetection() {
         try {
             createMediaPipeInstances();
         } catch (error) {
-            console.error('❌ Failed to create MediaPipe instances:', error);
             mediaPipeFailed = true;
             switchToFallbackMode();
         }
@@ -949,12 +866,9 @@ function initializeHandDetection() {
 
 // Separate function to create MediaPipe instances
 function createMediaPipeInstances() {
-    console.log('🎯 Creating MediaPipe instances...');
-    
     try {
         // Check if MediaPipe is available
         if (typeof Hands === 'undefined') {
-            console.log('❌ MediaPipe Hands not loaded, using fallback mode');
             mediaPipeFailed = true;
             switchToFallbackMode();
             return;
@@ -978,8 +892,7 @@ function createMediaPipeInstances() {
             try {
                 onHandResults(results);
             } catch (error) {
-                console.error('❌ Error in onHandResults:', error);
-            }
+                }
         };
         
         mpCamera = new Camera(elements.cameraVideo, {
@@ -988,9 +901,7 @@ function createMediaPipeInstances() {
                     try {
                         await hands.send({ image: elements.cameraVideo });
                     } catch (error) {
-                        console.error('❌ Error sending frame to MediaPipe:', error);
                         if (error.message.includes('Aborted') || error.message.includes('Module.arguments') || error.message.includes('Could not establish connection')) {
-                            console.log('🔄 MediaPipe WASM error detected, switching to fallback mode');
                             mediaPipeFailed = true;
                             switchToFallbackMode();
                         }
@@ -1001,16 +912,12 @@ function createMediaPipeInstances() {
             height: 480
         });
         
-        console.log('✅ MediaPipe instances created successfully');
-        
-    } catch (error) {
-        console.error('❌ Failed to create MediaPipe instances:', error);
+        } catch (error) {
         mediaPipeFailed = true;
         switchToFallbackMode();
     }
     
     if (typeof Hands === 'undefined') {
-        console.log('❌ MediaPipe not loaded, using fallback detection');
         mediaPipeFailed = true;
         // Fallback: show manual capture button
         elements.cameraStatus.innerHTML = '<p style="color: #e67e22;">⚠️ MediaPipe không tải được. Dùng chế độ thủ công.</p>';
@@ -1022,18 +929,14 @@ function createMediaPipeInstances() {
         fallbackBtn.textContent = '📸 Chụp ảnh bàn tay';
         fallbackBtn.addEventListener('click', () => {
             if (!isProcessing) {
-                console.log('🔄 Fallback: Manual capture triggered');
                 autoCapture();
             }
         });
         elements.cameraStatus.appendChild(fallbackBtn);
         
-        // Text is now hardcoded in HTML
         return;
     }
 
-    console.log('✅ MediaPipe Hands loaded, setting up...');
-    
     // Create completely new instance with fresh configuration
     try {
         hands = new Hands({
@@ -1051,8 +954,6 @@ function createMediaPipeInstances() {
 
         hands.onResults(onHandResults);
         
-        console.log('🎯 Starting camera processing...');
-        
         // Start processing video frames with fresh camera instance
         mpCamera = new Camera(elements.cameraVideo, {
             onFrame: async () => {
@@ -1060,23 +961,20 @@ function createMediaPipeInstances() {
                     try {
                         await hands.send({ image: elements.cameraVideo });
                     } catch (e) {
-                        console.log('Hands send error, switching to fallback mode:', e);
                         mediaPipeFailed = true;
                         // Stop MediaPipe and use fallback
                         if (mpCamera) {
                             try {
                                 mpCamera.stop();
                             } catch (e2) {
-                                console.log('Camera stop error:', e2);
-                            }
+                                }
                             mpCamera = null;
                         }
                         if (hands) {
                             try {
                                 hands.close();
                             } catch (e2) {
-                                console.log('Hands close error:', e2);
-                            }
+                                }
                             hands = null;
                         }
                         // Use fallback - show manual capture button
@@ -1089,13 +987,11 @@ function createMediaPipeInstances() {
                         fallbackBtn.textContent = '📸 Chụp ảnh bàn tay';
                         fallbackBtn.addEventListener('click', () => {
                             if (!isProcessing) {
-                                console.log('🔄 Fallback: Manual capture triggered');
                                 autoCapture();
                             }
                         });
                         elements.cameraStatus.appendChild(fallbackBtn);
                         
-                        // Text is now hardcoded in HTML
                     }
                 }
             },
@@ -1104,9 +1000,7 @@ function createMediaPipeInstances() {
         });
         mpCamera.start();
         
-        console.log('✅ Hand detection initialized successfully');
-    } catch (e) {
-        console.error('❌ MediaPipe initialization failed, switching to fallback:', e);
+        } catch (e) {
         mediaPipeFailed = true;
         // Fallback: show manual capture button
         elements.cameraStatus.innerHTML = `<p style="color: #e74c3c;">❌ MediaPipe lỗi: ${e.message || e.name}. Dùng chế độ thủ công.</p>`;
@@ -1118,13 +1012,11 @@ function createMediaPipeInstances() {
         fallbackBtn.textContent = '📸 Chụp ảnh bàn tay';
         fallbackBtn.addEventListener('click', () => {
             if (!isProcessing) {
-                console.log('🔄 Fallback: Manual capture triggered');
                 autoCapture();
             }
         });
         elements.cameraStatus.appendChild(fallbackBtn);
         
-        // Text is now hardcoded in HTML
     }
 }
 
@@ -1136,31 +1028,24 @@ function onHandResults(results) {
     const videoHeight = video.videoHeight;
     
     if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-        console.log('✋ Hand detected!', results.multiHandLandmarks.length, 'hands');
-        
         const hand = results.multiHandLandmarks[0];
         
         // Check if it's a proper palm (not just fingers)
         const isProperPalm = checkPalmQuality(hand);
         
         if (!isProperPalm) {
-            console.log('❌ Not a proper palm, waiting for better view...');
             elements.handDetectionBox.classList.remove('active');
             elements.autoCaptureIndicator.classList.remove('active');
             handDetected = false;
             
             // Fortune teller gives guidance (only occasionally)
             if (Math.random() < 0.3) { // Only 30% chance to speak
-                // Text is now hardcoded in HTML
             }
             return;
         }
         
-        console.log('✅ Proper palm detected!');
-        
         // Fortune teller acknowledges good palm (only once)
         if (!handDetected) {
-            // Text is now hardcoded in HTML
             playSound('handDetected'); // Play mystical chime when hand is first detected
             playSound('mysticalSparkle'); // Add magical sparkle effect
         }
@@ -1191,16 +1076,13 @@ function onHandResults(results) {
         
         // Auto capture if palm is stable for 3 seconds (longer for better quality)
         if (!handDetected) {
-            console.log('⏱️ Palm stable, starting 3-second countdown...');
             handDetected = true;
             
             // Fortune teller starts countdown
-            // Text is now hardcoded in HTML
             
             if (handTimerId) clearTimeout(handTimerId);
             handTimerId = setTimeout(() => {
                 if (handDetected && autoMode && !isProcessing && !hasShownResult) {
-                    console.log('📸 Auto capturing palm now!');
                     autoCapture();
                 }
             }, 3000);
@@ -1208,8 +1090,7 @@ function onHandResults(results) {
     } else {
         // No hand detected
         if (handDetected) {
-            console.log('❌ Hand lost, resetting detection');
-        }
+            }
         elements.handDetectionBox.classList.remove('active');
         elements.autoCaptureIndicator.classList.remove('active');
         handDetected = false;
@@ -1239,13 +1120,6 @@ function checkPalmQuality(hand) {
     
     // Check if palm area is visible (wrist to middle of fingers)
     const palmVisibility = calculatePalmVisibility(hand);
-    
-    console.log('🔍 Palm quality check:', {
-        splayScore: splayScore.toFixed(2),
-        thumbIndexGap: thumbIndexGap.toFixed(2),
-        handSize: handSize.toFixed(2),
-        palmVisibility: palmVisibility.toFixed(2)
-    });
     
     // Criteria for good palm:
     // 1. Splay score > 0.22 (adjacent fingertips sufficiently apart)
@@ -1321,22 +1195,16 @@ function calculatePalmVisibility(hand) {
 
 function autoCapture() {
     const now = Date.now();
-    console.log('📸 autoCapture called, isProcessing:', isProcessing, 'timeDiff:', now - lastCaptureTime);
-    
     if (isProcessing) {
-        console.log('❌ Already processing, skipping capture');
         return; // Already processing a capture
     }
     if (hasShownResult) {
-        console.log('ℹ️ Result already shown, skip auto capture');
         return;
     }
     if (now - lastCaptureTime < 5000) {
-        console.log('❌ Too soon since last capture, skipping');
         return; // Prevent too frequent captures
     }
     
-    console.log('✅ Proceeding with auto capture');
     lastCaptureTime = now;
     
     // Fortune teller captures
@@ -1386,7 +1254,6 @@ async function shareFortune() {
             alert(messages.shareSuccess);
         }
     } catch (error) {
-        console.error('Share error:', error);
         alert(messages.shareError);
     }
 }
@@ -1436,7 +1303,6 @@ function startNewReading() {
     newBtn.style.display = 'none'; // Hide button, auto start camera
     newBtn.textContent = '🎥 Bật camera';
     newBtn.addEventListener('click', (e) => {
-        console.log('🎥 New camera button clicked!', e);
         startCamera();
     });
 }
@@ -1446,18 +1312,11 @@ let selectedFortuneMaster = 'funny'; // Default to funny master
 
 // Initialize fortune master selection
 function initFortuneMasterSelection() {
-    console.log('🎭 Initializing fortune master selection...');
-    
     // Wait for DOM to be ready
     setTimeout(() => {
         const fortuneMasterBtns = document.querySelectorAll('.fortune-master-btn');
-        console.log('🎭 Found fortune master buttons:', fortuneMasterBtns.length);
-        
         fortuneMasterBtns.forEach((btn, index) => {
-            console.log(`🎭 Setting up button ${index}:`, btn.dataset.master);
             btn.addEventListener('click', function() {
-                console.log('🎭 Button clicked:', this.dataset.master);
-                
                 // Remove active class from all buttons
                 fortuneMasterBtns.forEach(b => b.classList.remove('active'));
                 
@@ -1466,8 +1325,6 @@ function initFortuneMasterSelection() {
                 
                 // Update selected master
                 selectedFortuneMaster = this.dataset.master;
-                console.log('🎭 Selected master:', selectedFortuneMaster);
-                
                 // Play selection sound
                 if (typeof playSound === 'function') {
                     playSound('buttonClick');
@@ -1483,12 +1340,8 @@ function initFortuneMasterSelection() {
         
         // Handle start fortune button
         const startFortuneBtn = document.getElementById('startFortuneBtn');
-        console.log('🎭 Start fortune button found:', !!startFortuneBtn);
-        
         if (startFortuneBtn) {
             startFortuneBtn.addEventListener('click', function() {
-                console.log('🎭 Start fortune button clicked');
-                
                 // Play button click sound
                 if (typeof playSound === 'function') {
                     playSound('buttonClick');
@@ -1498,15 +1351,13 @@ function initFortuneMasterSelection() {
                 const fortuneMasterSection = document.getElementById('fortuneMasterSection');
                 if (fortuneMasterSection) {
                     fortuneMasterSection.classList.add('hidden');
-                    console.log('🎭 Hidden fortune master section');
-                }
+                    }
                 
                 // Show upload section (camera section)
                 const uploadSection = document.getElementById('uploadSection');
                 if (uploadSection) {
                     uploadSection.classList.remove('hidden');
-                    console.log('🎭 Shown upload section');
-                }
+                    }
                 
                 // Start camera after a short delay
                 setTimeout(() => {
@@ -1661,11 +1512,9 @@ const fortuneMasterPersonalities = {
     }
 };
 
-
 // ================================
 // EVENT LISTENERS
 // ================================
-
 
 // Upload area click (guard if upload area exists)
 if (elements.uploadArea && elements.palmInput) {
@@ -1740,8 +1589,6 @@ if (elements.newReadingBtn) {
             stopBackgroundMusic(); // Stop any playing music before reload
         }
         
-        console.log('🔄 Reloading page for new reading...');
-        
         // Reload the page from the beginning
         window.location.reload();
     });
@@ -1760,8 +1607,6 @@ if (elements.shareBtn) {
 }
 
 // No manual camera button - auto start only
-
-
 
 // ================================
 // KEYBOARD SHORTCUTS
@@ -2017,20 +1862,17 @@ const soundEffects = {
     // Background music - now handled by generateHomepageMusic
     backgroundMusic: () => {
         // This is now handled by the new system
-        console.log('Background music now handled by new system');
-    },
+        },
     
     // Fortune telling music - now handled by generateFortuneMusic
     fortuneMusic: () => {
         // This is now handled by the new system
-        console.log('Fortune music now handled by new system');
-    },
+        },
     
     // Homepage ambient music - now handled by generateHomepageMusic
     homepageMusic: () => {
         // This is now handled by the new system
-        console.log('Homepage music now handled by new system');
-    }
+        }
 };
 
 // Play sound effect
@@ -2040,8 +1882,7 @@ function playSound(soundName) {
             soundEffects[soundName]();
         }
     } catch (error) {
-        console.log('Audio not available:', error);
-    }
+        }
 }
 
 // Stop background music
@@ -2053,7 +1894,6 @@ function stopBackgroundMusic() {
             backgroundMusic = null;
             isBackgroundPlaying = false;
         } catch (error) {
-            console.log('Error stopping background music:', error);
             backgroundMusic = null;
             isBackgroundPlaying = false;
         }
@@ -2105,9 +1945,7 @@ function playBackgroundMusic(type) {
             audio.play().then(() => {
                 backgroundMusic = audio;
                 isBackgroundPlaying = true;
-                console.log(`🎵 Playing ${type} background music`);
-            }).catch(error => {
-                console.log('Error playing background music:', error);
+                }).catch(error => {
                 // Retry after a short delay
                 setTimeout(() => {
                     playMusic();
@@ -2119,8 +1957,7 @@ function playBackgroundMusic(type) {
         playMusic();
         
     } catch (error) {
-        console.log('Error creating background music:', error);
-    }
+        }
 }
 
 // Sound is now always enabled - no toggle needed
@@ -2149,10 +1986,8 @@ function preloadAudioFiles() {
         fortuneAudio.src = 'audio/fortune-bg.mp3';
         fortuneAudio.preload = 'auto';
         
-        console.log('🎵 Audio files preloaded');
-    } catch (error) {
-        console.log('Error preloading audio files:', error);
-    }
+        } catch (error) {
+        }
 }
 
 // Music generation functions removed - now using real MP3 files
@@ -2169,14 +2004,6 @@ function isMobile() {
 // INITIALIZE
 // ================================
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🔮 Mystical Fortune Teller initialized!');
-    console.log('🔮 DOM elements check:');
-    console.log('- fortuneMasterSection:', !!document.getElementById('fortuneMasterSection'));
-    console.log('- uploadSection:', !!document.getElementById('uploadSection'));
-    console.log('- startFortuneBtn:', !!document.getElementById('startFortuneBtn'));
-    console.log('- fortune master buttons:', document.querySelectorAll('.fortune-master-btn').length);
-    
-    // Sound is always enabled now
     soundEnabled = true;
     
     // Load volume preference from localStorage (default to 60% if not set)
@@ -2216,16 +2043,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, { once: true });
     
-    // Sound controls removed - sound is always enabled
     
     // Check if mobile
     if (isMobile()) {
-        console.log('📱 Mobile device detected');
-    }
+        }
     
     // Fortune teller greets on startup
     setTimeout(() => {
-        // Text is now hardcoded in HTML
         // Add mystical sparkle when fortune teller greets
         setTimeout(() => {
             if (typeof playSound === 'function') {
@@ -2239,24 +2063,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typeof initFortuneMasterSelection === 'function') {
             initFortuneMasterSelection();
         } else {
-            console.error('❌ initFortuneMasterSelection function not found');
-        }
+            }
         }, 500);
         
-        // Text is now hardcoded in HTML
         
-        // Don't auto start camera - wait for user to select fortune master first
     
-    // Add some mystical console art
-    console.log(`
-    ╔═══════════════════════════════════════╗
-    ║     🔮  THẦY BÓI THẦN THÁNH  🔮      ║
-    ║                                       ║
-    ║   Your destiny awaits in the stars   ║
-    ║         and in your palm...          ║
-    ╚═══════════════════════════════════════╝
-    `);
-});
+    });
 
 // ================================
 // EASTER EGG - Konami Code
@@ -2274,8 +2086,7 @@ document.addEventListener('keydown', (e) => {
             document.body.style.animation = '';
         }, 10000);
         
-        console.log('✨ 🎉 EASTER EGG ACTIVATED! You found the secret! 🎉 ✨');
-    }
+        }
 });
 
 // Add rainbow animation
@@ -2348,7 +2159,6 @@ async function loadUsageCount() {
             }
         }
     } catch (error) {
-        console.error('Error loading usage count:', error);
         const countElement = document.getElementById('usageCount');
         if (countElement) {
             countElement.textContent = '0';
@@ -2370,8 +2180,7 @@ async function incrementUsageCount() {
             }
         }
     } catch (error) {
-        console.error('Error incrementing usage count:', error);
-    }
+        }
 }
 
 // Make functions globally available

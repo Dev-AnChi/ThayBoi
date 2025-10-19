@@ -27,7 +27,6 @@ export default async function handler(req) {
             { status: 200, headers }
         );
     } catch (error) {
-        console.error('Error getting usage:', error);
         return new Response(
             JSON.stringify({ 
                 success: false, 
