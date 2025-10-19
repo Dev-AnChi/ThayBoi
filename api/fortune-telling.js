@@ -266,24 +266,6 @@ export default async function handler(req, res) {
     }
 
 
-    // Increment usage count
-    try {
-      const incrementResponse = await fetch(`${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'}/api/increment-usage`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (incrementResponse.ok) {
-        const incrementData = await incrementResponse.json();
-        console.log(`📊 Usage incremented to: ${incrementData.usage_count}`);
-      }
-    } catch (incrementError) {
-      console.error('❌ Failed to increment usage:', incrementError);
-      // Don't fail the main request if usage increment fails
-    }
-
     res.json({
       success: true,
       fortune: fortuneData

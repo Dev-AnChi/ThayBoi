@@ -174,6 +174,10 @@ async function getFortune() {
 
         if (data.success) {
             console.log('✅ Fortune telling successful!');
+            
+            // Increment usage counter
+            incrementUsageCount();
+            
             playSound('fortuneComplete'); // Play mystical completion sound
             playSound('mysticalBell'); // Add ethereal bell effect
             
@@ -322,26 +326,6 @@ function typeWriter(text, element, speed = 20) {
 // Function removed - text is now hardcoded in HTML
 
 // Function removed - text is now hardcoded in HTML
-
-// ================================
-// USAGE COUNTER FUNCTIONS
-// ================================
-async function loadUsageCount() {
-    try {
-        const response = await fetch('/api/get-usage');
-        const data = await response.json();
-        
-        if (data.success) {
-            const usageCountElement = document.getElementById('usageCount');
-            if (usageCountElement) {
-                usageCountElement.textContent = data.usage_count;
-                console.log(`📊 Loaded usage count: ${data.usage_count}`);
-            }
-        }
-    } catch (error) {
-        console.error('❌ Failed to load usage count:', error);
-    }
-}
 
 // ================================
 // FORTUNE TELLER MAGIC EFFECTS
@@ -2205,6 +2189,9 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('backgroundVolume', '60');
     }
     
+    // Load usage count on page load
+    loadUsageCount();
+    
     // Preload audio files
     preloadAudioFiles();
     
@@ -2258,9 +2245,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Text is now hardcoded in HTML
         
-        // Load usage count
-        loadUsageCount();
-        
         // Don't auto start camera - wait for user to select fortune master first
     
     // Add some mystical console art
@@ -2303,99 +2287,6 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
-
-// Stats functions
-async function showStats() {
-    try {
-        // Hide fortune master section
-        const fortuneMasterSection = document.getElementById('fortuneMasterSection');
-        if (fortuneMasterSection) {
-            fortuneMasterSection.style.display = 'none';
-        }
-        
-        // Show stats section
-        const statsSection = document.getElementById('statsSection');
-        if (statsSection) {
-            statsSection.style.display = 'block';
-        }
-        
-        // Load stats data
-        const response = await fetch('/api/usage-stats');
-        const data = await response.json();
-        
-        if (data.success) {
-            displayStats(data.stats);
-        } else {
-            document.getElementById('statsContent').innerHTML = 
-                '<div class="error">Không thể tải thống kê</div>';
-        }
-    } catch (error) {
-        console.error('Error loading stats:', error);
-        document.getElementById('statsContent').innerHTML = 
-            '<div class="error">Lỗi khi tải thống kê</div>';
-    }
-}
-
-function hideStats() {
-    // Hide stats section
-    const statsSection = document.getElementById('statsSection');
-    if (statsSection) {
-        statsSection.style.display = 'none';
-    }
-    
-    // Show fortune master section
-    const fortuneMasterSection = document.getElementById('fortuneMasterSection');
-    if (fortuneMasterSection) {
-        fortuneMasterSection.style.display = 'block';
-    }
-}
-
-function displayStats(stats) {
-    const statsContent = document.getElementById('statsContent');
-    
-    if (stats.total === 0) {
-        statsContent.innerHTML = '<div class="loading">Chưa có dữ liệu sử dụng</div>';
-        return;
-    }
-    
-    const masterNames = {
-        funny: 'Thầy Vui Tính',
-        grumpy: 'Thầy Cục Súc', 
-        sad: 'Thầy Buồn Bã',
-        boastful: 'Thầy Chém Gió',
-        dark: 'Thầy Hài Hước Đen',
-        poetic: 'Thầy Thơ Mộng'
-    };
-    
-    let html = `
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number">${stats.total}</div>
-                <div class="stat-label">Tổng lượt sử dụng</div>
-            </div>
-    `;
-    
-    // Add individual master stats
-    Object.entries(stats.byMaster).forEach(([master, count]) => {
-        const percentage = ((count / stats.total) * 100).toFixed(1);
-        html += `
-            <div class="stat-card">
-                <div class="stat-number">${count}</div>
-                <div class="stat-label">${masterNames[master] || master}</div>
-                <div class="stat-master">${percentage}%</div>
-            </div>
-        `;
-    });
-    
-    html += '</div>';
-    
-    if (stats.lastUsed) {
-        const lastUsed = new Date(stats.lastUsed).toLocaleString('vi-VN');
-        html += `<p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-top: 1rem;">Lần cuối sử dụng: ${lastUsed}</p>`;
-    }
-    
-    statsContent.innerHTML = html;
-}
 
 // QR Popup functions
 function showQRPopup() {
@@ -2442,9 +2333,50 @@ function hideQRPopup() {
     }
 }
 
+// ================================
+// USAGE COUNTER
+// ================================
+async function loadUsageCount() {
+    try {
+        const response = await fetch('/api/get-usage');
+        const data = await response.json();
+        
+        if (data.success) {
+            const countElement = document.getElementById('usageCount');
+            if (countElement) {
+                countElement.textContent = data.count;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading usage count:', error);
+        const countElement = document.getElementById('usageCount');
+        if (countElement) {
+            countElement.textContent = '0';
+        }
+    }
+}
+
+async function incrementUsageCount() {
+    try {
+        const response = await fetch('/api/increment-usage', {
+            method: 'POST'
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            const countElement = document.getElementById('usageCount');
+            if (countElement) {
+                countElement.textContent = data.count;
+            }
+        }
+    } catch (error) {
+        console.error('Error incrementing usage count:', error);
+    }
+}
+
 // Make functions globally available
-window.showStats = showStats;
-window.hideStats = hideStats;
 window.showQRPopup = showQRPopup;
 window.hideQRPopup = hideQRPopup;
+window.loadUsageCount = loadUsageCount;
+window.incrementUsageCount = incrementUsageCount;
 

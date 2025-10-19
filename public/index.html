@@ -31,17 +31,6 @@
             </p>
         </header>
 
-        <!-- Stats Section -->
-        <div class="stats-section" id="statsSection" style="display: none;">
-            <div class="upload-card">
-                <h3>📊 Thống kê sử dụng</h3>
-                <div class="stats-content" id="statsContent">
-                    <div class="loading">Đang tải thống kê...</div>
-                </div>
-                <button class="btn btn-secondary" onclick="hideStats()">Quay lại</button>
-            </div>
-        </div>
-
         <!-- Fortune Master Selection Section -->
         <div class="fortune-master-section" id="fortuneMasterSection">
             <div class="upload-card">
@@ -85,6 +74,9 @@
                     <span class="btn-text">
                         🔮 Bắt đầu xem bói
                     </span>
+                </button>
+                <button class="btn btn-secondary" onclick="showStats()" style="margin-top: 1rem;">
+                    📊 Xem thống kê
                 </button>
             </div>
         </div>
@@ -180,11 +172,6 @@
         </footer>
     </div>
 
-    <!-- Usage counter -->
-    <div class="usage-counter" id="usageCounter">
-        Số lượng sử dụng: <span id="usageCount">0</span>
-    </div>
-
     <!-- Floating fortune-teller popup -->
     <div class="fortune-popup" aria-live="polite" onclick="showQRPopup()" style="cursor: pointer;">
         <div class="fortune-popup-inner">
@@ -194,6 +181,11 @@
             </div>
             <div class="fortune-popup-text" id="fortuneTellerText">Bấm vào để mở rộng QR 🔮</div>
         </div>
+    </div>
+
+    <!-- Usage Counter (bottom left corner) -->
+    <div class="usage-counter">
+        Số lượng sử dụng: <span id="usageCount">...</span>
     </div>
 
     <!-- MediaPipe for hand detection -->

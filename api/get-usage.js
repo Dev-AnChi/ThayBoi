@@ -1,36 +1,41 @@
 import { get } from '@vercel/edge-config';
 
-export default async function handler(req, res) {
-    // Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+export const config = {
+    runtime: 'edge',
+};
+
+export default async function handler(req) {
+    const headers = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Content-Type': 'application/json',
+    };
 
     if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
-    }
-
-    if (req.method !== 'GET') {
-        return res.status(405).json({ error: 'Method not allowed' });
+        return new Response(null, { status: 200, headers });
     }
 
     try {
-        // Get current usage count from Edge Config
-        const usageCount = await get('usage_count') || 0;
+        const count = await get('usage_count') || 0;
         
-        console.log(`📊 Current usage count: ${usageCount}`);
-        
-        res.status(200).json({ 
-            success: true, 
-            usage_count: usageCount 
-        });
-        
+        return new Response(
+            JSON.stringify({ 
+                success: true, 
+                count: parseInt(count) 
+            }),
+            { status: 200, headers }
+        );
     } catch (error) {
-        console.error('❌ Error getting usage count:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: 'Failed to get usage count' 
-        });
+        console.error('Error getting usage:', error);
+        return new Response(
+            JSON.stringify({ 
+                success: false, 
+                error: error.message,
+                count: 0
+            }),
+            { status: 200, headers }
+        );
     }
 }
+
