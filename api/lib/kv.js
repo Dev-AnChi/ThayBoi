@@ -1,53 +1,65 @@
-// Simple persistent store using Vercel Edge Config with fallback
-
-// Global memory store as fallback
-let memoryStore = {};
+// Vercel Edge Config store
+import { get as edgeGet } from '@vercel/edge-config';
 
 export async function get(key) {
     try {
-        console.log('🔍 Getting key from Edge Config:', key);
-        const { get } = await import('@vercel/edge-config');
-        const value = await get(key);
-        console.log('📥 Retrieved value:', value);
+        const value = await edgeGet(key);
+        console.log('📥 Edge Config get:', key, '=', value);
         return value || 0;
     } catch (error) {
-        console.error('❌ Error getting data from Edge Config:', error.message);
-        console.log('🔄 Falling back to memory store');
-        return memoryStore[key] || 0;
+        console.error('❌ Edge Config get error:', error);
+        return 0;
     }
 }
 
 export async function set(key, value) {
+    // Edge Config doesn't support direct set from serverless functions
+    // We need to use the Edge Config API
     try {
-        console.log('💾 Setting key in Edge Config:', key, '=', value);
-        const { set } = await import('@vercel/edge-config');
-        await set(key, value);
-        console.log('✅ Successfully set key:', key, '=', value);
-        return value;
+        const response = await fetch(
+            `https://api.vercel.com/v1/edge-config/${process.env.EDGE_CONFIG_ID}/items`,
+            {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${process.env.EDGE_CONFIG_TOKEN}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    items: [
+                        {
+                            operation: 'upsert',
+                            key: key,
+                            value: value,
+                        },
+                    ],
+                }),
+            }
+        );
+        
+        if (response.ok) {
+            console.log('✅ Edge Config set:', key, '=', value);
+            return value;
+        } else {
+            const error = await response.text();
+            console.error('❌ Edge Config set error:', error);
+            return value;
+        }
     } catch (error) {
-        console.error('❌ Error setting data to Edge Config:', error.message);
-        console.log('🔄 Falling back to memory store');
-        memoryStore[key] = value;
+        console.error('❌ Edge Config set error:', error);
         return value;
     }
 }
 
 export async function incr(key) {
     try {
-        console.log('➕ Incrementing key:', key);
         const current = await get(key);
         const newValue = (parseInt(current) || 0) + 1;
-        console.log('📊 Current value:', current, 'New value:', newValue);
         await set(key, newValue);
-        console.log('✅ Successfully incremented key:', key, 'to:', newValue);
+        console.log('✅ Edge Config incremented:', key, 'to', newValue);
         return newValue;
     } catch (error) {
-        console.error('❌ Error incrementing data in Edge Config:', error.message);
-        console.log('🔄 Falling back to memory store');
-        const current = memoryStore[key] || 0;
-        const newValue = parseInt(current) + 1;
-        memoryStore[key] = newValue;
-        return newValue;
+        console.error('❌ Edge Config incr error:', error);
+        return 1;
     }
 }
 
