@@ -1,48 +1,36 @@
-// Simple persistent store using file system
-
-import fs from 'fs';
-import path from 'path';
-
-const DATA_FILE = path.join(process.cwd(), 'usage_data.json');
-
-function loadData() {
-    try {
-        if (fs.existsSync(DATA_FILE)) {
-            const data = fs.readFileSync(DATA_FILE, 'utf8');
-            return JSON.parse(data);
-        }
-    } catch (error) {
-        console.log('Error loading data:', error.message);
-    }
-    return {};
-}
-
-function saveData(data) {
-    try {
-        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-        return true;
-    } catch (error) {
-        console.log('Error saving data:', error.message);
-        return false;
-    }
-}
+// Simple persistent store using Vercel Edge Config
 
 export async function get(key) {
-    const data = loadData();
-    return data[key] || null;
+    try {
+        const { get } = await import('@vercel/edge-config');
+        const value = await get(key);
+        return value || 0;
+    } catch (error) {
+        console.log('Error getting data from Edge Config:', error.message);
+        return 0;
+    }
 }
 
 export async function set(key, value) {
-    const data = loadData();
-    data[key] = value;
-    saveData(data);
-    return true;
+    try {
+        const { set } = await import('@vercel/edge-config');
+        await set(key, value);
+        return value;
+    } catch (error) {
+        console.log('Error setting data to Edge Config:', error.message);
+        return value;
+    }
 }
 
 export async function incr(key) {
-    const current = await get(key);
-    const newValue = (parseInt(current) || 0) + 1;
-    await set(key, newValue);
-    return newValue;
+    try {
+        const current = await get(key);
+        const newValue = (parseInt(current) || 0) + 1;
+        await set(key, newValue);
+        return newValue;
+    } catch (error) {
+        console.log('Error incrementing data in Edge Config:', error.message);
+        return 1;
+    }
 }
 
