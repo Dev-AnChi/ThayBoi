@@ -1,7 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import fs from 'fs';
 import path from 'path';
-import { incr } from './lib/kv.js';
 
 // Fortune telling prompt
 // Fortune master prompts
@@ -78,14 +77,13 @@ function getFortuneMasterPrompt(masterType = 'funny') {
     return fortuneMasterPrompts[masterType] || fortuneMasterPrompts.funny;
 }
 
-// Usage logging functions - using Edge Config
-async function logUsage(masterType, req) {
+// Usage logging functions - simple console log for now
+function logUsage(masterType, req) {
     try {
         console.log(`📊 Usage logged: ${masterType} at ${new Date().toISOString()}`);
         
-        // Increment usage count using Edge Config
-        const newCount = await incr('usage_count');
-        console.log(`📈 Usage count incremented to: ${newCount}`);
+        // For now, just log to console
+        // Edge Config will be handled by separate API calls
         
     } catch (error) {
         console.error('Error logging usage:', error);
@@ -212,7 +210,7 @@ export default async function handler(req, res) {
     const prompt = getFortuneMasterPrompt(masterType);
 
     // Log usage
-    await logUsage(masterType, req);
+    logUsage(masterType, req);
 
     // Call Gemini API
     const result = await model.generateContent([
