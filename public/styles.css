@@ -269,6 +269,26 @@ body {
     }
 }
 
+/* Usage Counter */
+.usage-counter {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 100;
+}
+
+.usage-counter #usageCount {
+    color: var(--mystical-glow-bright);
+    font-weight: 600;
+}
+
 /* QR Popup */
 .qr-popup {
     position: fixed;
@@ -341,26 +361,6 @@ body {
     transform: translateY(-2px);
 }
 
-/* Usage Stats */
-.usage-stats {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    background: rgba(0, 0, 0, 0.6);
-    color: rgba(255, 255, 255, 0.7);
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    z-index: 100;
-}
-
-.usage-stats #usageCount {
-    color: var(--mystical-glow-bright);
-    font-weight: 600;
-}
-
 @keyframes popupSlideIn {
     from {
         opacity: 0;
@@ -391,7 +391,15 @@ body {
     letter-spacing: 0.5px;
 }
 
-/* Removed first-letter styling - keep text normal */
+.fortune-text::first-letter {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--mystical-glow-bright);
+    float: left;
+    line-height: 1;
+    margin-right: 0.5rem;
+    margin-top: 0.2rem;
+}
 
 /* Fortune Teller Speech Hover */
 .fortune-teller-speech {

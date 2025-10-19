@@ -120,30 +120,6 @@ function getFortuneMasterPrompt(masterType = 'funny') {
     return fortuneMasterPrompts[masterType] || fortuneMasterPrompts.funny;
 }
 
-// Usage logging functions
-function logUsage(masterType, req) {
-    try {
-        const logFile = path.join(__dirname, 'usage_count.txt');
-        
-        // Read current count
-        let count = 0;
-        if (fs.existsSync(logFile)) {
-            const data = fs.readFileSync(logFile, 'utf8');
-            count = parseInt(data.trim()) || 0;
-        }
-        
-        // Increment count
-        count += 1;
-        
-        // Write new count back to file
-        fs.writeFileSync(logFile, count.toString());
-        
-        console.log(`📊 Usage count: ${count}`);
-    } catch (error) {
-        console.error('Error logging usage:', error);
-    }
-}
-
 // Sanitize AI text to remove common markdown formatting just in case
 function sanitizePlainText(text) {
   if (!text || typeof text !== 'string') return text;
@@ -202,9 +178,6 @@ app.post('/api/fortune-telling', upload.single('palmImage'), async (req, res) =>
 
     // Get fortune master type from request body (default to 'funny')
     const masterType = req.body.masterType || 'funny';
-
-    // Log usage
-    logUsage(masterType, req);
 
     // Read the uploaded image
     const imagePath = req.file.path;
@@ -349,32 +322,6 @@ app.post('/api/fortune', upload.single('palmImage'), async (req, res) => {
       message: statusCode === 503 ? 'Dịch vụ AI đang quá tải. Vui lòng thử lại sau ít phút.' : error.message
     };
     res.status(statusCode).json(payload);
-  }
-});
-
-// Usage stats endpoint
-app.get('/api/usage-stats', (req, res) => {
-  try {
-    const logFile = path.join(__dirname, 'usage_count.txt');
-    let count = 0;
-
-    if (fs.existsSync(logFile)) {
-      const data = fs.readFileSync(logFile, 'utf8');
-      count = parseInt(data.trim()) || 0;
-    }
-
-    res.json({
-      success: true,
-      stats: { 
-        total: count 
-      }
-    });
-  } catch (error) {
-    console.error('Error reading usage stats:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to read usage statistics'
-    });
   }
 });
 

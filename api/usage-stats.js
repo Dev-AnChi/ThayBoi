@@ -1,4 +1,5 @@
-import { get } from './lib/kv.js';
+import fs from 'fs';
+import path from 'path';
 
 export default async function handler(req, res) {
   // Enable CORS
@@ -16,14 +17,26 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Use KV store for persistent counter
-    const count = await get('usage_count') || 0;
+    const logFile = path.join(process.cwd(), 'usage_log.json');
     
+    if (!fs.existsSync(logFile)) {
+      return res.json({
+        success: true,
+        stats: {
+          total: 0,
+          byMaster: {},
+          lastUsed: null,
+          message: 'Chưa có dữ liệu sử dụng'
+        }
+      });
+    }
+
+    const data = fs.readFileSync(logFile, 'utf8');
+    const usageData = JSON.parse(data);
+
     res.json({
       success: true,
-      stats: { 
-        total: count 
-      }
+      stats: usageData
     });
 
   } catch (error) {

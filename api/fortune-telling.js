@@ -77,14 +77,27 @@ function getFortuneMasterPrompt(masterType = 'funny') {
     return fortuneMasterPrompts[masterType] || fortuneMasterPrompts.funny;
 }
 
-// Usage logging functions - simple console log for now
-function logUsage(masterType, req) {
+// Usage logging functions
+function logUsage(masterType) {
     try {
-        console.log(`📊 Usage logged: ${masterType} at ${new Date().toISOString()}`);
+        const logFile = path.join(process.cwd(), 'usage_log.json');
+        let usageData = { total: 0, byMaster: {} };
         
-        // For now, just log to console
-        // Edge Config will be handled by separate API calls
+        // Read existing data
+        if (fs.existsSync(logFile)) {
+            const data = fs.readFileSync(logFile, 'utf8');
+            usageData = JSON.parse(data);
+        }
         
+        // Update counts
+        usageData.total += 1;
+        usageData.byMaster[masterType] = (usageData.byMaster[masterType] || 0) + 1;
+        usageData.lastUsed = new Date().toISOString();
+        
+        // Write back to file
+        fs.writeFileSync(logFile, JSON.stringify(usageData, null, 2));
+        
+        console.log(`📊 Usage logged: Total=${usageData.total}, ${masterType}=${usageData.byMaster[masterType]}`);
     } catch (error) {
         console.error('Error logging usage:', error);
     }
@@ -210,7 +223,7 @@ export default async function handler(req, res) {
     const prompt = getFortuneMasterPrompt(masterType);
 
     // Log usage
-    logUsage(masterType, req);
+    logUsage(masterType);
 
     // Call Gemini API
     const result = await model.generateContent([
@@ -252,6 +265,24 @@ export default async function handler(req, res) {
       };
     }
 
+
+    // Increment usage count
+    try {
+      const incrementResponse = await fetch(`${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'}/api/increment-usage`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (incrementResponse.ok) {
+        const incrementData = await incrementResponse.json();
+        console.log(`📊 Usage incremented to: ${incrementData.usage_count}`);
+      }
+    } catch (incrementError) {
+      console.error('❌ Failed to increment usage:', incrementError);
+      // Don't fail the main request if usage increment fails
+    }
 
     res.json({
       success: true,

@@ -220,9 +220,6 @@ async function getFortune() {
             // Display fortune sections
             console.log('🎨 Displaying fortune sections...');
             displayFortuneSections(data.fortune);
-            
-            // Increment usage count and update display
-            await incrementUsage();
         } else {
             console.log('❌ Fortune telling failed:', data.message);
             throw new Error(data.message || 'Fortune telling failed');
@@ -327,65 +324,23 @@ function typeWriter(text, element, speed = 20) {
 // Function removed - text is now hardcoded in HTML
 
 // ================================
-// USAGE STATS
+// USAGE COUNTER FUNCTIONS
 // ================================
-async function loadUsageStats() {
+async function loadUsageCount() {
     try {
-        // Load from our own server
-        const response = await fetch('/api/usage-stats');
+        const response = await fetch('/api/get-usage');
+        const data = await response.json();
         
-        if (response.ok) {
-            const data = await response.json();
-            const count = data.stats?.total || 0;
-            
-            const usageCount = document.getElementById('usageCount');
-            if (usageCount) {
-                usageCount.textContent = count;
-                console.log('📊 Loaded usage count from server:', count);
-            } else {
-                console.log('❌ Usage count element not found');
+        if (data.success) {
+            const usageCountElement = document.getElementById('usageCount');
+            if (usageCountElement) {
+                usageCountElement.textContent = data.usage_count;
+                console.log(`📊 Loaded usage count: ${data.usage_count}`);
             }
         }
     } catch (error) {
-        console.log('Could not load usage stats:', error);
-        // Keep default value of 0
+        console.error('❌ Failed to load usage count:', error);
     }
-}
-
-// Function to increment usage count - using our server
-async function incrementUsage() {
-    try {
-        // Use our own increment API
-        const response = await fetch('/api/increment-usage', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            const newCount = data.count || 0;
-            
-            console.log('📊 Usage count incremented to:', newCount);
-            
-            // Update display immediately
-            const usageCount = document.getElementById('usageCount');
-            if (usageCount) {
-                usageCount.textContent = newCount;
-            }
-            
-            return newCount;
-        }
-    } catch (error) {
-        console.log('Could not increment usage:', error);
-        // Fallback: show error
-        const usageCount = document.getElementById('usageCount');
-        if (usageCount) {
-            usageCount.textContent = '?';
-        }
-    }
-    return null;
 }
 
 // ================================
@@ -2303,10 +2258,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Text is now hardcoded in HTML
         
-        // Load usage stats on page load
-        loadUsageStats();
-        
-        // Simple stats loading
+        // Load usage count
+        loadUsageCount();
         
         // Don't auto start camera - wait for user to select fortune master first
     
@@ -2490,7 +2443,8 @@ function hideQRPopup() {
 }
 
 // Make functions globally available
-// Stats functions removed
+window.showStats = showStats;
+window.hideStats = hideStats;
 window.showQRPopup = showQRPopup;
 window.hideQRPopup = hideQRPopup;
 
