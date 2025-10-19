@@ -221,17 +221,8 @@ async function getFortune() {
             console.log('🎨 Displaying fortune sections...');
             displayFortuneSections(data.fortune);
             
-            // Increment usage count on server first, then refresh stats
-            const newCount = await incrementUsage();
-            if (newCount !== null) {
-                // Update display immediately with the new count
-                const usageCount = document.getElementById('usageCount');
-                if (usageCount) {
-                    usageCount.textContent = newCount;
-                }
-            }
-            // Also refresh from server to be sure
-            loadUsageStats();
+            // Increment usage count locally
+            await incrementUsage();
         } else {
             console.log('❌ Fortune telling failed:', data.message);
             throw new Error(data.message || 'Fortune telling failed');
@@ -340,16 +331,19 @@ function typeWriter(text, element, speed = 20) {
 // ================================
 async function loadUsageStats() {
     try {
-        const response = await fetch('/api/usage-stats');
-        const data = await response.json();
+        // Load from external counter service
+        const response = await fetch('https://api.countapi.xyz/get/thay-boi-usage');
         
-        console.log('📊 Stats response:', data);
-        
-        if (data.success && data.stats) {
+        if (response.ok) {
+            const data = await response.json();
+            const count = data.value || 0;
+            
             const usageCount = document.getElementById('usageCount');
             if (usageCount) {
-                usageCount.textContent = data.stats.total || 0;
-                console.log('📊 Updated usage count to:', data.stats.total);
+                usageCount.textContent = count;
+                console.log('📊 Loaded usage count from external service:', count);
+            } else {
+                console.log('❌ Usage count element not found');
             }
         }
     } catch (error) {
@@ -358,25 +352,27 @@ async function loadUsageStats() {
     }
 }
 
-// Function to increment usage count
+// Function to increment usage count - using external service
 async function incrementUsage() {
     try {
-        console.log('📊 Calling increment-usage API...');
-        const response = await fetch('/api/increment-usage', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+        // Use a simple external counter service
+        const response = await fetch('https://api.countapi.xyz/hit/thay-boi-usage', {
+            method: 'GET'
         });
-        
-        console.log('📊 Increment response status:', response.status);
         
         if (response.ok) {
             const data = await response.json();
-            console.log('📊 Usage count incremented to:', data.count);
-            return data.count;
-        } else {
-            console.log('❌ Increment failed with status:', response.status);
+            const newCount = data.value;
+            
+            console.log('📊 Usage count incremented to:', newCount);
+            
+            // Update display immediately
+            const usageCount = document.getElementById('usageCount');
+            if (usageCount) {
+                usageCount.textContent = newCount;
+            }
+            
+            return newCount;
         }
     } catch (error) {
         console.log('Could not increment usage:', error);
