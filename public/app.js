@@ -222,7 +222,15 @@ async function getFortune() {
             displayFortuneSections(data.fortune);
             
             // Increment usage count on server first, then refresh stats
-            await incrementUsage();
+            const newCount = await incrementUsage();
+            if (newCount !== null) {
+                // Update display immediately with the new count
+                const usageCount = document.getElementById('usageCount');
+                if (usageCount) {
+                    usageCount.textContent = newCount;
+                }
+            }
+            // Also refresh from server to be sure
             loadUsageStats();
         } else {
             console.log('❌ Fortune telling failed:', data.message);
@@ -335,10 +343,15 @@ async function loadUsageStats() {
         const response = await fetch('/api/usage-stats');
         const data = await response.json();
         
+        console.log('📊 Stats response:', data);
+        
         if (data.success && data.stats) {
             const usageCount = document.getElementById('usageCount');
             if (usageCount) {
                 usageCount.textContent = data.stats.total || 0;
+                console.log('📊 Updated usage count to:', data.stats.total);
+            } else {
+                console.log('❌ Usage count element not found');
             }
         }
     } catch (error) {
@@ -350,6 +363,7 @@ async function loadUsageStats() {
 // Function to increment usage count
 async function incrementUsage() {
     try {
+        console.log('📊 Calling increment-usage API...');
         const response = await fetch('/api/increment-usage', {
             method: 'POST',
             headers: {
@@ -357,10 +371,14 @@ async function incrementUsage() {
             }
         });
         
+        console.log('📊 Increment response status:', response.status);
+        
         if (response.ok) {
             const data = await response.json();
             console.log('📊 Usage count incremented to:', data.count);
             return data.count;
+        } else {
+            console.log('❌ Increment failed with status:', response.status);
         }
     } catch (error) {
         console.log('Could not increment usage:', error);
