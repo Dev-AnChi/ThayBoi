@@ -1064,9 +1064,16 @@ function onHandResults(results) {
         const halfWidth = boxWidth / 2;
         const halfHeight = boxHeight / 2;
         
-        // Use palm center (landmark 9) with even more left adjustment
-        // This ensures the box is perfectly centered on the palm
-        const centerX = palmCenter.x - 0.055; // Move frame even more left
+        // Auto-detect hand and adjust offset for perfect centering
+        // Check if it's left hand (thumb on left) or right hand (thumb on right)
+        const thumbTip = hand[4];
+        const indexTip = hand[8];
+        const isLeftHand = thumbTip.x < indexTip.x; // Left hand: thumb is to the left of index
+        
+        // Adjust offset: Left hand needs more left shift, Right hand needs less
+        const offsetX = isLeftHand ? -0.15 : -0.055; // Left hand: more left, Right hand: less left
+        
+        const centerX = palmCenter.x + offsetX;
         const centerY = palmCenter.y;
         
         // Calculate final positions with different width/height
