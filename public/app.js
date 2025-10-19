@@ -1050,25 +1050,42 @@ function onHandResults(results) {
             playSound('mysticalSparkle'); // Add magical sparkle effect
         }
         
-        // Calculate hand bounding box
-        const xCoords = hand.map(point => point.x);
-        const yCoords = hand.map(point => point.y);
-        const minX = Math.min(...xCoords);
-        const maxX = Math.max(...xCoords);
-        const minY = Math.min(...yCoords);
-        const maxY = Math.max(...yCoords);
+        // Calculate vertical palm-focused box
+        const palmCenter = hand[9]; // Palm center landmark
+        const wrist = hand[0]; // Wrist landmark
+        
+        // Get finger tip positions
+        const fingerTips = [4, 8, 12, 16, 20]; // Finger tip landmarks
+        
+        // Create a smaller horizontal box, just enough for palm
+        // Smaller width, taller height for palm detection
+        const boxWidth = 0.25; // Smaller width for palm
+        const boxHeight = 0.4; // Taller height for palm
+        const halfWidth = boxWidth / 2;
+        const halfHeight = boxHeight / 2;
+        
+        // Use palm center (landmark 9) with even more left adjustment
+        // This ensures the box is perfectly centered on the palm
+        const centerX = palmCenter.x - 0.055; // Move frame even more left
+        const centerY = palmCenter.y;
+        
+        // Calculate final positions with different width/height
+        const finalMinX = Math.max(0, centerX - halfWidth);
+        const finalMaxX = Math.min(1, centerX + halfWidth);
+        const finalMinY = Math.max(0, centerY - halfHeight);
+        const finalMaxY = Math.min(1, centerY + halfHeight);
         
         // Convert to pixel coordinates
-        const boxX = minX * videoWidth;
-        const boxY = minY * videoHeight;
-        const boxWidth = (maxX - minX) * videoWidth;
-        const boxHeight = (maxY - minY) * videoHeight;
+        const boxX = finalMinX * videoWidth;
+        const boxY = finalMinY * videoHeight;
+        const pixelBoxWidth = (finalMaxX - finalMinX) * videoWidth;
+        const pixelBoxHeight = (finalMaxY - finalMinY) * videoHeight;
         
         // Update detection box
         elements.handDetectionBox.style.left = boxX + 'px';
         elements.handDetectionBox.style.top = boxY + 'px';
-        elements.handDetectionBox.style.width = boxWidth + 'px';
-        elements.handDetectionBox.style.height = boxHeight + 'px';
+        elements.handDetectionBox.style.width = pixelBoxWidth + 'px';
+        elements.handDetectionBox.style.height = pixelBoxHeight + 'px';
         elements.handDetectionBox.classList.add('active');
         
         // Show auto capture indicator

@@ -680,12 +680,13 @@ body {
 
 .hand-detection-box {
     position: absolute;
-    border: 3px solid #00ff00;
-    border-radius: 10px;
-    background: rgba(0, 255, 0, 0.1);
+    border: 3px solid #00ff88;
+    border-radius: 20px;
+    background: rgba(0, 255, 136, 0.15);
     opacity: 0;
     transition: all 0.3s ease;
     pointer-events: none;
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
 }
 
 .hand-detection-box.active {
