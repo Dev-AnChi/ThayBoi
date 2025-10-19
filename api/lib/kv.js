@@ -1,50 +1,41 @@
-// Simple store using Vercel Edge Config or memory fallback
+// Simple persistent store using file system
 
-let memoryStore = {};
+import fs from 'fs';
+import path from 'path';
+
+const DATA_FILE = path.join(process.cwd(), 'usage_data.json');
+
+function loadData() {
+    try {
+        if (fs.existsSync(DATA_FILE)) {
+            const data = fs.readFileSync(DATA_FILE, 'utf8');
+            return JSON.parse(data);
+        }
+    } catch (error) {
+        console.log('Error loading data:', error.message);
+    }
+    return {};
+}
+
+function saveData(data) {
+    try {
+        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+        return true;
+    } catch (error) {
+        console.log('Error saving data:', error.message);
+        return false;
+    }
+}
 
 export async function get(key) {
-    // Try to use Vercel Edge Config if available
-    if (process.env.EDGE_CONFIG_ID && process.env.EDGE_CONFIG_TOKEN) {
-        try {
-            const response = await fetch(`https://api.vercel.com/v1/edge-config/${process.env.EDGE_CONFIG_ID}/items`, {
-                headers: {
-                    Authorization: `Bearer ${process.env.EDGE_CONFIG_TOKEN}`
-                }
-            });
-            const data = await response.json();
-            return data[key] || null;
-        } catch (error) {
-            console.log('Edge Config not available, using memory:', error.message);
-        }
-    }
-    
-    // Fallback to memory store
-    return memoryStore[key] || null;
+    const data = loadData();
+    return data[key] || null;
 }
 
 export async function set(key, value) {
-    // Try to use Vercel Edge Config if available
-    if (process.env.EDGE_CONFIG_ID && process.env.EDGE_CONFIG_TOKEN) {
-        try {
-            const response = await fetch(`https://api.vercel.com/v1/edge-config/${process.env.EDGE_CONFIG_ID}/items`, {
-                method: 'PATCH',
-                headers: {
-                    Authorization: `Bearer ${process.env.EDGE_CONFIG_TOKEN}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    [key]: value
-                })
-            });
-            await response.json();
-            return true;
-        } catch (error) {
-            console.log('Edge Config not available, using memory:', error.message);
-        }
-    }
-    
-    // Fallback to memory store
-    memoryStore[key] = value;
+    const data = loadData();
+    data[key] = value;
+    saveData(data);
     return true;
 }
 
