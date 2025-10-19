@@ -17,18 +17,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    const logFile = path.join(process.cwd(), 'usage_count.txt');
-    let count = 0;
-
-    if (fs.existsSync(logFile)) {
-      const data = fs.readFileSync(logFile, 'utf8');
-      count = parseInt(data.trim()) || 0;
+    // Use a simple in-memory counter for now
+    // In production, you would use a database like MongoDB, PostgreSQL, or Redis
+    if (!global.usageCount) {
+      global.usageCount = 0;
     }
-
+    
     res.json({
       success: true,
       stats: { 
-        total: count 
+        total: global.usageCount 
       }
     });
 

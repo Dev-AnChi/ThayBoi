@@ -221,7 +221,8 @@ async function getFortune() {
             console.log('🎨 Displaying fortune sections...');
             displayFortuneSections(data.fortune);
             
-            // Refresh usage stats after successful fortune telling
+            // Increment usage count on server first, then refresh stats
+            await incrementUsage();
             loadUsageStats();
         } else {
             console.log('❌ Fortune telling failed:', data.message);
@@ -346,7 +347,26 @@ async function loadUsageStats() {
     }
 }
 
-// Detailed stats function removed - using simple count only
+// Function to increment usage count
+async function incrementUsage() {
+    try {
+        const response = await fetch('/api/increment-usage', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log('📊 Usage count incremented to:', data.count);
+            return data.count;
+        }
+    } catch (error) {
+        console.log('Could not increment usage:', error);
+    }
+    return null;
+}
 
 // ================================
 // FORTUNE TELLER MAGIC EFFECTS

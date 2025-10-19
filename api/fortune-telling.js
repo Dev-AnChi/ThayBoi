@@ -77,25 +77,15 @@ function getFortuneMasterPrompt(masterType = 'funny') {
     return fortuneMasterPrompts[masterType] || fortuneMasterPrompts.funny;
 }
 
-// Usage logging functions
+// Usage logging functions - using environment variable for serverless
 function logUsage(masterType, req) {
     try {
-        const logFile = path.join(process.cwd(), 'usage_count.txt');
+        // For serverless environments, we'll use a simple approach
+        // In production, you might want to use a database or external service
+        console.log(`📊 Usage logged: ${masterType} at ${new Date().toISOString()}`);
         
-        // Read current count
-        let count = 0;
-        if (fs.existsSync(logFile)) {
-            const data = fs.readFileSync(logFile, 'utf8');
-            count = parseInt(data.trim()) || 0;
-        }
-        
-        // Increment count
-        count += 1;
-        
-        // Write new count back to file
-        fs.writeFileSync(logFile, count.toString());
-        
-        console.log(`📊 Usage count: ${count}`);
+        // Optional: You can implement external logging here
+        // For now, just log to console for debugging
     } catch (error) {
         console.error('Error logging usage:', error);
     }
