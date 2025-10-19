@@ -1,4 +1,4 @@
-export default function handler(req, res) {
+export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -13,35 +13,38 @@ export default function handler(req, res) {
     }
 
     try {
-        // Use /tmp directory for persistence (survives during cold starts)
-        const tmpFile = '/tmp/usage_count.txt';
-        let count = 0;
-        
-        // Read current count
-        try {
-            if (require('fs').existsSync(tmpFile)) {
-                const data = require('fs').readFileSync(tmpFile, 'utf8');
-                count = parseInt(data.trim()) || 0;
+        // Get current count from external storage
+        const getResponse = await fetch('https://api.jsonbin.io/v3/b/65f8a1231f5677401f2b8a1a/latest', {
+            headers: {
+                'X-Master-Key': '$2a$10$8K1p/a0dL3KzQbVQ8K1p/a0dL3KzQbVQ8K1p/a0dL3KzQbVQ8K1p/a0dL3KzQbVQ'
             }
-        } catch (readError) {
-            console.log('Could not read count, starting from 0');
+        });
+        
+        let currentCount = 0;
+        if (getResponse.ok) {
+            const data = await getResponse.json();
+            currentCount = data.record?.count || 0;
         }
         
-        // Increment
-        count += 1;
+        // Increment count
+        const newCount = currentCount + 1;
         
-        // Write back
-        try {
-            require('fs').writeFileSync(tmpFile, count.toString());
-            console.log(`📊 Usage count incremented to: ${count} at ${new Date().toISOString()}`);
-        } catch (writeError) {
-            console.error('Could not write count:', writeError);
-        }
+        // Update external storage
+        const updateResponse = await fetch('https://api.jsonbin.io/v3/b/65f8a1231f5677401f2b8a1a', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Master-Key': '$2a$10$8K1p/a0dL3KzQbVQ8K1p/a0dL3KzQbVQ8K1p/a0dL3KzQbVQ8K1p/a0dL3KzQbVQ'
+            },
+            body: JSON.stringify({ count: newCount })
+        });
+        
+        console.log(`📊 Usage count incremented to: ${newCount} at ${new Date().toISOString()}`);
         
         res.status(200).json({ 
             success: true, 
             message: 'Usage logged successfully',
-            count: count
+            count: newCount
         });
     } catch (error) {
         console.error('Error incrementing usage:', error);

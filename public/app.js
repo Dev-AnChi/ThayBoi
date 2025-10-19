@@ -350,8 +350,6 @@ async function loadUsageStats() {
             if (usageCount) {
                 usageCount.textContent = data.stats.total || 0;
                 console.log('📊 Updated usage count to:', data.stats.total);
-            } else {
-                console.log('❌ Usage count element not found');
             }
         }
     } catch (error) {
