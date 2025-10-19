@@ -17,8 +17,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Use a simple in-memory counter for now
-    // In production, you would use a database like MongoDB, PostgreSQL, or Redis
+    // Use a simple in-memory counter that persists during the session
     if (!global.usageCount) {
       global.usageCount = 0;
     }

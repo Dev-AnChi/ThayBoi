@@ -221,7 +221,7 @@ async function getFortune() {
             console.log('🎨 Displaying fortune sections...');
             displayFortuneSections(data.fortune);
             
-            // Increment usage count locally
+            // Increment usage count and then load stats
             await incrementUsage();
         } else {
             console.log('❌ Fortune telling failed:', data.message);
