@@ -29,8 +29,18 @@
             <p class="subtitle">
                 Khám phá vận mệnh qua đường chỉ tay
             </p>
-            
         </header>
+
+        <!-- Stats Section -->
+        <div class="stats-section" id="statsSection" style="display: none;">
+            <div class="upload-card">
+                <h3>📊 Thống kê sử dụng</h3>
+                <div class="stats-content" id="statsContent">
+                    <div class="loading">Đang tải thống kê...</div>
+                </div>
+                <button class="btn btn-secondary" onclick="hideStats()">Quay lại</button>
+            </div>
+        </div>
 
         <!-- Fortune Master Selection Section -->
         <div class="fortune-master-section" id="fortuneMasterSection">
@@ -136,35 +146,9 @@
                     </h2>
                 </div>
                 <div class="result-content" id="fortuneResult">
-                    <!-- Fortune sections will be inserted here -->
-                    <div class="fortune-section" id="introSection">
-                        <h3 class="section-title">🌟 Lời chào</h3>
-                        <p class="section-content" id="introContent"></p>
-                    </div>
-                    
-                    <div class="fortune-section" id="palmLinesSection">
-                        <h3 class="section-title">✋ Phân tích đường chỉ tay</h3>
-                        <p class="section-content" id="palmLinesContent"></p>
-                    </div>
-                    
-                    <div class="fortune-section" id="loveSection">
-                        <h3 class="section-title">💕 Tình duyên</h3>
-                        <p class="section-content" id="loveContent"></p>
-                    </div>
-                    
-                    <div class="fortune-section" id="careerSection">
-                        <h3 class="section-title">💼 Sự nghiệp & Tài lộc</h3>
-                        <p class="section-content" id="careerContent"></p>
-                    </div>
-                    
-                    <div class="fortune-section" id="healthSection">
-                        <h3 class="section-title">🏥 Sức khỏe & May mắn</h3>
-                        <p class="section-content" id="healthContent"></p>
-                    </div>
-                    
-                    <div class="fortune-section" id="adviceSection">
-                        <h3 class="section-title">💡 Lời khuyên</h3>
-                        <p class="section-content" id="adviceContent"></p>
+                    <!-- Single fortune text -->
+                    <div class="fortune-card">
+                        <div class="fortune-text" id="fortuneText"></div>
                     </div>
                 </div>
                 <div class="result-actions">
@@ -176,6 +160,13 @@
                     </button>
                 </div>
             </div>
+        </div>
+
+        <!-- QR Code Button - Fixed bottom right -->
+        <div class="qr-code-container">
+            <button class="qr-button" onclick="showQRPopup()" title="Xem QR Code">
+                📱
+            </button>
         </div>
 
         <!-- Footer -->
@@ -190,14 +181,19 @@
     </div>
 
     <!-- Floating fortune-teller popup -->
-    <div class="fortune-popup" aria-live="polite">
+    <div class="fortune-popup" aria-live="polite" onclick="showQRPopup()" style="cursor: pointer;">
         <div class="fortune-popup-inner">
             <div class="fortune-teller-avatar small">
                 <div class="fortune-teller-face">🧙‍♂️</div>
                 <div class="fortune-teller-crystal-ball">🔮</div>
             </div>
-            <div class="fortune-popup-text" id="fortuneTellerText">Chào bạn! Hãy đưa lòng bàn tay vào khung nhé ✋</div>
+            <div class="fortune-popup-text" id="fortuneTellerText">Bấm vào để mở rộng QR 🔮</div>
         </div>
+    </div>
+
+    <!-- Usage stats display -->
+    <div class="usage-stats" id="usageStats">
+        Số lượng sử dụng: <span id="usageCount">0</span>
     </div>
 
     <!-- MediaPipe for hand detection -->

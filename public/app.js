@@ -210,16 +210,19 @@ async function getFortune() {
                 "Tôi đã nhìn thấy tương lai của bạn rồi! 🎭"
             ];
             const randomMessage = fortuneMessages[Math.floor(Math.random() * fortuneMessages.length)];
-            updateFortuneTellerSpeech(randomMessage, 3000);
+            // Text is now hardcoded in HTML
             
             // After showing result, keep quiet
             setTimeout(() => {
-                updateFortuneTellerSpeech("", 0); // Empty message, no auto reset
+                // Text is now hardcoded in HTML
             }, 3000);
             
             // Display fortune sections
             console.log('🎨 Displaying fortune sections...');
             displayFortuneSections(data.fortune);
+            
+            // Refresh usage stats after successful fortune telling
+            loadUsageStats();
         } else {
             console.log('❌ Fortune telling failed:', data.message);
             throw new Error(data.message || 'Fortune telling failed');
@@ -240,11 +243,11 @@ async function getFortune() {
         }, 2000);
         
         if (String(error && error.message) === 'MODEL_OVERLOADED') {
-            updateFortuneTellerSpeech("AI đang đông khách quá! Đợi vài giây rồi thử lại nhé ✨", 6000);
+            // Text is now hardcoded in HTML
             alert('Dịch vụ AI đang quá tải. Vui lòng thử lại sau ít phút.');
         } else {
             // Fortune teller apologizes
-            updateFortuneTellerSpeech("Có sự cố! Thử lại nhé! 😅", 5000);
+            // Text is now hardcoded in HTML
             alert(messages.fortuneError);
         }
     } finally {
@@ -259,33 +262,43 @@ async function getFortune() {
 // DISPLAY FORTUNE SECTIONS
 // ================================
 function displayFortuneSections(fortuneData) {
-    const sections = [
-        { id: 'introContent', content: fortuneData.intro },
-        { id: 'palmLinesContent', content: fortuneData.palmLines },
-        { id: 'loveContent', content: fortuneData.love },
-        { id: 'careerContent', content: fortuneData.career },
-        { id: 'healthContent', content: fortuneData.health },
-        { id: 'adviceContent', content: fortuneData.advice }
-    ];
-
-    sections.forEach((section, index) => {
-        const element = document.getElementById(section.id);
-        if (element && section.content) {
-            // Hide section initially
-            element.parentElement.style.opacity = '0';
-            element.parentElement.style.transform = 'translateY(20px)';
+    console.log('🎨 Fortune data received:', fortuneData);
+    
+    // Display single fortune text
+    if (fortuneData.fortune) {
+        const fortuneText = document.getElementById('fortuneText');
+        console.log('🎨 Fortune text element:', fortuneText);
+        
+        if (fortuneText) {
+            // Hide initially
+            fortuneText.style.opacity = '0';
+            fortuneText.style.transform = 'translateY(20px)';
             
-            // Show section with delay
+            // Show with animation
             setTimeout(() => {
-                element.parentElement.style.transition = 'all 0.6s ease-out';
-                element.parentElement.style.opacity = '1';
-                element.parentElement.style.transform = 'translateY(0)';
+                fortuneText.style.transition = 'all 0.8s ease-out';
+                fortuneText.style.opacity = '1';
+                fortuneText.style.transform = 'translateY(0)';
                 
-                // Typewriter effect for content
-                typeWriter(section.content, element, 15);
-            }, index * 300);
+                // Typewriter effect
+                typeWriter(fortuneData.fortune, fortuneText, 15);
+                console.log('✅ Fortune text displayed:', fortuneData.fortune);
+            }, 500);
+        } else {
+            console.error('❌ Fortune text element not found');
         }
-    });
+    } else {
+        console.error('❌ No fortune data found:', fortuneData);
+        
+        // Fallback: try to display any available text
+        const fortuneText = document.getElementById('fortuneText');
+        if (fortuneText) {
+            const fallbackText = "Xin lỗi, không thể tạo lời bói lúc này. Vui lòng thử lại sau! 🔮";
+            fortuneText.textContent = fallbackText;
+            fortuneText.style.opacity = '1';
+            fortuneText.style.transform = 'translateY(0)';
+        }
+    }
 }
 
 // ================================
@@ -309,35 +322,31 @@ function typeWriter(text, element, speed = 20) {
 // ================================
 // FORTUNE TELLER SPEECH
 // ================================
-function updateFortuneTellerSpeech(message, duration = 3000) {
-    if (!elements.fortuneTellerText) return;
-    
-    elements.fortuneTellerText.textContent = message;
-    
-    // Add typing effect
-    elements.fortuneTellerText.style.opacity = '0.7';
-    setTimeout(() => {
-        elements.fortuneTellerText.style.opacity = '1';
-    }, 200);
-    
-    // Auto reset after duration
-    if (duration > 0) {
-        setTimeout(() => {
-            resetFortuneTellerSpeech();
-        }, duration);
+// Function removed - text is now hardcoded in HTML
+
+// Function removed - text is now hardcoded in HTML
+
+// ================================
+// USAGE STATS
+// ================================
+async function loadUsageStats() {
+    try {
+        const response = await fetch('/api/usage-stats');
+        const data = await response.json();
+        
+        if (data.success && data.stats) {
+            const usageCount = document.getElementById('usageCount');
+            if (usageCount) {
+                usageCount.textContent = data.stats.total || 0;
+            }
+        }
+    } catch (error) {
+        console.log('Could not load usage stats:', error);
+        // Keep default value of 0
     }
 }
 
-function resetFortuneTellerSpeech() {
-    const defaultMessages = [
-        "Đưa lòng bàn tay vào khung nhé ✋",
-        "Chờ bạn đưa tay vào đây... 🤲",
-        "Lòng bàn tay sẽ tiết lộ vận mệnh! 🔮"
-    ];
-    
-    const randomMessage = defaultMessages[Math.floor(Math.random() * defaultMessages.length)];
-    updateFortuneTellerSpeech(randomMessage, 0); // No auto reset
-}
+// Detailed stats function removed - using simple count only
 
 // ================================
 // FORTUNE TELLER MAGIC EFFECTS
@@ -610,7 +619,7 @@ async function startCamera() {
         }
         
         // Fortune teller welcomes user
-        updateFortuneTellerSpeech("Camera sẵn sàng! Đưa lòng bàn tay vào khung nhé! ✋", 5000);
+        // Text is now hardcoded in HTML
         
     } catch (e) {
         console.error('❌ Camera error:', e);
@@ -698,7 +707,16 @@ function closeCamera() {
     elements.cameraSection.classList.add('hidden');
     elements.uploadArea.classList.remove('hidden');
     
-    updateFortuneTellerSpeech("Chụp hoặc tải ảnh lòng bàn tay lên nhé! 📷", 5000);
+    // FORCE: Always show QR message
+    if (elements.fortuneTellerText) {
+        elements.fortuneTellerText.textContent = "Bấm vào để mở rộng QR 🔮";
+        elements.fortuneTellerText.style.cursor = 'pointer';
+        elements.fortuneTellerText.onclick = function() {
+            if (typeof showQRPopup === 'function') {
+                showQRPopup();
+            }
+        };
+    }
 }
 
 function showMobileUploadInterface() {
@@ -785,7 +803,16 @@ function showMobileUploadInterface() {
     }
     
     // Update fortune teller message
-    updateFortuneTellerSpeech("Chào bạn! Hãy chụp ảnh lòng bàn tay nhé! 📷✋", 5000);
+    // FORCE: Always show QR message
+    if (elements.fortuneTellerText) {
+        elements.fortuneTellerText.textContent = "Bấm vào để mở rộng QR 🔮";
+        elements.fortuneTellerText.style.cursor = 'pointer';
+        elements.fortuneTellerText.onclick = function() {
+            if (typeof showQRPopup === 'function') {
+                showQRPopup();
+            }
+        };
+    }
 }
 
 async function switchCamera() {
@@ -829,7 +856,7 @@ async function switchCamera() {
         await elements.cameraVideo.play();
         
         console.log('✅ Camera switched successfully');
-        updateFortuneTellerSpeech(`Đã chuyển sang camera ${currentCameraIndex + 1}! ✨`, 3000);
+        // Text is now hardcoded in HTML
         
     } catch (e) {
         console.error('❌ Camera switch failed:', e);
@@ -906,7 +933,7 @@ function initializeHandDetection() {
         elements.cameraStatus.appendChild(fallbackBtn);
         
         // Update fortune teller speech
-        updateFortuneTellerSpeech("MediaPipe gặp sự cố! Hãy đưa tay vào khung và bấm nút chụp nhé! 📸", 0);
+        // Text is now hardcoded in HTML
         return;
     }
     
@@ -1022,7 +1049,7 @@ function createMediaPipeInstances() {
         });
         elements.cameraStatus.appendChild(fallbackBtn);
         
-        updateFortuneTellerSpeech("MediaPipe chưa tải xong! Hãy đưa tay vào khung và bấm nút chụp nhé! 📸", 0);
+        // Text is now hardcoded in HTML
         return;
     }
 
@@ -1089,7 +1116,7 @@ function createMediaPipeInstances() {
                         });
                         elements.cameraStatus.appendChild(fallbackBtn);
                         
-                        updateFortuneTellerSpeech("MediaPipe gặp lỗi! Hãy đưa tay vào khung và bấm nút chụp nhé! 📸", 0);
+                        // Text is now hardcoded in HTML
                     }
                 }
             },
@@ -1118,7 +1145,7 @@ function createMediaPipeInstances() {
         });
         elements.cameraStatus.appendChild(fallbackBtn);
         
-        updateFortuneTellerSpeech("MediaPipe khởi tạo thất bại! Hãy đưa tay vào khung và bấm nút chụp nhé! 📸", 0);
+        // Text is now hardcoded in HTML
     }
 }
 
@@ -1145,7 +1172,7 @@ function onHandResults(results) {
             
             // Fortune teller gives guidance (only occasionally)
             if (Math.random() < 0.3) { // Only 30% chance to speak
-                updateFortuneTellerSpeech("Xòe tay rõ hơn nhé! 🤲", 4000);
+                // Text is now hardcoded in HTML
             }
             return;
         }
@@ -1154,7 +1181,7 @@ function onHandResults(results) {
         
         // Fortune teller acknowledges good palm (only once)
         if (!handDetected) {
-            updateFortuneTellerSpeech("Tuyệt! Giữ yên nhé... 🔮", 3000);
+            // Text is now hardcoded in HTML
             playSound('handDetected'); // Play mystical chime when hand is first detected
             playSound('mysticalSparkle'); // Add magical sparkle effect
         }
@@ -1189,7 +1216,7 @@ function onHandResults(results) {
             handDetected = true;
             
             // Fortune teller starts countdown
-            updateFortuneTellerSpeech("Đếm ngược: 3... 2... 1... 📸", 3000);
+            // Text is now hardcoded in HTML
             
             if (handTimerId) clearTimeout(handTimerId);
             handTimerId = setTimeout(() => {
@@ -1334,7 +1361,16 @@ function autoCapture() {
     lastCaptureTime = now;
     
     // Fortune teller captures
-    updateFortuneTellerSpeech("Đã chụp! Phân tích vận mệnh... 🔮", 0);
+    // FORCE: Always show QR message
+    if (elements.fortuneTellerText) {
+        elements.fortuneTellerText.textContent = "Bấm vào để mở rộng QR 🔮";
+        elements.fortuneTellerText.style.cursor = 'pointer';
+        elements.fortuneTellerText.onclick = function() {
+            if (typeof showQRPopup === 'function') {
+                showQRPopup();
+            }
+        };
+    }
     
     captureFrameToFile();
     
@@ -1402,7 +1438,16 @@ function startNewReading() {
     }
     
     // Fortune teller welcomes back
-    updateFortuneTellerSpeech("Sẵn sàng cho lần bói tiếp theo! ✋", 5000);
+    // FORCE: Always show QR message
+    if (elements.fortuneTellerText) {
+        elements.fortuneTellerText.textContent = "Bấm vào để mở rộng QR 🔮";
+        elements.fortuneTellerText.style.cursor = 'pointer';
+        elements.fortuneTellerText.onclick = function() {
+            if (typeof showQRPopup === 'function') {
+                showQRPopup();
+            }
+        };
+    }
     
     // Create new camera button (but don't show it, auto start camera)
     const newBtn = document.createElement('button');
@@ -2198,9 +2243,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Fortune teller greets on startup
     setTimeout(() => {
-        if (typeof updateFortuneTellerSpeech === 'function') {
-            updateFortuneTellerSpeech("Chào bạn! Hãy chọn thầy bói để bắt đầu... 🔮", 3000);
-        }
+        // Text is now hardcoded in HTML
         // Add mystical sparkle when fortune teller greets
         setTimeout(() => {
             if (typeof playSound === 'function') {
@@ -2216,9 +2259,16 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             console.error('❌ initFortuneMasterSelection function not found');
         }
-    }, 500);
-    
-    // Don't auto start camera - wait for user to select fortune master first
+        }, 500);
+        
+        // Text is now hardcoded in HTML
+        
+        // Load usage stats
+        loadUsageStats();
+        
+        // Simple stats loading
+        
+        // Don't auto start camera - wait for user to select fortune master first
     
     // Add some mystical console art
     console.log(`
@@ -2261,4 +2311,146 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+// Stats functions
+async function showStats() {
+    try {
+        // Hide fortune master section
+        const fortuneMasterSection = document.getElementById('fortuneMasterSection');
+        if (fortuneMasterSection) {
+            fortuneMasterSection.style.display = 'none';
+        }
+        
+        // Show stats section
+        const statsSection = document.getElementById('statsSection');
+        if (statsSection) {
+            statsSection.style.display = 'block';
+        }
+        
+        // Load stats data
+        const response = await fetch('/api/usage-stats');
+        const data = await response.json();
+        
+        if (data.success) {
+            displayStats(data.stats);
+        } else {
+            document.getElementById('statsContent').innerHTML = 
+                '<div class="error">Không thể tải thống kê</div>';
+        }
+    } catch (error) {
+        console.error('Error loading stats:', error);
+        document.getElementById('statsContent').innerHTML = 
+            '<div class="error">Lỗi khi tải thống kê</div>';
+    }
+}
+
+function hideStats() {
+    // Hide stats section
+    const statsSection = document.getElementById('statsSection');
+    if (statsSection) {
+        statsSection.style.display = 'none';
+    }
+    
+    // Show fortune master section
+    const fortuneMasterSection = document.getElementById('fortuneMasterSection');
+    if (fortuneMasterSection) {
+        fortuneMasterSection.style.display = 'block';
+    }
+}
+
+function displayStats(stats) {
+    const statsContent = document.getElementById('statsContent');
+    
+    if (stats.total === 0) {
+        statsContent.innerHTML = '<div class="loading">Chưa có dữ liệu sử dụng</div>';
+        return;
+    }
+    
+    const masterNames = {
+        funny: 'Thầy Vui Tính',
+        grumpy: 'Thầy Cục Súc', 
+        sad: 'Thầy Buồn Bã',
+        boastful: 'Thầy Chém Gió',
+        dark: 'Thầy Hài Hước Đen',
+        poetic: 'Thầy Thơ Mộng'
+    };
+    
+    let html = `
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">${stats.total}</div>
+                <div class="stat-label">Tổng lượt sử dụng</div>
+            </div>
+    `;
+    
+    // Add individual master stats
+    Object.entries(stats.byMaster).forEach(([master, count]) => {
+        const percentage = ((count / stats.total) * 100).toFixed(1);
+        html += `
+            <div class="stat-card">
+                <div class="stat-number">${count}</div>
+                <div class="stat-label">${masterNames[master] || master}</div>
+                <div class="stat-master">${percentage}%</div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    
+    if (stats.lastUsed) {
+        const lastUsed = new Date(stats.lastUsed).toLocaleString('vi-VN');
+        html += `<p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-top: 1rem;">Lần cuối sử dụng: ${lastUsed}</p>`;
+    }
+    
+    statsContent.innerHTML = html;
+}
+
+// QR Popup functions
+function showQRPopup() {
+    // Create popup element
+    const popup = document.createElement('div');
+    popup.className = 'qr-popup';
+    popup.innerHTML = `
+        <div class="qr-popup-content">
+            <h3 class="qr-popup-title">📱 QR Code</h3>
+            <img src="QRCode.png" alt="QR Code" class="qr-popup-code">
+            <p class="qr-popup-text">
+                Quét mã QR để truy cập Thầy Bói AI trên điện thoại của bạn
+            </p>
+            <button class="qr-popup-close" onclick="hideQRPopup()">
+                Đóng
+            </button>
+        </div>
+    `;
+    
+    // Add to body
+    document.body.appendChild(popup);
+    
+    // Close on background click
+    popup.addEventListener('click', (e) => {
+        if (e.target === popup) {
+            hideQRPopup();
+        }
+    });
+    
+    // Close on Escape key
+    const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+            hideQRPopup();
+            document.removeEventListener('keydown', handleEscape);
+        }
+    };
+    document.addEventListener('keydown', handleEscape);
+}
+
+function hideQRPopup() {
+    const popup = document.querySelector('.qr-popup');
+    if (popup) {
+        popup.remove();
+    }
+}
+
+// Make functions globally available
+// Stats functions removed
+window.showQRPopup = showQRPopup;
+window.hideQRPopup = hideQRPopup;
 

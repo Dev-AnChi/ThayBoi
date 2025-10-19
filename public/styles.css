@@ -225,6 +225,236 @@ body {
     position: relative;
 }
 
+/* QR Code Container - Fixed bottom right */
+.qr-code-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 100;
+}
+
+.qr-button {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.qr-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Responsive for mobile */
+@media (max-width: 768px) {
+    .qr-code-container {
+        bottom: 15px;
+        right: 15px;
+    }
+    
+    .qr-button {
+        width: 45px;
+        height: 45px;
+        font-size: 1.2rem;
+    }
+}
+
+/* QR Popup */
+.qr-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.qr-popup-content {
+    background: linear-gradient(135deg, rgba(30, 30, 50, 0.95), rgba(50, 30, 80, 0.95));
+    border-radius: 20px;
+    padding: 3rem;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    max-width: 600px;
+    width: 95%;
+    animation: popupSlideIn 0.3s ease-out;
+}
+
+.qr-popup-title {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: var(--mystical-glow-bright);
+}
+
+.qr-popup-code {
+    width: 300px;
+    height: 300px;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    margin: 1.5rem auto;
+    transition: transform 0.3s ease;
+}
+
+.qr-popup-code:hover {
+    transform: scale(1.05);
+}
+
+.qr-popup-text {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.2rem;
+    margin: 1.5rem 0;
+    line-height: 1.6;
+}
+
+.qr-popup-close {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 0.8rem 2rem;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+}
+
+.qr-popup-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Usage Stats */
+.usage-stats {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 100;
+}
+
+.usage-stats #usageCount {
+    color: var(--mystical-glow-bright);
+    font-weight: 600;
+}
+
+@keyframes popupSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Fortune Card */
+.fortune-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    margin: 1rem 0;
+}
+
+.fortune-text {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.9);
+    text-align: justify;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+}
+
+/* Removed first-letter styling - keep text normal */
+
+/* Fortune Teller Speech Hover */
+.fortune-teller-speech {
+    transition: all 0.3s ease;
+}
+
+.fortune-teller-speech:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Stats Section */
+.stats-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+}
+
+.stats-content {
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--mystical-glow-bright);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 0.5rem;
+}
+
+.stat-master {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.loading {
+    color: rgba(255, 255, 255, 0.8);
+    font-style: italic;
+}
+
 
 .title {
     font-family: 'Cinzel', serif;
