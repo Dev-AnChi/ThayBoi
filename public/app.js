@@ -331,15 +331,20 @@ function typeWriter(text, element, speed = 20) {
 // ================================
 async function loadUsageStats() {
     try {
-        // Load from localStorage (persistent per browser)
-        const localCount = parseInt(localStorage.getItem('localUsageCount') || '0');
+        // Load from global counter service
+        const response = await fetch('https://api.countapi.xyz/get/thay-boi-global');
         
-        const usageCount = document.getElementById('usageCount');
-        if (usageCount) {
-            usageCount.textContent = localCount;
-            console.log('📊 Loaded usage count from localStorage:', localCount);
-        } else {
-            console.log('❌ Usage count element not found');
+        if (response.ok) {
+            const data = await response.json();
+            const count = data.value || 0;
+            
+            const usageCount = document.getElementById('usageCount');
+            if (usageCount) {
+                usageCount.textContent = count;
+                console.log('📊 Loaded global usage count:', count);
+            } else {
+                console.log('❌ Usage count element not found');
+            }
         }
     } catch (error) {
         console.log('Could not load usage stats:', error);
@@ -347,37 +352,35 @@ async function loadUsageStats() {
     }
 }
 
-// Function to increment usage count - using localStorage + server sync
+// Function to increment usage count - using simple counter service
 async function incrementUsage() {
     try {
-        // Get current count from localStorage
-        let localCount = parseInt(localStorage.getItem('localUsageCount') || '0');
-        localCount += 1;
-        localStorage.setItem('localUsageCount', localCount.toString());
+        // Use a simple counter service that works globally
+        const response = await fetch('https://api.countapi.xyz/hit/thay-boi-global', {
+            method: 'GET'
+        });
         
-        // Also sync with server (for global count)
-        try {
-            await fetch('/api/increment-usage', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-        } catch (e) {
-            // Ignore server errors, continue with local count
+        if (response.ok) {
+            const data = await response.json();
+            const newCount = data.value;
+            
+            console.log('📊 Global usage count incremented to:', newCount);
+            
+            // Update display immediately
+            const usageCount = document.getElementById('usageCount');
+            if (usageCount) {
+                usageCount.textContent = newCount;
+            }
+            
+            return newCount;
         }
-        
-        console.log('📊 Local usage count incremented to:', localCount);
-        
-        // Update display immediately
-        const usageCount = document.getElementById('usageCount');
-        if (usageCount) {
-            usageCount.textContent = localCount;
-        }
-        
-        return localCount;
     } catch (error) {
         console.log('Could not increment usage:', error);
+        // Fallback: show error
+        const usageCount = document.getElementById('usageCount');
+        if (usageCount) {
+            usageCount.textContent = '?';
+        }
     }
     return null;
 }
