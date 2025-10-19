@@ -1,5 +1,4 @@
-import fs from 'fs';
-import path from 'path';
+import { get } from './lib/kv.js';
 
 export default async function handler(req, res) {
   // Enable CORS
@@ -17,15 +16,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Use a simple in-memory counter
-    if (!global.usageCount) {
-      global.usageCount = 0;
-    }
+    // Use KV store for persistent counter
+    const count = await get('usage_count') || 0;
     
     res.json({
       success: true,
       stats: { 
-        total: global.usageCount 
+        total: count 
       }
     });
 

@@ -221,7 +221,7 @@ async function getFortune() {
             console.log('🎨 Displaying fortune sections...');
             displayFortuneSections(data.fortune);
             
-            // Increment usage count and then load stats
+            // Increment usage count and update display
             await incrementUsage();
         } else {
             console.log('❌ Fortune telling failed:', data.message);
@@ -2303,7 +2303,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Text is now hardcoded in HTML
         
-        // Load usage stats
+        // Load usage stats on page load
         loadUsageStats();
         
         // Simple stats loading
