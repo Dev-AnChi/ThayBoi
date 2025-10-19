@@ -331,17 +331,17 @@ function typeWriter(text, element, speed = 20) {
 // ================================
 async function loadUsageStats() {
     try {
-        // Load from global counter service
-        const response = await fetch('https://api.countapi.xyz/get/thay-boi-global');
+        // Load from our own server
+        const response = await fetch('/api/usage-stats');
         
         if (response.ok) {
             const data = await response.json();
-            const count = data.value || 0;
+            const count = data.stats?.total || 0;
             
             const usageCount = document.getElementById('usageCount');
             if (usageCount) {
                 usageCount.textContent = count;
-                console.log('📊 Loaded global usage count:', count);
+                console.log('📊 Loaded usage count from server:', count);
             } else {
                 console.log('❌ Usage count element not found');
             }
@@ -352,19 +352,22 @@ async function loadUsageStats() {
     }
 }
 
-// Function to increment usage count - using simple counter service
+// Function to increment usage count - using our server
 async function incrementUsage() {
     try {
-        // Use a simple counter service that works globally
-        const response = await fetch('https://api.countapi.xyz/hit/thay-boi-global', {
-            method: 'GET'
+        // Use our own increment API
+        const response = await fetch('/api/increment-usage', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
         });
         
         if (response.ok) {
             const data = await response.json();
-            const newCount = data.value;
+            const newCount = data.count || 0;
             
-            console.log('📊 Global usage count incremented to:', newCount);
+            console.log('📊 Usage count incremented to:', newCount);
             
             // Update display immediately
             const usageCount = document.getElementById('usageCount');

@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Use a simple in-memory counter that persists during the session
+    // Use a simple in-memory counter
     if (!global.usageCount) {
       global.usageCount = 0;
     }
