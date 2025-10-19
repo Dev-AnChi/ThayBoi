@@ -225,12 +225,13 @@ async function getFortune() {
             const newCount = await incrementUsage();
             if (newCount !== null) {
                 // Update display immediately with the new count
-                updateUsageDisplay(newCount);
+                const usageCount = document.getElementById('usageCount');
+                if (usageCount) {
+                    usageCount.textContent = newCount;
+                }
             }
             // Also refresh from server to be sure
-            setTimeout(() => {
-                loadUsageStats();
-            }, 100);
+            loadUsageStats();
         } else {
             console.log('❌ Fortune telling failed:', data.message);
             throw new Error(data.message || 'Fortune telling failed');
@@ -383,19 +384,6 @@ async function incrementUsage() {
         console.log('Could not increment usage:', error);
     }
     return null;
-}
-
-// Function to force update usage count display
-function updateUsageDisplay(count) {
-    const usageCount = document.getElementById('usageCount');
-    if (usageCount) {
-        usageCount.textContent = count;
-        console.log('✅ Force updated usage count to:', count);
-        return true;
-    } else {
-        console.log('❌ usageCount element not found');
-        return false;
-    }
 }
 
 // ================================
@@ -2316,19 +2304,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Load usage stats
         loadUsageStats();
         
-        // Add debug button for testing
-        setTimeout(() => {
-            const debugBtn = document.createElement('button');
-            debugBtn.textContent = 'Test Update Count';
-            debugBtn.style.position = 'fixed';
-            debugBtn.style.top = '10px';
-            debugBtn.style.right = '10px';
-            debugBtn.style.zIndex = '9999';
-            debugBtn.onclick = () => {
-                updateUsageDisplay(Math.floor(Math.random() * 100));
-            };
-            document.body.appendChild(debugBtn);
-        }, 1000);
+        // Simple stats loading
         
         // Don't auto start camera - wait for user to select fortune master first
     

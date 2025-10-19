@@ -17,16 +17,23 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Use a simple in-memory counter for now
-    // In production, you would use a database like MongoDB, PostgreSQL, or Redis
-    if (!global.usageCount) {
-      global.usageCount = 0;
+    // Try to read from /tmp directory (persists during cold starts)
+    const tmpFile = '/tmp/usage_count.txt';
+    let count = 0;
+    
+    try {
+      if (fs.existsSync(tmpFile)) {
+        const data = fs.readFileSync(tmpFile, 'utf8');
+        count = parseInt(data.trim()) || 0;
+      }
+    } catch (fileError) {
+      console.log('Could not read from /tmp, using 0:', fileError.message);
     }
     
     res.json({
       success: true,
       stats: { 
-        total: global.usageCount 
+        total: count 
       }
     });
 
