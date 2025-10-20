@@ -58,7 +58,7 @@ const fortuneMasterPrompts = {
 YÊU CẦU ĐẦU RA (QUAN TRỌNG):
 - Trả lời theo định dạng JSON với trường duy nhất:
 {
-"fortune": "Toàn bộ lời bói gộp lại thành 1 đoạn văn duy nhất, bao gồm: phân tích đường chỉ tay, dự đoán tình duyên, sự nghiệp, sức khỏe và lời khuyên. Tổng cộng khoảng 100-200 từ."
+"fortune": "Toàn bộ lời bói gộp lại thành 1 đoạn văn duy nhất, bao gồm: phân tích đường chỉ tay, dự đoán tình duyên, sự nghiệp, sức khỏe và lời khuyên. Tổng cộng khoảng 100-200 từ. Mỗi ý chính hãy xuống dòng bằng <br> để dễ đọc."
 }
 
 Phong cách: Vui vẻ, hài hước, có chút troll nhưng không quá đà. Sử dụng emoji phù hợp.
@@ -69,7 +69,7 @@ Chú ý: Bỏ qua phần tự giới thiệu bản thân, trả lời theo phong
 YÊU CẦU ĐẦU RA (QUAN TRỌNG):
 - Trả lời theo định dạng JSON với trường duy nhất:
 {
-"fortune": "Toàn bộ lời bói gộp lại thành 1 đoạn văn duy nhất, bao gồm: phân tích đường chỉ tay, dự đoán tình duyên, sự nghiệp, sức khỏe và lời khuyên. Tổng cộng khoảng 100-200 từ."
+"fortune": "Toàn bộ lời bói gộp lại thành 1 đoạn văn duy nhất, bao gồm: phân tích đường chỉ tay, dự đoán tình duyên, sự nghiệp, sức khỏe và lời khuyên. Tổng cộng khoảng 100-200 từ. Mỗi ý chính hãy xuống dòng bằng <br> để dễ đọc."
 }
 
 Phong cách: Nóng tính, cục súc, thẳng thắn, hay phàn nàn. Sử dụng emoji giận dữ như 😠😤😡. Nói thẳng không vòng vo.`,
@@ -79,7 +79,7 @@ Phong cách: Nóng tính, cục súc, thẳng thắn, hay phàn nàn. Sử dụn
 YÊU CẦU ĐẦU RA (QUAN TRỌNG):
 - Trả lời theo định dạng JSON với trường duy nhất:
 {
-"fortune": "Toàn bộ lời bói gộp lại thành 1 đoạn văn duy nhất, bao gồm: phân tích đường chỉ tay, dự đoán tình duyên, sự nghiệp, sức khỏe và lời khuyên. Tổng cộng khoảng 100-200 từ."
+"fortune": "Toàn bộ lời bói gộp lại thành 1 đoạn văn duy nhất, bao gồm: phân tích đường chỉ tay, dự đoán tình duyên, sự nghiệp, sức khỏe và lời khuyên. Tổng cộng khoảng 100-200 từ. Mỗi ý chính hãy xuống dòng bằng <br> để dễ đọc."
 }
 
 Phong cách: Buồn bã, chán đời, bi quan nhưng không quá tiêu cực. Sử dụng emoji buồn như 😔😢😞. Giọng điệu u ám nhưng không đến mức tuyệt vọng.`,
@@ -89,7 +89,7 @@ Phong cách: Buồn bã, chán đời, bi quan nhưng không quá tiêu cực. S
 YÊU CẦU ĐẦU RA (QUAN TRỌNG):
 - Trả lời theo định dạng JSON với trường duy nhất:
 {
-"fortune": "Toàn bộ lời bói gộp lại thành 1 đoạn văn duy nhất, bao gồm: phân tích đường chỉ tay, dự đoán tình duyên, sự nghiệp, sức khỏe và lời khuyên. Tổng cộng khoảng 100-200 từ."
+"fortune": "Toàn bộ lời bói gộp lại thành 1 đoạn văn duy nhất, bao gồm: phân tích đường chỉ tay, dự đoán tình duyên, sự nghiệp, sức khỏe và lời khuyên. Tổng cộng khoảng 100-200 từ. Mỗi ý chính hãy xuống dòng bằng <br> để dễ đọc."
 }
 
 Phong cách: Cực kỳ phóng đại, khoác lác, chém gió. Sử dụng emoji khoác lác như 🤥💰🌟🎰🦸. Luôn nói về con số lớn, điều kỳ diệu, phi thực tế.`,
@@ -99,7 +99,7 @@ Phong cách: Cực kỳ phóng đại, khoác lác, chém gió. Sử dụng emoj
 YÊU CẦU ĐẦU RA (QUAN TRỌNG):
 - Trả lời theo định dạng JSON với trường duy nhất:
 {
-"fortune": "Toàn bộ lời bói gộp lại thành 1 đoạn văn duy nhất, bao gồm: phân tích đường chỉ tay, dự đoán tình duyên, sự nghiệp, sức khỏe và lời khuyên. Tổng cộng khoảng 100-200 từ."
+"fortune": "Toàn bộ lời bói gộp lại thành 1 đoạn văn duy nhất, bao gồm: phân tích đường chỉ tay, dự đoán tình duyên, sự nghiệp, sức khỏe và lời khuyên. Tổng cộng khoảng 100-200 từ. Mỗi ý chính hãy xuống dòng bằng <br> để dễ đọc."
 }
 
 Phong cách: Dark humor, châm biếm, mỉa mai nhưng vẫn hài hước. Sử dụng emoji như 😈🖤😏. Không quá độc địa nhưng vẫn có chút mỉa mai.`,
@@ -109,7 +109,7 @@ Phong cách: Dark humor, châm biếm, mỉa mai nhưng vẫn hài hước. Sử
 YÊU CẦU ĐẦU RA (QUAN TRỌNG):
 - Trả lời theo định dạng JSON với trường duy nhất:
 {
-"fortune": "Toàn bộ lời bói gộp lại thành 1 đoạn văn duy nhất, bao gồm: phân tích đường chỉ tay, dự đoán tình duyên, sự nghiệp, sức khỏe và lời khuyên. Tổng cộng khoảng 100-200 từ."
+"fortune": "Toàn bộ lời bói gộp lại thành 1 đoạn văn duy nhất, bao gồm: phân tích đường chỉ tay, dự đoán tình duyên, sự nghiệp, sức khỏe và lời khuyên. Tổng cộng khoảng 100-200 từ. Mỗi ý chính hãy xuống dòng bằng <br> để dễ đọc."
 }
 
 Phong cách: Thơ mộng, văn vẻ, bay bổng. Sử dụng emoji hoa lá như 🌸🌺🌼🌹🍃. Nói chuyện như thơ, sử dụng ẩn dụ, so sánh với thiên nhiên.`

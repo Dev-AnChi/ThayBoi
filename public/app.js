@@ -256,8 +256,8 @@ function displayFortuneSections(fortuneData) {
                 fortuneText.style.opacity = '1';
                 fortuneText.style.transform = 'translateY(0)';
                 
-                // Typewriter effect
-                typeWriter(fortuneData.fortune, fortuneText, 15);
+                // Display HTML content with line breaks
+                fortuneText.innerHTML = fortuneData.fortune;
                 }, 500);
         } else {
             }

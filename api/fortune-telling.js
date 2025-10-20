@@ -10,7 +10,7 @@ const fortuneMasterPrompts = {
 YÊU CẦU ĐẦU RA (QUAN TRỌNG):
 - Trả lời theo định dạng JSON với trường duy nhất:
 {
-"fortune": "Toàn bộ lời bói gộp lại thành 1 đoạn văn duy nhất, bao gồm: phân tích đường chỉ tay, dự đoán tình duyên, sự nghiệp, sức khỏe và lời khuyên. Tổng cộng khoảng 100-200 từ."
+"fortune": "Toàn bộ lời bói gộp lại thành 1 đoạn văn duy nhất, bao gồm: phân tích đường chỉ tay, dự đoán tình duyên, sự nghiệp, sức khỏe và lời khuyên. Tổng cộng khoảng 100-200 từ. Mỗi ý chính hãy xuống dòng bằng <br> để dễ đọc."
 }
 
 Phong cách: Vui vẻ, hài hước, có chút troll nhưng không quá đà. Sử dụng emoji phù hợp.
@@ -21,7 +21,7 @@ Chú ý: Bỏ qua phần tự giới thiệu bản thân, trả lời theo phong
 YÊU CẦU ĐẦU RA (QUAN TRỌNG):
 - Trả lời theo định dạng JSON với trường duy nhất:
 {
-"fortune": "Toàn bộ lời bói gộp lại thành 1 đoạn văn duy nhất, bao gồm: phân tích đường chỉ tay, dự đoán tình duyên, sự nghiệp, sức khỏe và lời khuyên. Tổng cộng khoảng 100-200 từ."
+"fortune": "Toàn bộ lời bói gộp lại thành 1 đoạn văn duy nhất, bao gồm: phân tích đường chỉ tay, dự đoán tình duyên, sự nghiệp, sức khỏe và lời khuyên. Tổng cộng khoảng 100-200 từ. Mỗi ý chính hãy xuống dòng bằng <br> để dễ đọc."
 }
 }
 
@@ -32,7 +32,7 @@ Phong cách: Nóng tính, cục súc, thẳng thắn, hay phàn nàn. Sử dụn
 YÊU CẦU ĐẦU RA (QUAN TRỌNG):
 - Trả lời theo định dạng JSON với trường duy nhất:
 {
-"fortune": "Toàn bộ lời bói gộp lại thành 1 đoạn văn duy nhất, bao gồm: phân tích đường chỉ tay, dự đoán tình duyên, sự nghiệp, sức khỏe và lời khuyên. Tổng cộng khoảng 100-200 từ."
+"fortune": "Toàn bộ lời bói gộp lại thành 1 đoạn văn duy nhất, bao gồm: phân tích đường chỉ tay, dự đoán tình duyên, sự nghiệp, sức khỏe và lời khuyên. Tổng cộng khoảng 100-200 từ. Mỗi ý chính hãy xuống dòng bằng <br> để dễ đọc."
 }
 }
 
@@ -43,7 +43,7 @@ Phong cách: Buồn bã, chán đời, bi quan nhưng không quá tiêu cực. S
 YÊU CẦU ĐẦU RA (QUAN TRỌNG):
 - Trả lời theo định dạng JSON với trường duy nhất:
 {
-"fortune": "Toàn bộ lời bói gộp lại thành 1 đoạn văn duy nhất, bao gồm: phân tích đường chỉ tay, dự đoán tình duyên, sự nghiệp, sức khỏe và lời khuyên. Tổng cộng khoảng 100-200 từ."
+"fortune": "Toàn bộ lời bói gộp lại thành 1 đoạn văn duy nhất, bao gồm: phân tích đường chỉ tay, dự đoán tình duyên, sự nghiệp, sức khỏe và lời khuyên. Tổng cộng khoảng 100-200 từ. Mỗi ý chính hãy xuống dòng bằng <br> để dễ đọc."
 }
 }
 
@@ -54,7 +54,7 @@ Phong cách: Cực kỳ phóng đại, khoác lác, chém gió. Sử dụng emoj
 YÊU CẦU ĐẦU RA (QUAN TRỌNG):
 - Trả lời theo định dạng JSON với trường duy nhất:
 {
-"fortune": "Toàn bộ lời bói gộp lại thành 1 đoạn văn duy nhất, bao gồm: phân tích đường chỉ tay, dự đoán tình duyên, sự nghiệp, sức khỏe và lời khuyên. Tổng cộng khoảng 100-200 từ."
+"fortune": "Toàn bộ lời bói gộp lại thành 1 đoạn văn duy nhất, bao gồm: phân tích đường chỉ tay, dự đoán tình duyên, sự nghiệp, sức khỏe và lời khuyên. Tổng cộng khoảng 100-200 từ. Mỗi ý chính hãy xuống dòng bằng <br> để dễ đọc."
 }
 }
 
@@ -65,7 +65,7 @@ Phong cách: Dark humor, châm biếm, mỉa mai nhưng vẫn hài hước. Sử
 YÊU CẦU ĐẦU RA (QUAN TRỌNG):
 - Trả lời theo định dạng JSON với trường duy nhất:
 {
-"fortune": "Toàn bộ lời bói gộp lại thành 1 đoạn văn duy nhất, bao gồm: phân tích đường chỉ tay, dự đoán tình duyên, sự nghiệp, sức khỏe và lời khuyên. Tổng cộng khoảng 100-200 từ."
+"fortune": "Toàn bộ lời bói gộp lại thành 1 đoạn văn duy nhất, bao gồm: phân tích đường chỉ tay, dự đoán tình duyên, sự nghiệp, sức khỏe và lời khuyên. Tổng cộng khoảng 100-200 từ. Mỗi ý chính hãy xuống dòng bằng <br> để dễ đọc."
 }
 }
 
