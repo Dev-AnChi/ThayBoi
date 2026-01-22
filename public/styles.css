@@ -934,7 +934,7 @@ body {
     border: none;
     box-shadow: none;
     width: 60%;
-    height: 70%; /* Increased height */
+    height: 65%; /* Increased height */
     display: flex;
     flex-direction: column;
     justify-content: center;
