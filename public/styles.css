@@ -915,16 +915,97 @@ body {
    RESULT SECTION
    ================================ */
 .result-section {
-    animation: fadeInUp 0.8s ease-out;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2000;
+    background: url('tuyensinh.png') no-repeat center center;
+    background-size: 100% 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.5s ease-out;
 }
 
 .result-card {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 2px solid rgba(155, 89, 182, 0.3);
-    border-radius: 20px;
-    padding: 2.5rem;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    width: 60%;
+    height: 60%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+}
+
+.result-card .result-header {
+    display: none; /* Hide header as requested "bỏ hết hiện tại đi" */
+}
+
+.result-card .result-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 0;
+    overflow-y: auto;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+}
+
+.result-card .result-content::-webkit-scrollbar {
+    display: none; /* Chrome/Safari/Webkit */
+}
+
+/* Override fortune card styles for result section */
+.result-card .fortune-card {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.fortune-text {
+    font-size: 1.5rem;
+    line-height: 1.6;
+    color: #fff;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    padding: 1rem;
+    width: 100%;
+}
+
+/* Reset first letter style for centered text */
+.fortune-text::first-letter {
+    float: none;
+    font-size: inherit;
+    font-weight: inherit;
+    color: inherit;
+    margin: 0;
+}
+
+.result-actions {
+    position: static;
+    margin-top: 2rem;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    transform: none;
+    padding-bottom: 1rem;
 }
 
 .result-header {

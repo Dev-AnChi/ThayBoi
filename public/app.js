@@ -173,6 +173,11 @@ async function getFortune() {
             elements.loadingSection.classList.add('hidden');
             elements.resultSection.classList.remove('hidden');
             
+            // Hide distracting elements
+            document.querySelector('.usage-counter').style.display = 'none';
+            document.querySelector('.fortune-popup').style.display = 'none';
+            document.querySelector('.footer').style.display = 'none';
+            
             // Play result reveal sound after a short delay
             setTimeout(() => {
                 playSound('resultReveal'); // Special sound for showing result
@@ -1301,6 +1306,9 @@ function startNewReading() {
     // Reset camera status and create new button
     elements.cameraStatus.innerHTML = '<p>🔮 Đưa lòng bàn tay rõ ràng vào khung để tự động quét và bói</p>';
     
+    // Show elements again
+    document.querySelector('.footer').style.display = 'block';
+
     // Remove any existing fallback buttons
     const existingFallbackBtn = document.getElementById('fallbackCaptureBtn');
     if (existingFallbackBtn) {
