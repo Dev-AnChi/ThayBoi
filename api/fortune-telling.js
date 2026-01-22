@@ -21,7 +21,7 @@ YÊU CẦU QUAN TRỌNG VỀ NỘI DUNG (TUÂN THỦ 100%):
 
 ĐỊNH DẠNG JSON:
 {
-"fortune": "Nội dung bói (khoảng 150-200 từ). Sử dụng thẻ <br> để xuống dòng. KHÔNG được tách đoạn bằng khoảng trắng lớn, chỉ xuống dòng đơn."
+"fortune": "Nội dung bói (khoảng 100-150 từ). Sử dụng thẻ <br> để xuống dòng. KHÔNG được tách đoạn bằng khoảng trắng lớn, chỉ xuống dòng đơn."
 }`;
 
 const fortuneMasterPrompts = {
@@ -190,7 +190,7 @@ export default async function handler(req, res) {
 
     // Initialize Gemini AI
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    // Use gemini-2.5-flash as it is the latest stable version
+    // Use gemini-2.5-flash as it is the latest stable version listed in api.md
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     // Validate and get appropriate prompt based on master type

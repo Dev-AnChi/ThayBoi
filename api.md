@@ -1,4 +1,3 @@
-C:\Users\chipa>curl https://generativelanguage.googleapis.com/v1beta/models?key=AIzaSyA9TvF4uJpiuk0MxyDMLtdj2OnNacAQ6RI
 {
   "models": [
     {

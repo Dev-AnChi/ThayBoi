@@ -69,7 +69,7 @@ YÊU CẦU QUAN TRỌNG VỀ NỘI DUNG (TUÂN THỦ 100%):
 
 ĐỊNH DẠNG JSON:
 {
-"fortune": "Nội dung bói (khoảng 150-200 từ). Sử dụng thẻ <br> để xuống dòng. KHÔNG được tách đoạn bằng khoảng trắng lớn, chỉ xuống dòng đơn."
+"fortune": "Nội dung bói (khoảng 100-150 từ). Sử dụng thẻ <br> để xuống dòng. KHÔNG được tách đoạn bằng khoảng trắng lớn, chỉ xuống dòng đơn."
 }`;
 
 const fortuneMasterPrompts = {
@@ -122,8 +122,12 @@ function sanitizePlainText(text) {
 
 async function generateFortuneFromImage(base64Image, mimeType, masterType = 'funny') {
   const prompt = getFortuneMasterPrompt(masterType);
-  // Use gemini-2.5-flash as primary, fallbacks to 2.0
-  const modelCandidates = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-exp'];
+  // Use gemini-2.5-flash as primary (stable), with 2.0-flash-lite and 2.0-flash as fallbacks
+  const modelCandidates = [
+    'gemini-2.5-flash',
+    'gemini-2.0-flash-lite-preview-02-05', 
+    'gemini-2.0-flash'
+  ];
   const maxRetries = 3;
 
   let lastError = null;

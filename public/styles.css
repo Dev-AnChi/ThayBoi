@@ -925,7 +925,7 @@ body {
     background-size: 100% 100%;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: center; /* Center vertically */
     animation: fadeIn 0.5s ease-out;
 }
 
@@ -934,10 +934,11 @@ body {
     border: none;
     box-shadow: none;
     width: 60%;
-    height: 65%; /* Increased height */
+    height: 65%;
+    margin-top: 15vh; /* Shift down slightly from center */
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: center; /* Center content within card */
     align-items: center;
     padding: 0;
 }
