@@ -190,6 +190,7 @@ export default async function handler(req, res) {
 
     // Initialize Gemini AI
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    // Use gemini-2.5-flash as it is the latest stable version
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     // Validate and get appropriate prompt based on master type

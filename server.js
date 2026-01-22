@@ -122,7 +122,8 @@ function sanitizePlainText(text) {
 
 async function generateFortuneFromImage(base64Image, mimeType, masterType = 'funny') {
   const prompt = getFortuneMasterPrompt(masterType);
-  const modelCandidates = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-pro-vision'];
+  // Use gemini-2.5-flash as primary, fallbacks to 2.0
+  const modelCandidates = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-exp'];
   const maxRetries = 3;
 
   let lastError = null;
