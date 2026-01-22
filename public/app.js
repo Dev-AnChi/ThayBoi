@@ -262,7 +262,18 @@ function displayFortuneSections(fortuneData) {
                 fortuneText.style.transform = 'translateY(0)';
                 
                 // Display HTML content with line breaks
-                fortuneText.innerHTML = fortuneData.fortune;
+                // Clean up text to avoid large gaps (user request: "chỉ xuống dòng, không cách đoạn")
+                let cleanText = fortuneData.fortune;
+                if (cleanText) {
+                    // Replace multiple <br> with single <br>
+                    cleanText = cleanText.replace(/(<br\s*\/?>\s*){2,}/gi, '<br>');
+                    // Replace paragraph tags with single line break
+                    cleanText = cleanText.replace(/<\/p>\s*<p>/gi, '<br>');
+                    cleanText = cleanText.replace(/<\/?p>/gi, ''); // Remove remaining p tags
+                    // Replace multiple newlines
+                    cleanText = cleanText.replace(/\n{2,}/g, '<br>');
+                }
+                fortuneText.innerHTML = cleanText;
                 }, 500);
         } else {
             }

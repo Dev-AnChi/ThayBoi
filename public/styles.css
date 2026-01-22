@@ -934,7 +934,7 @@ body {
     border: none;
     box-shadow: none;
     width: 60%;
-    height: 60%;
+    height: 70%; /* Increased height */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -979,13 +979,19 @@ body {
 
 .fortune-text {
     font-size: 1.5rem;
-    line-height: 1.6;
+    line-height: 1.5; /* Slightly reduced from 1.6 */
     color: #fff;
     font-weight: 700;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 0, 0, 0.5);
-    text-align: center;
+    text-align: left;
     padding: 1rem;
     width: 100%;
+}
+
+/* Ensure no extra margin if p tags are used */
+.fortune-text p {
+    margin: 0;
+    padding: 0;
 }
 
 /* Reset first letter style for centered text */
@@ -1027,7 +1033,7 @@ body {
 }
 
 .result-content {
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 }
 
 .fortune-section {

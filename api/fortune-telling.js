@@ -7,7 +7,7 @@ import path from 'path';
 const commonInstruction = `
 YÊU CẦU QUAN TRỌNG VỀ NỘI DUNG (TUÂN THỦ 100%):
 1. Tỷ lệ nội dung: 70-80% tập trung vào tư vấn tuyển sinh và dự đoán ngành học phù hợp, 20-30% còn lại là lời bói vui vẻ, hài hước về tính cách/vận mệnh.
-2. PHẢI dự đoán người dùng hợp với MỘT trong 6 ngành/chuyên ngành sau của Khoa Cơ Khí - Đại học Nha Trang:
+2. PHẢI dự đoán người dùng hợp với MỘT trong 6 ngành/chuyên ngành sau (CHỈ NÊU TÊN NGÀNH, KHÔNG NÊU TÊN TRƯỜNG):
    - Kỹ thuật cơ khí
    - Cơ khí thủy sản thông minh - Minh Phú
    - Chuyên ngành Thiết kế & Chế tạo số
@@ -17,10 +17,11 @@ YÊU CẦU QUAN TRỌNG VỀ NỘI DUNG (TUÂN THỦ 100%):
 3. Dự đoán phải kèm theo emoji trái tim ❤️.
 4. Giải thích ngắn gọn tại sao chỉ tay/tướng tay này hợp với ngành đó (bịa một cách logic và hài hước).
 5. Phần bói vu vơ còn lại có thể nói về tình duyên, tiền bạc nhưng phải ngắn.
+6. Ở cuối cùng phải có một câu chốt mang tính bói toán hoặc chúc may mắn thú vị.
 
 ĐỊNH DẠNG JSON:
 {
-"fortune": "Nội dung bói (khoảng 150-200 từ). Sử dụng thẻ <br> để xuống dòng."
+"fortune": "Nội dung bói (khoảng 150-200 từ). Sử dụng thẻ <br> để xuống dòng. KHÔNG được tách đoạn bằng khoảng trắng lớn, chỉ xuống dòng đơn."
 }`;
 
 const fortuneMasterPrompts = {
