@@ -265,6 +265,20 @@ function displayFortuneSections(fortuneData) {
                 // Clean up text to avoid large gaps (user request: "chỉ xuống dòng, không cách đoạn")
                 let cleanText = fortuneData.fortune;
                 if (cleanText) {
+                    // Remove JSON artifacts if present
+                    if (typeof cleanText === 'string') {
+                        // Remove "fortune": prefix if present
+                        cleanText = cleanText.replace(/"?fortune"?\s*:\s*/i, '');
+                        // Remove opening/closing braces if it looks like a JSON object wrapper
+                        if (cleanText.trim().startsWith('{') && cleanText.trim().endsWith('}')) {
+                            cleanText = cleanText.replace(/^[\s{]+|[\s}]+$/g, '');
+                        }
+                        // Remove wrapping quotes if present
+                        if (cleanText.trim().startsWith('"') && cleanText.trim().endsWith('"')) {
+                            cleanText = cleanText.trim().slice(1, -1);
+                        }
+                    }
+
                     // Replace multiple <br> with single <br>
                     cleanText = cleanText.replace(/(<br\s*\/?>\s*){2,}/gi, '<br>');
                     // Replace paragraph tags with single line break

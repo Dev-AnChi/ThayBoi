@@ -56,12 +56,12 @@ const commonInstruction = `
 YÊU CẦU QUAN TRỌNG VỀ NỘI DUNG (TUÂN THỦ 100%):
 1. Tỷ lệ nội dung: 70-80% tập trung vào tư vấn tuyển sinh và dự đoán ngành học phù hợp, 20-30% còn lại là lời bói vui vẻ, hài hước về tính cách/vận mệnh.
 2. PHẢI dự đoán người dùng hợp với MỘT trong 6 ngành/chuyên ngành sau (CHỈ NÊU TÊN NGÀNH, KHÔNG NÊU TÊN TRƯỜNG):
-   - Kỹ thuật cơ khí
-   - Cơ khí thủy sản thông minh - Minh Phú
-   - Chuyên ngành Thiết kế & Chế tạo số
-   - Công nghệ chế tạo máy
-   - Kỹ thuật điện tử
-   - Chuyên ngành Hệ thống nhúng & IoT
+   - Kỹ thuật cơ khí (15% khả năng xuất hiện)
+   - Cơ khí thủy sản thông minh - Minh Phú (25% khả năng xuất hiện)
+   - Chuyên ngành Thiết kế & Chế tạo số (15% khả năng xuất hiện)
+   - Công nghệ chế tạo máy (15% khả năng xuất hiện)
+   - Kỹ thuật điện tử (15% khả năng xuất hiện)
+   - Chuyên ngành Hệ thống nhúng & IoT (15% khả năng xuất hiện)
 3. Dự đoán phải kèm theo emoji trái tim ❤️.
 4. Giải thích ngắn gọn tại sao chỉ tay/tướng tay này hợp với ngành đó (bịa một cách logic và hài hước).
 5. Phần bói vu vơ còn lại có thể nói về tình duyên, tiền bạc nhưng phải ngắn.
@@ -69,7 +69,7 @@ YÊU CẦU QUAN TRỌNG VỀ NỘI DUNG (TUÂN THỦ 100%):
 
 ĐỊNH DẠNG JSON:
 {
-"fortune": "Nội dung bói (khoảng 100-150 từ). Sử dụng thẻ <br> để xuống dòng. KHÔNG được tách đoạn bằng khoảng trắng lớn, chỉ xuống dòng đơn."
+"fortune": "Nội dung bói (khoảng 120-180 từ). BẮT BUỘC sử dụng thẻ <br> để xuống dòng giữa các ý chính để nội dung thoáng và dễ đọc. Mỗi ý nên là một dòng riêng biệt."
 }`;
 
 const fortuneMasterPrompts = {
@@ -122,11 +122,11 @@ function sanitizePlainText(text) {
 
 async function generateFortuneFromImage(base64Image, mimeType, masterType = 'funny') {
   const prompt = getFortuneMasterPrompt(masterType);
-  // Use gemini-2.5-flash as primary (stable), with 2.0-flash-lite and 2.0-flash as fallbacks
+  // Use gemini-flash-lite-latest as primary (likely 1.5 Flash Lite alias, works with vision, high quota)
   const modelCandidates = [
-    'gemini-2.5-flash',
-    'gemini-2.0-flash-lite-preview-02-05', 
-    'gemini-2.0-flash'
+    'gemini-flash-lite-latest',
+    'gemini-3-flash-preview',
+    'gemini-2.5-flash-lite'
   ];
   const maxRetries = 3;
 
@@ -185,29 +185,51 @@ app.post('/api/fortune-telling', upload.single('palmImage'), async (req, res) =>
     // Try to parse JSON response
     let fortuneData;
     try {
-      // Clean the response first
-      const cleanedResponse = rawResponse.replace(/```json|```/g, '').trim();
-      const parsedData = JSON.parse(cleanedResponse);
+      // Find JSON object boundaries
+      const firstBrace = rawResponse.indexOf('{');
+      const lastBrace = rawResponse.lastIndexOf('}');
       
-       // Check if we have the single fortune field
-       if (parsedData.fortune) {
-         fortuneData = { fortune: parsedData.fortune };
-       } else {
-         // Fallback to old structure if needed
-         fortuneData = {
-           fortune: parsedData.intro + " " + 
-                   (parsedData.palmLines || "") + " " + 
-                   (parsedData.love || "") + " " + 
-                   (parsedData.career || "") + " " + 
-                   (parsedData.health || "") + " " + 
-                   (parsedData.advice || "")
-         };
-       }
+      if (firstBrace !== -1 && lastBrace !== -1) {
+        const jsonString = rawResponse.substring(firstBrace, lastBrace + 1);
+        const parsedData = JSON.parse(jsonString);
+        
+        // Check if we have the single fortune field
+        if (parsedData.fortune) {
+          fortuneData = { fortune: parsedData.fortune };
+        } else {
+          // Fallback to old structure if needed
+          fortuneData = {
+            fortune: parsedData.intro + " " + 
+                    (parsedData.palmLines || "") + " " + 
+                    (parsedData.love || "") + " " + 
+                    (parsedData.career || "") + " " + 
+                    (parsedData.health || "") + " " + 
+                    (parsedData.advice || "")
+          };
+        }
+      } else {
+        throw new Error("No JSON structure found");
+      }
     } catch (parseError) {
       // If JSON parsing fails, fallback to plain text
       console.log('JSON parse failed, using plain text fallback');
+      
+      let cleanText = rawResponse.replace(/```json|```/g, '').trim();
+      // Remove potential "json" prefix or similar artifacts
+      if (cleanText.toLowerCase().startsWith('json')) {
+        cleanText = cleanText.substring(4).trim();
+      }
+      // Remove leading brace if it remains
+      if (cleanText.startsWith('{')) {
+        cleanText = cleanText.substring(1).trim();
+      }
+       // Remove trailing brace if it remains
+      if (cleanText.endsWith('}')) {
+        cleanText = cleanText.substring(0, cleanText.length - 1).trim();
+      }
+
       fortuneData = {
-        fortune: sanitizePlainText(rawResponse)
+        fortune: cleanText
       };
     }
 

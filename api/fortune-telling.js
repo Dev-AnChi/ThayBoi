@@ -8,12 +8,12 @@ const commonInstruction = `
 YÊU CẦU QUAN TRỌNG VỀ NỘI DUNG (TUÂN THỦ 100%):
 1. Tỷ lệ nội dung: 70-80% tập trung vào tư vấn tuyển sinh và dự đoán ngành học phù hợp, 20-30% còn lại là lời bói vui vẻ, hài hước về tính cách/vận mệnh.
 2. PHẢI dự đoán người dùng hợp với MỘT trong 6 ngành/chuyên ngành sau (CHỈ NÊU TÊN NGÀNH, KHÔNG NÊU TÊN TRƯỜNG):
-   - Kỹ thuật cơ khí
-   - Cơ khí thủy sản thông minh - Minh Phú
-   - Chuyên ngành Thiết kế & Chế tạo số
-   - Công nghệ chế tạo máy
-   - Kỹ thuật điện tử
-   - Chuyên ngành Hệ thống nhúng & IoT
+   - Kỹ thuật cơ khí (15% khả năng xuất hiện)
+   - Cơ khí thủy sản thông minh - Minh Phú (25% khả năng xuất hiện)
+   - Chuyên ngành Thiết kế & Chế tạo số (15% khả năng xuất hiện)
+   - Công nghệ chế tạo máy (15% khả năng xuất hiện)
+   - Kỹ thuật điện tử (15% khả năng xuất hiện)
+   - Chuyên ngành Hệ thống nhúng & IoT (15% khả năng xuất hiện)
 3. Dự đoán phải kèm theo emoji trái tim ❤️.
 4. Giải thích ngắn gọn tại sao chỉ tay/tướng tay này hợp với ngành đó (bịa một cách logic và hài hước).
 5. Phần bói vu vơ còn lại có thể nói về tình duyên, tiền bạc nhưng phải ngắn.
@@ -21,7 +21,7 @@ YÊU CẦU QUAN TRỌNG VỀ NỘI DUNG (TUÂN THỦ 100%):
 
 ĐỊNH DẠNG JSON:
 {
-"fortune": "Nội dung bói (khoảng 100-150 từ). Sử dụng thẻ <br> để xuống dòng. KHÔNG được tách đoạn bằng khoảng trắng lớn, chỉ xuống dòng đơn."
+"fortune": "Nội dung bói (khoảng 120-180 từ). BẮT BUỘC sử dụng thẻ <br> để xuống dòng giữa các ý chính để nội dung thoáng và dễ đọc. Mỗi ý nên là một dòng riêng biệt."
 }`;
 
 const fortuneMasterPrompts = {
@@ -190,8 +190,13 @@ export default async function handler(req, res) {
 
     // Initialize Gemini AI
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    // Use gemini-2.5-flash as it is the latest stable version listed in api.md
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    
+    // Model candidates in order of preference (stable/high quota first)
+    const modelCandidates = [
+      'gemini-flash-lite-latest',
+      'gemini-3-flash-preview',
+      'gemini-2.5-flash-lite'
+    ];
 
     // Validate and get appropriate prompt based on master type
     const validMasters = Object.keys(fortuneMasterPrompts);
@@ -204,43 +209,98 @@ export default async function handler(req, res) {
     // Log usage
     logUsage(masterType);
 
-    // Call Gemini API
-    const result = await model.generateContent([
-      prompt,
-      {
-        inlineData: {
-          mimeType: imageType || 'image/jpeg',
-          data: base64Image
+    // Try models in sequence with retries
+    let rawResponse = null;
+    let lastError = null;
+    const maxRetries = 3;
+
+    for (const modelName of modelCandidates) {
+      // console.log(`Trying model: ${modelName}`);
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+          const model = genAI.getGenerativeModel({ model: modelName });
+          const result = await model.generateContent([
+            prompt,
+            {
+              inlineData: {
+                mimeType: imageType || 'image/jpeg',
+                data: base64Image
+              }
+            }
+          ]);
+          rawResponse = result.response.text();
+          break; // Success
+        } catch (err) {
+          lastError = err;
+          const msg = String(err && err.message || '');
+          // Check for retryable errors (quota, overload)
+          const isRetryable = /\b(503|429|overloaded|exhausted)\b/i.test(msg);
+          
+          if (isRetryable && attempt < maxRetries - 1) {
+            // Exponential backoff
+            const delay = 500 * Math.pow(2, attempt);
+            await new Promise(r => setTimeout(r, delay));
+            continue;
+          }
+          break; // Try next model
         }
       }
-    ]);
+      if (rawResponse) break;
+    }
 
-    const rawResponse = result.response.text();
+    if (!rawResponse) {
+      const msg = String(lastError && lastError.message || 'All models failed');
+      const overloaded = /\b(503|429|overloaded|exhausted)\b/i.test(msg);
+      throw Object.assign(new Error(msg), { statusCode: overloaded ? 503 : 500 });
+    }
     
     // Try to parse JSON response
     let fortuneData;
     try {
-      const cleanedResponse = rawResponse.replace(/```json|```/g, '').trim();
-      const parsedData = JSON.parse(cleanedResponse);
+      // Find JSON object boundaries
+      const firstBrace = rawResponse.indexOf('{');
+      const lastBrace = rawResponse.lastIndexOf('}');
       
-      // Check if we have the single fortune field
-      if (parsedData.fortune) {
-        fortuneData = { fortune: parsedData.fortune };
+      if (firstBrace !== -1 && lastBrace !== -1) {
+        const jsonString = rawResponse.substring(firstBrace, lastBrace + 1);
+        const parsedData = JSON.parse(jsonString);
+        
+        // Check if we have the single fortune field
+        if (parsedData.fortune) {
+          fortuneData = { fortune: parsedData.fortune };
+        } else {
+          // Fallback to old structure if needed
+          fortuneData = {
+            fortune: parsedData.intro + " " + 
+                    (parsedData.palmLines || "") + " " + 
+                    (parsedData.love || "") + " " + 
+                    (parsedData.career || "") + " " + 
+                    (parsedData.health || "") + " " + 
+                    (parsedData.advice || "")
+          };
+        }
       } else {
-        // Fallback to old structure if needed
-        fortuneData = {
-          fortune: parsedData.intro + " " + 
-                  (parsedData.palmLines || "") + " " + 
-                  (parsedData.love || "") + " " + 
-                  (parsedData.career || "") + " " + 
-                  (parsedData.health || "") + " " + 
-                  (parsedData.advice || "")
-        };
+        throw new Error("No JSON structure found");
       }
     } catch (parseError) {
       // If JSON parsing fails, fallback to plain text
+      let cleanText = sanitizePlainText(rawResponse);
+      
+      // Remove potential "json" prefix or similar artifacts
+      if (cleanText.toLowerCase().startsWith('json')) {
+        cleanText = cleanText.substring(4).trim();
+      }
+      // Remove leading brace if it remains
+      if (cleanText.startsWith('{')) {
+        cleanText = cleanText.substring(1).trim();
+      }
+       // Remove trailing brace if it remains
+      if (cleanText.endsWith('}')) {
+        cleanText = cleanText.substring(0, cleanText.length - 1).trim();
+      }
+
       fortuneData = {
-        fortune: sanitizePlainText(rawResponse)
+        fortune: cleanText
       };
     }
 

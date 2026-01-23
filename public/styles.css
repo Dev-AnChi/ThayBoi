@@ -921,13 +921,15 @@ body {
     width: 100vw;
     height: 100vh;
     z-index: 2000;
-    background: url('tuyensinh.png') no-repeat center center;
+    background: url('KhungDesktop.png') no-repeat center center;
     background-size: 100% 100%;
     display: flex;
     justify-content: center;
     align-items: center; /* Center vertically */
     animation: fadeIn 0.5s ease-out;
 }
+
+/* Mobile styles moved to end for specificity */
 
 .result-card {
     background: transparent;
@@ -979,11 +981,10 @@ body {
 }
 
 .fortune-text {
-    font-size: 1.5rem;
+    font-size: 1.2rem; /* Reduced from 1.5rem */
     line-height: 1.5; /* Slightly reduced from 1.6 */
-    color: #fff;
+    color: #003366;
     font-weight: 700;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 0, 0, 0.5);
     text-align: left;
     padding: 1rem;
     width: 100%;
@@ -1107,26 +1108,28 @@ body {
 }
 
 .action-btn.primary {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: #0056b3; /* NTU Blue */
     color: white;
-    box-shadow: 0 5px 20px var(--mystical-glow);
+    box-shadow: 0 4px 10px rgba(0, 86, 179, 0.3);
 }
 
 .action-btn.primary:hover {
+    background: #004494;
     transform: translateY(-3px);
-    box-shadow: 0 10px 30px var(--mystical-glow-bright);
+    box-shadow: 0 6px 15px rgba(0, 86, 179, 0.5);
 }
 
 .action-btn.secondary {
-    background: transparent;
-    color: var(--light);
-    border: 2px solid var(--accent);
+    background: #da251c; /* NTU Red */
+    color: white;
+    border: none;
+    box-shadow: 0 4px 10px rgba(218, 37, 28, 0.3);
 }
 
 .action-btn.secondary:hover {
-    background: var(--accent);
+    background: #b91d15;
     transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(243, 156, 18, 0.5);
+    box-shadow: 0 6px 15px rgba(218, 37, 28, 0.5);
 }
 
 /* ================================
@@ -1649,6 +1652,53 @@ body {
     
     .master-desc {
         font-size: 0.7rem;
+    }
+}
+
+/* ================================
+   MOBILE FIXES (FINAL OVERRIDES)
+   ================================ */
+@media (max-width: 768px) {
+    .result-section {
+        background-image: url('KhungMobile.png') !important;
+        background-size: 100% 100% !important;
+        align-items: flex-start !important;
+    }
+
+    .result-card {
+        width: 85% !important;
+        height: 32% !important;
+        margin-top: 35vh !important;
+        padding: 0 !important;
+    }
+
+    .fortune-text {
+        font-size: 0.70rem !important;
+        line-height: 1.35 !important;
+        padding: 0.5rem 0.8rem !important;
+        text-align: left !important;
+        color: #003366 !important; /* Dark Blue for contrast */
+    }
+    
+    .result-content {
+        justify-content: flex-start !important;
+        padding-top: 0 !important;
+    }
+
+    .result-actions {
+        margin-top: 0.5rem !important;
+        gap: 0.5rem !important;
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: center !important;
+    }
+
+    .action-btn {
+        padding: 0.2rem 0.5rem !important;
+        font-size: 0.7rem !important;
+        min-height: 24px !important;
+        width: 100px !important; /* Fixed width to reduce size */
+        flex: 0 0 auto !important; /* Stop growing to fill space */
     }
 }
 
