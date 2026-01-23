@@ -178,6 +178,9 @@ async function getFortune() {
             document.querySelector('.fortune-popup').style.display = 'none';
             document.querySelector('.footer').style.display = 'none';
             
+            // Disable background animations for performance
+            document.body.classList.add('showing-result');
+            
             // Play result reveal sound after a short delay
             setTimeout(() => {
                 playSound('resultReveal'); // Special sound for showing result
@@ -1089,8 +1092,15 @@ function onHandResults(results) {
         
         // Create a smaller horizontal box, just enough for palm
         // Smaller width, taller height for palm detection
-        const boxWidth = 0.25; // Smaller width for palm
-        const boxHeight = 0.4; // Taller height for palm
+        let boxWidth = 0.25; // Default for Desktop
+        let boxHeight = 0.4; // Default for Desktop
+        
+        // Mobile adjustments
+        if (isMobile()) {
+            boxWidth = 0.5; // Wider for mobile (increased from 0.35)
+            boxHeight = 0.6; // Taller for mobile (increased from 0.5)
+        }
+
         const halfWidth = boxWidth / 2;
         const halfHeight = boxHeight / 2;
         
@@ -1101,10 +1111,21 @@ function onHandResults(results) {
         const isLeftHand = thumbTip.x < indexTip.x; // Left hand: thumb is to the left of index
         
         // Adjust offset: Left hand needs more left shift, Right hand needs less
-        const offsetX = isLeftHand ? -0.15 : -0.055; // Left hand: more left, Right hand: less left
+        let offsetX = isLeftHand ? -0.15 : -0.055; // Default Desktop
+        let offsetY = 0; // Vertical offset
+        
+        if (isMobile()) {
+            // On mobile, the large negative offset causes misalignment (box too far left).
+            // Reducing the offset to align better with the visual hand position.
+            // Increased offset to shift box more to the right
+            offsetX = isLeftHand ? 0.05 : 0.08; 
+            
+            // Shift down slightly
+            offsetY = 0.05;
+        }
         
         const centerX = palmCenter.x + offsetX;
-        const centerY = palmCenter.y;
+        const centerY = palmCenter.y + offsetY;
         
         // Calculate final positions with different width/height
         const finalMinX = Math.max(0, centerX - halfWidth);
@@ -1112,17 +1133,25 @@ function onHandResults(results) {
         const finalMinY = Math.max(0, centerY - halfHeight);
         const finalMaxY = Math.min(1, centerY + halfHeight);
         
-        // Convert to pixel coordinates
-        const boxX = finalMinX * videoWidth;
-        const boxY = finalMinY * videoHeight;
-        const pixelBoxWidth = (finalMaxX - finalMinX) * videoWidth;
-        const pixelBoxHeight = (finalMaxY - finalMinY) * videoHeight;
+        if (isMobile()) {
+            // Update detection box using percentages for Mobile (better for responsive/scaled video)
+            elements.handDetectionBox.style.left = (finalMinX * 100) + '%';
+            elements.handDetectionBox.style.top = (finalMinY * 100) + '%';
+            elements.handDetectionBox.style.width = ((finalMaxX - finalMinX) * 100) + '%';
+            elements.handDetectionBox.style.height = ((finalMaxY - finalMinY) * 100) + '%';
+        } else {
+            // Convert to pixel coordinates for Desktop (Original Behavior)
+            const boxX = finalMinX * videoWidth;
+            const boxY = finalMinY * videoHeight;
+            const pixelBoxWidth = (finalMaxX - finalMinX) * videoWidth;
+            const pixelBoxHeight = (finalMaxY - finalMinY) * videoHeight;
+            
+            elements.handDetectionBox.style.left = boxX + 'px';
+            elements.handDetectionBox.style.top = boxY + 'px';
+            elements.handDetectionBox.style.width = pixelBoxWidth + 'px';
+            elements.handDetectionBox.style.height = pixelBoxHeight + 'px';
+        }
         
-        // Update detection box
-        elements.handDetectionBox.style.left = boxX + 'px';
-        elements.handDetectionBox.style.top = boxY + 'px';
-        elements.handDetectionBox.style.width = pixelBoxWidth + 'px';
-        elements.handDetectionBox.style.height = pixelBoxHeight + 'px';
         elements.handDetectionBox.classList.add('active');
         
         // Show auto capture indicator
@@ -1319,6 +1348,9 @@ function startNewReading() {
     elements.resultSection.classList.add('hidden');
     document.querySelector('.upload-section').classList.remove('hidden');
     resetUpload();
+    
+    // Re-enable background animations
+    document.body.classList.remove('showing-result');
     
     // Reset processing flags
     isProcessing = false;

@@ -469,6 +469,7 @@ body {
     font-size: 3rem;
     font-weight: 700;
     margin-bottom: 1rem;
+    padding-top: 2rem; /* Added padding top as requested */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -929,6 +930,14 @@ body {
     animation: fadeIn 0.5s ease-out;
 }
 
+/* Hide background animations when showing results to prevent lag */
+body.showing-result .mystical-bg,
+body.showing-result .stars,
+body.showing-result .stars2,
+body.showing-result .stars3 {
+    display: none !important;
+}
+
 /* Mobile styles moved to end for specificity */
 
 .result-card {
@@ -936,8 +945,8 @@ body {
     border: none;
     box-shadow: none;
     width: 60%;
-    height: 65%;
-    margin-top: 15vh; /* Shift down slightly from center */
+    height: 55%;
+    margin-top: 10vh; /* Shift down slightly from center */
     display: flex;
     flex-direction: column;
     justify-content: center; /* Center content within card */
@@ -1664,6 +1673,8 @@ body {
         background-size: 100% 100% !important;
         align-items: flex-start !important;
     }
+    
+    /* Mobile specific scanning frame removed as per user request */
 
     .result-card {
         width: 85% !important;
