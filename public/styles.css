@@ -1005,6 +1005,15 @@ body.showing-result .stars3 {
     padding: 0;
 }
 
+/* Highlight for Major Name */
+.fortune-text b.highlight,
+.fortune-text strong {
+    color: #D32F2F; /* Red for high contrast and fortune style */
+    font-weight: 800;
+    font-size: 1.2em; /* Slightly larger */
+    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5); /* Light shadow to pop from bg */
+}
+
 /* Reset first letter style for centered text */
 .fortune-text::first-letter {
     float: none;
@@ -1710,6 +1719,41 @@ body.showing-result .stars3 {
         min-height: 24px !important;
         width: 100px !important; /* Fixed width to reduce size */
         flex: 0 0 auto !important; /* Stop growing to fill space */
+    }
+
+    /* Hide the "Click to expand QR" popup on mobile */
+    .fortune-popup {
+        display: none !important;
+    }
+
+    /* Fix QR Popup alignment and size on mobile */
+    .qr-popup-content {
+        padding: 1.5rem !important;
+        width: 90% !important;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .qr-popup-code {
+        width: 100% !important;
+        max-width: 250px !important;
+        height: auto !important;
+        margin: 1rem auto !important;
+    }
+
+    .qr-popup-title {
+        font-size: 1.5rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .qr-popup-text {
+        font-size: 1rem !important;
+        margin: 1rem 0 !important;
+    }
+    
+    .qr-popup-close {
+        padding: 0.6rem 1.5rem !important;
+        margin-top: 0.5rem !important;
     }
 }
 

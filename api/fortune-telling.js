@@ -14,6 +14,7 @@ YÊU CẦU QUAN TRỌNG VỀ NỘI DUNG (TUÂN THỦ 100%):
    - Công nghệ chế tạo máy (15% khả năng xuất hiện)
    - Kỹ thuật điện tử (15% khả năng xuất hiện)
    - Chuyên ngành Hệ thống nhúng & IoT (15% khả năng xuất hiện)
+   Tên ngành BẮT BUỘC phải được đặt trong thẻ <b class="highlight">...</b> để làm nổi bật.
 3. Dự đoán phải kèm theo emoji trái tim ❤️.
 4. Giải thích ngắn gọn tại sao chỉ tay/tướng tay này hợp với ngành đó (bịa một cách logic và hài hước).
 5. Phần bói vu vơ còn lại có thể nói về tình duyên, tiền bạc nhưng phải ngắn.

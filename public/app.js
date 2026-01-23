@@ -282,6 +282,9 @@ function displayFortuneSections(fortuneData) {
                         }
                     }
 
+                    // Convert markdown bold to highlight HTML if model forgot HTML tags or used markdown
+                    cleanText = cleanText.replace(/\*\*(.*?)\*\*/g, '<b class="highlight">$1</b>');
+
                     // Replace multiple <br> with single <br>
                     cleanText = cleanText.replace(/(<br\s*\/?>\s*){2,}/gi, '<br>');
                     // Replace paragraph tags with single line break
