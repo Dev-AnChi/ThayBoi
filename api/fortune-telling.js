@@ -193,9 +193,37 @@ export default async function handler(req, res) {
     
     // Model candidates in order of preference (stable/high quota first)
     const modelCandidates = [
+      // --- High Priority (Flash / High Quota) ---
+      'gemini-2.0-flash',
+      'gemini-2.0-flash-001',
+      'gemini-2.0-flash-lite-preview-02-05',
+      'gemini-2.0-flash-lite-preview',
+      'gemini-2.5-flash',
+      'gemini-2.5-flash-lite',
+      'gemini-flash-latest',
       'gemini-flash-lite-latest',
+      'gemini-2.5-flash-preview-09-2025',
+      'gemini-2.5-flash-lite-preview-09-2025',
+      'gemini-1.5-flash',
+      'gemini-1.5-flash-latest',
+  
+      // --- Medium Priority (Pro / Standard) ---
+      'gemini-2.5-pro',
+      'gemini-pro-latest',
+      'gemini-1.5-pro',
+      'gemini-1.5-pro-latest',
+  
+      // --- Experimental / Preview ---
       'gemini-3-flash-preview',
-      'gemini-2.5-flash-lite'
+      'gemini-3-pro-preview',
+      'gemini-2.0-flash-exp',
+      'gemini-exp-1206',
+      
+      // --- Gemma 3 (Multimodal) ---
+      'gemma-3-27b-it',
+      'gemma-3-12b-it',
+      'gemma-3-4b-it',
+      'gemma-3-1b-it'
     ];
 
     // Validate and get appropriate prompt based on master type
