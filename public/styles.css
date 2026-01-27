@@ -1410,6 +1410,7 @@ body.showing-result .stars3 {
 
     .fortune-btn {
         font-size: 1.1rem;
+        margin-top: 1rem !important; /* Increase spacing from options */
     }
 
     #fortuneBtn {
