@@ -101,6 +101,7 @@ function handleFileSelect(file) {
 }
 
 function resetUpload() {
+    document.body.classList.remove('bg-frame');
     selectedFile = null;
     if (elements.palmInput) {
         elements.palmInput.value = '';
@@ -173,6 +174,9 @@ async function getFortune() {
             elements.loadingSection.classList.add('hidden');
             elements.resultSection.classList.remove('hidden');
             
+            // Restore frame background for result
+            document.body.classList.add('bg-frame');
+            
             // Hide distracting elements
             document.querySelector('.usage-counter').style.display = 'none';
             document.querySelector('.fortune-popup').style.display = 'none';
@@ -227,6 +231,9 @@ async function getFortune() {
         // Hide loading
         elements.loadingSection.classList.add('hidden');
         document.querySelector('.upload-section').classList.remove('hidden');
+        
+        // Remove frame background for Scanning/Camera mode
+        document.body.classList.remove('bg-frame');
         
         // Start homepage music after error
         setTimeout(() => {
@@ -412,6 +419,9 @@ async function getPreferredBackCameraDeviceId() {
 }
 
 async function startCamera() {
+    // Remove frame background for Scanning/Camera mode
+    document.body.classList.remove('bg-frame');
+
     // Check if we're in the right section
     const uploadSection = document.getElementById('uploadSection');
     if (!uploadSection || uploadSection.classList.contains('hidden')) {
@@ -683,6 +693,9 @@ function closeCamera() {
 }
 
 function showMobileUploadInterface() {
+    // Remove frame background for Scanning/Camera mode
+    document.body.classList.remove('bg-frame');
+
     // Replace entire camera section with mobile upload interface
     const mobileUploadHTML = `
         <div class="mobile-upload-container">
@@ -1354,6 +1367,8 @@ function startNewReading() {
     
     // Re-enable background animations
     document.body.classList.remove('showing-result');
+    // Remove frame background for Scanning/Camera mode
+    document.body.classList.remove('bg-frame');
     
     // Reset processing flags
     isProcessing = false;
@@ -1450,6 +1465,9 @@ function initFortuneMasterSelection() {
                 if (uploadSection) {
                     uploadSection.classList.remove('hidden');
                     }
+                
+                // Remove frame background for Scanning/Camera mode (User request: keep old mystical bg)
+                document.body.classList.remove('bg-frame');
                 
                 // Start camera after a short delay
                 setTimeout(() => {
@@ -2116,6 +2134,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initialize audio context and start music immediately
     initAudioContext();
+    
+    // Set default background to frame (Homepage)
+    document.body.classList.add('bg-frame');
     if (soundEnabled) {
         // Start homepage music immediately
         setTimeout(() => {
