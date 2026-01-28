@@ -1418,10 +1418,10 @@ body.showing-result .stars3 {
     }
 
     .result-card {
-        padding: 0 15px !important;
-        width: 80% !important;
+        padding: 0 !important;
+        width: 85% !important;
         height: 45vh !important;
-        margin-top: 22vh !important;
+        margin-top: 30vh !important;
         overflow: hidden;
         display: flex !important;
         flex-direction: column !important;
@@ -1596,11 +1596,7 @@ body.showing-result .stars3 {
         border-radius: 12px;
     }
     
-    /* Ensure result card fits too if shown */
-    .result-card {
-        margin-top: 0 !important;
-        height: 35% !important;
-    }
+
 }
 
 /* ================================
@@ -1807,12 +1803,7 @@ body.showing-result .stars3 {
     
     /* Mobile specific scanning frame removed as per user request */
 
-    .result-card {
-        width: 85% !important;
-        height: 32% !important;
-        margin-top: 35vh !important;
-        padding: 0 !important;
-    }
+
 
     .fortune-text {
         font-size: clamp(0.5rem, 3.5vw, 0.75rem) !important; /* Responsive fluid font */
