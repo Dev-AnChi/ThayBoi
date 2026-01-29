@@ -70,7 +70,7 @@ YÊU CẦU QUAN TRỌNG VỀ NỘI DUNG (TUÂN THỦ 100%):
 
 ĐỊNH DẠNG JSON:
 {
-"fortune": "Nội dung bói (khoảng không quá 130 từ). BẮT BUỘC sử dụng thẻ <br> để xuống dòng giữa các ý chính để nội dung thoáng và dễ đọc. Mỗi ý nên là một dòng riêng biệt."
+"fortune": "Nội dung bói (khoảng không quá 140 từ). BẮT BUỘC sử dụng thẻ <br> để xuống dòng giữa các ý chính để nội dung thoáng và dễ đọc. Mỗi ý nên là một dòng riêng biệt."
 }`;
 
 const fortuneMasterPrompts = {

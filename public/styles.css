@@ -29,7 +29,6 @@ body {
     background: linear-gradient(135deg, #1a0b2e 0%, #2d1b4e 100%);
     color: white;
     min-height: 100vh;
-    min-height: 100dvh; /* Mobile viewport fix */
     overflow-x: hidden;
     position: relative;
 }
@@ -1516,29 +1515,18 @@ body.showing-result .header {
 @media (max-width: 480px) {
     .container {
         position: fixed;
-        top: 0; /* Full screen start */
-        bottom: 0; /* Full screen end */
-        left: 0;
-        right: 0;
-        width: 100%;
-        height: 100dvh; /* Use dynamic viewport height */
+        top: 20vh;
+        bottom: 10px;
+        left: 10px;
+        right: 10px;
+        width: auto;
+        height: auto;
         padding: 0;
         overflow-y: auto;
         display: flex;
         flex-direction: column;
         align-items: center;
         max-width: none;
-        z-index: 10; /* Ensure it's on top */
-    }
-
-    /* Add top padding to compensate for removed top: 20vh, but only where needed */
-    .container > * {
-        z-index: 2;
-    }
-
-    /* Ensure header has space from top */
-    .header {
-        margin-top: 10px !important;
     }
 
     .footer {
@@ -1831,7 +1819,14 @@ body.showing-result .header {
         background-image: url('KhungMobileR2.png') !important;
         background-size: 100% 100% !important;
         align-items: flex-start !important;
-        overflow-y: auto !important; /* Allow scrolling whole section */
+        height: 100dvh !important; /* Force fit to viewport height */
+        overflow: hidden !important; /* Disable page scroll */
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1000;
     }
     
     /* Mobile specific scanning frame removed as per user request */
@@ -1839,28 +1834,45 @@ body.showing-result .header {
 
 
     .fortune-text {
-        font-size: clamp(0.5rem, 3.5vw, 0.75rem) !important; /* Increased size */
+        font-size: clamp(0.5rem, 3.5vw, 0.75rem) !important; 
         line-height: 1.3 !important;
         padding: 0.5rem 0.8rem !important;
-        text-align: justify !important; /* Better reading */
-        color: #003366 !important; /* Dark Blue for contrast */
+        text-align: justify !important; 
+        color: #003366 !important;
     }
     
     .result-content {
         justify-content: flex-start !important;
         padding-top: 0 !important;
-        overflow-y: visible !important; /* Remove internal scroll */
-        height: auto !important;
-        max-height: none !important;
+        overflow-y: auto !important; /* Re-enable internal scroll */
+        height: 100% !important;
+        max-height: 55vh !important; /* Limit height to fit inside frame */
+        scrollbar-width: none; /* Hide scrollbar for cleaner look */
+        -ms-overflow-style: none;
+    }
+    
+    .result-content::-webkit-scrollbar {
+        display: none;
+    }
+
+    .result-card {
+        margin-top: 12vh !important; /* Adjust top spacing */
+        height: 80vh !important; /* Constrain card height */
+        min-height: 0 !important;
+        overflow: hidden !important;
     }
 
     .result-actions {
-        margin-top: 0.2rem !important; /* Reduced spacing to be closer to text */
+        margin-top: 0.2rem !important; 
         gap: 0.5rem !important;
         display: flex !important;
         flex-direction: row !important;
         justify-content: center !important;
-        padding-bottom: 2rem !important; /* Space at bottom */
+        padding-bottom: 0 !important;
+        position: absolute;
+        bottom: 18vh; /* Position buttons relative to frame bottom */
+        left: 0;
+        right: 0;
     }
 
     .action-btn {
