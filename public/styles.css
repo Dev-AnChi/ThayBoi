@@ -1816,7 +1816,7 @@ body.showing-result .header {
    ================================ */
 @media (max-width: 768px) {
     .result-section {
-        background-image: url('KhungMobile.png') !important;
+        background-image: url('KhungMobileR2.png') !important;
         background-size: 100% 100% !important;
         align-items: flex-start !important;
         overflow-y: auto !important; /* Allow scrolling whole section */
