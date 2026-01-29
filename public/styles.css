@@ -29,6 +29,7 @@ body {
     background: linear-gradient(135deg, #1a0b2e 0%, #2d1b4e 100%);
     color: white;
     min-height: 100vh;
+    min-height: 100dvh; /* Mobile viewport fix */
     overflow-x: hidden;
     position: relative;
 }
@@ -1515,18 +1516,29 @@ body.showing-result .header {
 @media (max-width: 480px) {
     .container {
         position: fixed;
-        top: 20vh;
-        bottom: 10px;
-        left: 10px;
-        right: 10px;
-        width: auto;
-        height: auto;
+        top: 0; /* Full screen start */
+        bottom: 0; /* Full screen end */
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: 100dvh; /* Use dynamic viewport height */
         padding: 0;
         overflow-y: auto;
         display: flex;
         flex-direction: column;
         align-items: center;
         max-width: none;
+        z-index: 10; /* Ensure it's on top */
+    }
+
+    /* Add top padding to compensate for removed top: 20vh, but only where needed */
+    .container > * {
+        z-index: 2;
+    }
+
+    /* Ensure header has space from top */
+    .header {
+        margin-top: 10px !important;
     }
 
     .footer {
