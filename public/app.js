@@ -2222,7 +2222,7 @@ function showQRPopup() {
             <h3 class="qr-popup-title">📱 QR Code</h3>
             <img src="QRCode.png" alt="QR Code" class="qr-popup-code">
             <p class="qr-popup-text">
-                Quét mã QR để truy cập Thầy Bói AI trên điện thoại của bạn
+                Quét mã QR để truy cập TỬ VI HỌC ĐƯỜNG trên điện thoại của bạn
             </p>
             <button class="qr-popup-close" onclick="hideQRPopup()">
                 Đóng

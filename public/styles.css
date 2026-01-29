@@ -42,7 +42,11 @@ body.bg-frame {
 
 @media (max-width: 768px) {
     body.bg-frame {
-        background-image: url('KhungMobile.png') !important;
+        background-image: url('KhungMobileR1.png') !important;
+    }
+
+    .result-section {
+        background-image: url('KhungMobileR2.png') !important;
     }
 }
 
@@ -267,16 +271,26 @@ body.bg-frame .container {
 }
 
 .title {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.5rem; /* Reduced size to fit inside frame */
-    font-weight: 700;
-    margin-bottom: 0.2rem;
+    font-family: 'Cinzel', serif;
+    font-size: 2.2rem; /* Increased size */
+    font-weight: 800;
+    margin-bottom: 0.5rem;
     padding-top: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+    /* Default for Dark Background (Scanning) */
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 0 20px rgba(255, 215, 0, 0.5); /* Gold glow */
+    letter-spacing: 1px;
+}
+
+/* Override for Light Background (Homepage) */
+body.bg-frame .title {
+    color: #2c3e50;
+    font-family: 'Playfair Display', serif;
+    text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8), 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
 /* QR Code Container - Fixed bottom right */
@@ -539,8 +553,8 @@ body.bg-frame .container {
 
 .title-text {
     background: none;
-    -webkit-text-fill-color: #2c3e50;
-    color: #2c3e50;
+    -webkit-text-fill-color: currentColor;
+    color: inherit;
     animation: none;
     font-size: 2.2rem;
     letter-spacing: 1px;
@@ -815,7 +829,8 @@ body.bg-frame .container {
     background: rgba(0, 0, 0, 0.3);
     border-radius: 8px;
     font-size: 0.9rem;
-    color: #bbb;
+    color: #ffffff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 .camera-status p {
@@ -989,7 +1004,8 @@ body.bg-frame .container {
 body.showing-result .mystical-bg,
 body.showing-result .stars,
 body.showing-result .stars2,
-body.showing-result .stars3 {
+body.showing-result .stars3,
+body.showing-result .header {
     display: none !important;
 }
 
@@ -1363,7 +1379,7 @@ body.showing-result .stars3 {
    ================================ */
 @media (max-width: 768px) {
     body.bg-frame {
-        background-image: url('KhungMobile.png') !important;
+        background-image: url('KhungMobileR1.png') !important;
     }
 
     .container {
@@ -1376,21 +1392,21 @@ body.showing-result .stars3 {
     }
 
     .title {
-        font-size: 1.6rem;
+        font-size: clamp(1.5rem, 5vw, 2rem);
         flex-direction: row;
-        gap: 0.2rem;
+        gap: 0.5rem;
         flex-wrap: nowrap;
         justify-content: center;
         align-items: center;
     }
 
     .crystal {
-        font-size: 1.4rem;
+        font-size: clamp(1.5rem, 5vw, 2rem);
         flex-shrink: 0;
     }
     
     .title-text {
-        font-size: 1.6rem;
+        font-size: clamp(1.5rem, 5vw, 2rem);
         white-space: nowrap;
         flex-shrink: 1;
     }
@@ -1420,9 +1436,10 @@ body.showing-result .stars3 {
     .result-card {
         padding: 0 !important;
         width: 85% !important;
-        height: 45vh !important;
-        margin-top: 30vh !important;
-        overflow: hidden;
+        height: auto !important; /* Full height */
+        min-height: 50vh;
+        margin-top: 25vh !important; /* Moved up since title is gone */
+        overflow: visible;
         display: flex !important;
         flex-direction: column !important;
     }
@@ -1430,9 +1447,9 @@ body.showing-result .stars3 {
     .result-card .result-content {
         height: auto !important;
         flex: 1 !important;
-        overflow-y: auto !important;
+        overflow-y: visible !important; /* No scroll */
         width: 100%;
-        padding-right: 5px; /* Space for scrollbar if any */
+        padding-right: 0;
     }
 
     .result-actions {
@@ -1493,11 +1510,7 @@ body.showing-result .stars3 {
     }
 }
 
-@media (max-width: 768px) {
-    .fortune-master-options {
-        grid-template-columns: repeat(2, 1fr); /* 2 columns on mobile */
-    }
-}
+
 
 @media (max-width: 480px) {
     .container {
@@ -1533,19 +1546,31 @@ body.showing-result .stars3 {
 
     .title {
         font-family: 'Cinzel', serif !important;
-        font-size: clamp(0.6rem, 5vw, 0.8rem); /* Responsive fluid font */
-        margin-bottom: 0;
+        font-size: clamp(1.2rem, 6vw, 1.6rem) !important; /* Reduced size to prevent overflow */
+        margin-bottom: 0.5rem;
         padding-bottom: 0;
         padding-top: 0;
+        font-weight: 900 !important;
+        /* Default for Dark Background (Scanning) */
+        color: #ffffff !important;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(255, 255, 255, 0.3) !important; /* Cleaner white text */
+        letter-spacing: 1px;
+    }
+
+    /* Override for Light Background (Homepage) */
+    body.bg-frame .title {
+        color: #2c3e50 !important;
+        text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8), 0 0 10px rgba(255, 215, 0, 0.5) !important;
     }
     
     .crystal {
-        font-size: clamp(0.6rem, 5vw, 0.8rem);
+        font-size: clamp(1.2rem, 6vw, 1.6rem);
     }
     
     .title-text {
         font-family: 'Playfair Display', serif !important;
-        font-size: clamp(0.6rem, 5vw, 0.8rem);
+        font-size: clamp(1.2rem, 6vw, 1.6rem);
+        font-weight: 900;
     }
 
     .subtitle {
@@ -1553,37 +1578,12 @@ body.showing-result .stars3 {
     }
 
     .fortune-master-selection h3 {
-        font-size: 0.5rem; /* Even smaller header */
+        font-size: 0.5rem;
         margin-bottom: 1px;
-        margin-top: -5px; /* Pull it up closer to title */
+        margin-top: -5px;
         padding-top: 0;
     }
     
-    .fortune-master-options {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 3px;
-        margin-top: 2px;
-    }
-
-    .fortune-master-btn {
-        padding: 3px 1px;
-        border-radius: 6px;
-    }
-
-    .master-icon {
-        font-size: 0.9rem; /* Tiny icon */
-        margin-bottom: 0;
-    }
-
-    .master-name {
-        font-size: 0.5rem; /* Tiny text */
-        line-height: 1;
-    }
-
-    .master-desc {
-        display: none;
-    }
-
     .fortune-btn {
         margin-top: 0.2rem;
         padding: 0.3rem 0.6rem;
@@ -1692,15 +1692,15 @@ body.showing-result .stars3 {
     flex-direction: column;
     align-items: center;
     padding: 8px 4px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.7); /* Slightly more visible buttons */
+    border: 2px solid white; /* Distinct border */
+    border-radius: 12px;
+    background: #ffffff; /* Solid background */
     cursor: pointer;
     transition: all 0.3s ease;
     text-align: center;
     position: relative;
     overflow: hidden;
-    backdrop-filter: blur(5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Stronger shadow */
 }
 
 .fortune-master-btn::before {
@@ -1710,14 +1710,14 @@ body.showing-result .stars3 {
 .fortune-master-btn:hover {
     border-color: var(--primary);
     transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    background: #ffffff;
 }
 
 .fortune-master-btn.active {
-    border-color: var(--primary);
-    background: rgba(155, 89, 182, 0.1);
-    box-shadow: 0 5px 15px rgba(155, 89, 182, 0.2);
+    border-color: #9b59b6; /* Stronger purple border */
+    background: linear-gradient(135deg, #f3e5f5, #e1bee7); /* Gradient background */
+    box-shadow: 0 0 15px rgba(155, 89, 182, 0.5); /* Glowing shadow */
     transform: translateY(-3px);
 }
 
@@ -1761,33 +1761,53 @@ body.showing-result .stars3 {
 /* Mobile responsive for fortune master selection */
 @media (max-width: 768px) {
     .fortune-master-options {
-        grid-template-columns: repeat(3, 1fr); /* Change to 3 columns to save vertical space */
-        gap: 5px;
+        grid-template-columns: 1fr; /* Single column layout */
+        gap: 8px; /* Reduced gap */
+        margin-top: 10px;
+        width: 100%;
+        padding: 0 10px;
     }
-    
+
     .fortune-master-btn {
-        padding: 6px 2px;
-        border-radius: 8px;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto auto;
+        padding: 8px 12px; /* Reduced padding */
+        width: 100%;
+        border-radius: 12px;
+        transform: none;
+        min-height: auto;
+        text-align: left;
+        align-items: center;
+        column-gap: 12px; /* Reduced gap */
+        background: #ffffff;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
-    
+
     .master-icon {
-        font-size: 1.2rem;
+        grid-row: 1 / -1;
+        font-size: 1.8rem; /* Smaller icon */
+        margin-bottom: 0;
+    }
+
+    .master-name {
+        font-size: 0.9rem; /* Smaller text */
+        font-weight: 800;
+        line-height: 1.2;
+        align-self: end;
+        color: #2c3e50;
         margin-bottom: 2px;
     }
-    
-    .master-name {
-        font-size: 0.65rem;
-        line-height: 1.1;
-        margin-bottom: 1px;
-    }
-    
+
     .master-desc {
-        font-size: 0.55rem;
-        line-height: 1;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
+        display: block;
+        font-size: 0.75rem; /* Smaller desc */
+        color: #666;
+        line-height: 1.2;
+        align-self: start;
+        font-style: italic;
+        -webkit-line-clamp: none;
+        overflow: visible;
     }
 }
 
@@ -1799,6 +1819,7 @@ body.showing-result .stars3 {
         background-image: url('KhungMobile.png') !important;
         background-size: 100% 100% !important;
         align-items: flex-start !important;
+        overflow-y: auto !important; /* Allow scrolling whole section */
     }
     
     /* Mobile specific scanning frame removed as per user request */
@@ -1806,26 +1827,28 @@ body.showing-result .stars3 {
 
 
     .fortune-text {
-        font-size: clamp(0.5rem, 3.5vw, 0.75rem) !important; /* Responsive fluid font */
-        line-height: 1.35 !important;
+        font-size: clamp(0.5rem, 3.5vw, 0.75rem) !important; /* Increased size */
+        line-height: 1.3 !important;
         padding: 0.5rem 0.8rem !important;
-        text-align: left !important;
+        text-align: justify !important; /* Better reading */
         color: #003366 !important; /* Dark Blue for contrast */
     }
     
     .result-content {
         justify-content: flex-start !important;
         padding-top: 0 !important;
-        overflow-y: auto; /* Allow content to scroll inside card if needed */
-        max-height: 100%;
+        overflow-y: visible !important; /* Remove internal scroll */
+        height: auto !important;
+        max-height: none !important;
     }
 
     .result-actions {
-        margin-top: 0.5rem !important;
+        margin-top: 0.2rem !important; /* Reduced spacing to be closer to text */
         gap: 0.5rem !important;
         display: flex !important;
         flex-direction: row !important;
         justify-content: center !important;
+        padding-bottom: 2rem !important; /* Space at bottom */
     }
 
     .action-btn {

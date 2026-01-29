@@ -7,10 +7,11 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;800;900&family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- Preload background images to prevent lag -->
     <link rel="preload" as="image" href="KhungDesktop.png">
-    <link rel="preload" as="image" href="KhungMobile.png">
+    <link rel="preload" as="image" href="KhungMobileR1.png">
+    <link rel="preload" as="image" href="KhungMobileR2.png">
 </head>
 <body class="bg-frame">
     <!-- Animated background -->
@@ -42,25 +43,10 @@
                             <span class="master-name">Thầy Vui Tính</span>
                             <span class="master-desc">Hài hước, troll</span>
                         </button>
-                        <button class="fortune-master-btn" data-master="grumpy">
-                            <span class="master-icon">😠</span>
-                            <span class="master-name">Thầy Cục Súc</span>
-                            <span class="master-desc">Nóng tính, thẳng thắn</span>
-                        </button>
-                        <button class="fortune-master-btn" data-master="sad">
-                            <span class="master-icon">😔</span>
-                            <span class="master-name">Thầy Buồn</span>
-                            <span class="master-desc">Chán đời, bi quan</span>
-                        </button>
                         <button class="fortune-master-btn" data-master="bluff">
                             <span class="master-icon">🤥</span>
                             <span class="master-name">Thầy Chém Gió</span>
                             <span class="master-desc">Khoác lác, phóng đại</span>
-                        </button>
-                        <button class="fortune-master-btn" data-master="dark">
-                            <span class="master-icon">😈</span>
-                            <span class="master-name">Thầy Hài Hước Đen</span>
-                            <span class="master-desc">Dark humor, châm biếm</span>
                         </button>
                         <button class="fortune-master-btn" data-master="poetic">
                             <span class="master-icon">🌸</span>
@@ -181,7 +167,7 @@
     </div>
 
     <!-- Usage Counter (bottom left corner) -->
-    <div class="usage-counter">
+    <div class="usage-counter" style="display: none !important;">
         Số lượt sử dụng: <span id="usageCount">...</span>
     </div>
 
