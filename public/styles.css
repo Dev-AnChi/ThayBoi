@@ -1868,7 +1868,7 @@ body.showing-result .header {
     }
 
     .result-card {
-        margin-top: 12vh !important; /* Adjust top spacing */
+        margin-top: 10vh !important; /* Adjust top spacing */
         height: 80vh !important; /* Constrain card height */
         min-height: 0 !important;
         overflow: hidden !important;
