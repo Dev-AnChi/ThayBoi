@@ -1846,7 +1846,7 @@ body.showing-result .header {
         padding-top: 0 !important;
         overflow-y: auto !important; /* Re-enable internal scroll */
         height: 100% !important;
-        max-height: 55vh !important; /* Limit height to fit inside frame */
+        max-height: 52vh !important; /* Reduced height to make room for buttons */
         scrollbar-width: none; /* Hide scrollbar for cleaner look */
         -ms-overflow-style: none;
     }
@@ -1870,7 +1870,7 @@ body.showing-result .header {
         justify-content: center !important;
         padding-bottom: 0 !important;
         position: absolute;
-        bottom: 18vh; /* Position buttons relative to frame bottom */
+        bottom: 20vh; /* Moved buttons higher up */
         left: 0;
         right: 0;
     }
