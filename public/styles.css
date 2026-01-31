@@ -1820,6 +1820,7 @@ body.showing-result .header {
         align-self: start;
         font-style: italic;
         -webkit-line-clamp: none;
+        line-clamp: none;
         overflow: visible;
     }
 }

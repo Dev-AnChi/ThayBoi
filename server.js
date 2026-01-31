@@ -71,7 +71,12 @@ YÊU CẦU QUAN TRỌNG VỀ NỘI DUNG (TUÂN THỦ 100%):
 ĐỊNH DẠNG JSON:
 {
 "fortune": "Nội dung bói NGẮN GỌN (tối đa 100-110 từ). Tuyệt đối không viết dài dòng để tránh tràn khung hình hiển thị trên điện thoại. BẮT BUỘC sử dụng thẻ <br> để xuống dòng giữa các ý chính. Viết súc tích, đi thẳng vào vấn đề."
-}`;
+}
+QUAN TRỌNG: 
+1. CHỈ TRẢ VỀ JSON THUẦN TÚY. 
+2. KHÔNG viết lời dẫn (intro) hay kết thúc (outro). 
+3. KHÔNG bọc trong markdown block (\`\`\`json). 
+4. Bắt đầu ngay bằng ký tự { và kết thúc bằng ký tự }.`;
 
 const fortuneMasterPrompts = {
   funny: `Bạn là một thầy bói vui tính, genZ.
@@ -240,29 +245,47 @@ app.post('/api/fortune-telling', upload.single('palmImage'), async (req, res) =>
         throw new Error("No JSON structure found");
       }
     } catch (parseError) {
-      // If JSON parsing fails, fallback to plain text
-      console.log('JSON parse failed, using plain text fallback');
+      // If JSON parsing fails, try to find a valid JSON object within the text first
+      const firstBrace = rawResponse.indexOf('{');
+      const lastBrace = rawResponse.lastIndexOf('}');
       
-      let cleanText = rawResponse.replace(/```json|```/g, '').trim();
-      
-      // Remove common JSON artifacts
-      cleanText = cleanText.replace(/^json\s*\{/i, ''); // "json {" prefix
-      cleanText = cleanText.replace(/^json\s*/i, ''); // "json" prefix
-      
-      cleanText = cleanText.trim();
-
-      // Remove leading brace if it remains
-      if (cleanText.startsWith('{')) {
-        cleanText = cleanText.substring(1).trim();
-      }
-       // Remove trailing brace if it remains
-      if (cleanText.endsWith('}')) {
-        cleanText = cleanText.substring(0, cleanText.length - 1).trim();
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+          try {
+              const possibleJson = rawResponse.substring(firstBrace, lastBrace + 1);
+              const parsed = JSON.parse(possibleJson);
+              if (parsed.fortune) {
+                  fortuneData = { fortune: parsed.fortune };
+              }
+          } catch (e) {
+              // Inner parse failed, continue to fallback
+          }
       }
 
-      fortuneData = {
-        fortune: cleanText
-      };
+      if (!fortuneData) {
+        // Fallback to plain text cleaning
+        console.log('JSON parse failed, using plain text fallback');
+        
+        let cleanText = rawResponse.replace(/```json|```/g, '').trim();
+        
+        // Remove common JSON artifacts
+        cleanText = cleanText.replace(/^json\s*\{/i, ''); // "json {" prefix
+        cleanText = cleanText.replace(/^json\s*/i, ''); // "json" prefix
+        
+        cleanText = cleanText.trim();
+
+        // Remove leading brace if it remains
+        if (cleanText.startsWith('{')) {
+          cleanText = cleanText.substring(1).trim();
+        }
+        // Remove trailing brace if it remains
+        if (cleanText.endsWith('}')) {
+          cleanText = cleanText.substring(0, cleanText.length - 1).trim();
+        }
+
+        fortuneData = {
+          fortune: cleanText
+        };
+      }
     }
 
     // Clean up uploaded file after processing
