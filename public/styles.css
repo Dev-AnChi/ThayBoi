@@ -46,7 +46,7 @@ body.bg-frame {
     }
 
     .result-section {
-        background-image: url('KhungMobileR2.png') !important;
+        background-image: url('KhungMobileR1.png') !important;
     }
 }
 
@@ -1389,7 +1389,7 @@ body.showing-result .header {
     }
 
     body.bg-frame .container {
-        padding-top: 15vh !important; /* Smaller screen override */
+        padding-top: 32vh !important; /* Smaller screen override */
     }
 
     .title {
@@ -1829,7 +1829,7 @@ body.showing-result .header {
    ================================ */
 @media (max-width: 768px) {
     .result-section {
-        background-image: url('KhungMobileR2.png') !important;
+        background-image: url('KhungMobileR1.png') !important;
         background-size: 100% 100% !important;
         align-items: flex-start !important;
         height: 100dvh !important; /* Force fit to viewport height */
@@ -1869,8 +1869,8 @@ body.showing-result .header {
     }
 
     .result-card {
-        margin-top: 10vh !important; /* Adjust top spacing */
-        height: 80vh !important; /* Constrain card height */
+        margin-top: 42vh !important; /* Adjust top spacing */
+        height: 50vh !important; /* Constrain card height */
         min-height: 0 !important;
         overflow: hidden !important;
     }
