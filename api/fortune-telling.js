@@ -300,35 +300,28 @@ export default async function handler(req, res) {
         throw new Error("No JSON structure found");
       }
     } catch (parseError) {
-      // If JSON parsing fails, try regex extraction first
-      const fortuneMatch = rawResponse.match(/"fortune"\s*:\s*"([^"]*(?:\\.[^"]*)*)"/);
-      if (fortuneMatch) {
-          fortuneData = { fortune: fortuneMatch[1].replace(/\\"/g, '"') };
-      } else {
-        // Fallback to plain text cleaning
-        let cleanText = sanitizePlainText(rawResponse);
-        
-        // Remove potential "json" prefix or similar artifacts
-        if (cleanText.toLowerCase().startsWith('json')) {
-          cleanText = cleanText.substring(4).trim();
-        }
-        
-        // Remove "json {" pattern if it appears (common AI artifact)
-        cleanText = cleanText.replace(/json\s*\{/gi, '').trim();
+      // If JSON parsing fails, fallback to plain text
+      let cleanText = sanitizePlainText(rawResponse);
+      
+      // Remove common JSON artifacts
+      cleanText = cleanText.replace(/^```json\s*/i, '').replace(/```$/i, ''); // Markdown code blocks
+      cleanText = cleanText.replace(/^json\s*\{/i, ''); // "json {" prefix
+      cleanText = cleanText.replace(/^json\s*/i, ''); // "json" prefix
+      
+      cleanText = cleanText.trim();
 
-        // Remove leading brace if it remains
-        if (cleanText.startsWith('{')) {
-          cleanText = cleanText.substring(1).trim();
-        }
-         // Remove trailing brace if it remains
-        if (cleanText.endsWith('}')) {
-          cleanText = cleanText.substring(0, cleanText.length - 1).trim();
-        }
-
-        fortuneData = {
-          fortune: cleanText
-        };
+      // Remove leading brace if it remains
+      if (cleanText.startsWith('{')) {
+        cleanText = cleanText.substring(1).trim();
       }
+       // Remove trailing brace if it remains
+      if (cleanText.endsWith('}')) {
+        cleanText = cleanText.substring(0, cleanText.length - 1).trim();
+      }
+
+      fortuneData = {
+        fortune: cleanText
+      };
     }
 
 
@@ -336,6 +329,9 @@ export default async function handler(req, res) {
     if (fortuneData && fortuneData.fortune && typeof fortuneData.fortune === 'string') {
        // Remove "json {" or "json" prefix if it somehow got into the content
        fortuneData.fortune = fortuneData.fortune.replace(/^json\s*\{/i, '').trim();
+       // Remove "json" prefix if it remains
+       fortuneData.fortune = fortuneData.fortune.replace(/^json\s*/i, '').trim();
+       
        // Remove potential starting quote if previous regex failed to strip it clean
        if (fortuneData.fortune.startsWith('"') && fortuneData.fortune.endsWith('"')) {
            fortuneData.fortune = fortuneData.fortune.substring(1, fortuneData.fortune.length - 1);

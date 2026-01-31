@@ -1881,7 +1881,7 @@ body.showing-result .header {
         display: flex !important;
         flex-direction: row !important;
         justify-content: center !important;
-        padding-bottom: 20px !important;
+        padding-bottom: 22px !important;
         position: absolute;
         bottom: 0 !important; /* Move to absolute bottom */
         left: 0;
