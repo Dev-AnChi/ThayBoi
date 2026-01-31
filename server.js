@@ -240,26 +240,42 @@ app.post('/api/fortune-telling', upload.single('palmImage'), async (req, res) =>
         throw new Error("No JSON structure found");
       }
     } catch (parseError) {
-      // If JSON parsing fails, fallback to plain text
-      console.log('JSON parse failed, using plain text fallback');
+      // If JSON parsing fails, fallback to regex extraction or plain text cleaning
+      console.log('JSON parse failed, using fallback extraction');
       
-      let cleanText = rawResponse.replace(/```json|```/g, '').trim();
-      // Remove potential "json" prefix or similar artifacts
-      if (cleanText.toLowerCase().startsWith('json')) {
-        cleanText = cleanText.substring(4).trim();
+      // Attempt to extract "fortune" field using Regex (handles escaped quotes)
+      const fortuneMatch = rawResponse.match(/"fortune"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+      
+      if (fortuneMatch && fortuneMatch[1]) {
+        let extractedText = fortuneMatch[1];
+        try {
+            // Use JSON.parse to properly unescape string
+            extractedText = JSON.parse(`"${extractedText}"`);
+        } catch (e) {
+            // Manual unescape if simple parse fails
+            extractedText = extractedText.replace(/\\"/g, '"').replace(/\\n/g, '\n').replace(/\\\\/g, '\\');
+        }
+        fortuneData = { fortune: extractedText };
+      } else {
+        // Fallback: cleaning raw text
+        let cleanText = rawResponse.replace(/```json|```/g, '').trim();
+        
+        // Remove "json" prefix (case insensitive, optional colon/space)
+        cleanText = cleanText.replace(/^json\s*:?\s*/i, '');
+        
+        // Remove leading brace if it remains
+        if (cleanText.startsWith('{')) {
+          cleanText = cleanText.substring(1).trim();
+        }
+         // Remove trailing brace if it remains
+        if (cleanText.endsWith('}')) {
+          cleanText = cleanText.substring(0, cleanText.length - 1).trim();
+        }
+  
+        fortuneData = {
+          fortune: cleanText
+        };
       }
-      // Remove leading brace if it remains
-      if (cleanText.startsWith('{')) {
-        cleanText = cleanText.substring(1).trim();
-      }
-       // Remove trailing brace if it remains
-      if (cleanText.endsWith('}')) {
-        cleanText = cleanText.substring(0, cleanText.length - 1).trim();
-      }
-
-      fortuneData = {
-        fortune: cleanText
-      };
     }
 
     // Clean up uploaded file after processing
