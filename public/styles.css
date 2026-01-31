@@ -1389,7 +1389,7 @@ body.showing-result .header {
     }
 
     body.bg-frame .container {
-        padding-top: 22vh !important; /* Smaller screen override */
+        padding-top: 25vh !important; /* Smaller screen override */
     }
 
     .title {
