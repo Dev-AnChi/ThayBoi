@@ -22,7 +22,7 @@ YÊU CẦU QUAN TRỌNG VỀ NỘI DUNG (TUÂN THỦ 100%):
 
 ĐỊNH DẠNG JSON:
 {
-"fortune": "Nội dung bói NGẮN GỌN (tối đa 75-85 từ). Tuyệt đối không viết dài dòng để tránh tràn khung hình hiển thị trên điện thoại. BẮT BUỘC sử dụng thẻ <br> để xuống dòng giữa các ý chính. Viết súc tích, đi thẳng vào vấn đề."
+"fortune": "Nội dung bói NGẮN GỌN (tối đa 100-110 từ). Tuyệt đối không viết dài dòng để tránh tràn khung hình hiển thị trên điện thoại. BẮT BUỘC sử dụng thẻ <br> để xuống dòng giữa các ý chính. Viết súc tích, đi thẳng vào vấn đề."
 }`;
 
 const fortuneMasterPrompts = {
