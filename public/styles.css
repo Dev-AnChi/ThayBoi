@@ -1855,10 +1855,10 @@ body.showing-result .header {
     
     .result-content {
         justify-content: flex-start !important;
-        padding-top: 0 !important;
+        padding-top: 12vh !important;
         overflow-y: auto !important; /* Re-enable internal scroll */
         height: 100% !important;
-        max-height: 52vh !important; /* Reduced height to make room for buttons */
+        max-height: 75vh !important; /* Increased height */
         scrollbar-width: none; /* Hide scrollbar for cleaner look */
         -ms-overflow-style: none;
     }
@@ -1875,16 +1875,14 @@ body.showing-result .header {
     }
 
     .result-actions {
-        margin-top: 0.2rem !important; 
+        margin-top: 1rem !important; 
         gap: 0.5rem !important;
         display: flex !important;
         flex-direction: row !important;
         justify-content: center !important;
-        padding-bottom: 0 !important;
-        position: absolute;
-        bottom: 20vh; /* Moved buttons higher up */
-        left: 0;
-        right: 0;
+        padding-bottom: 1rem !important;
+        position: static !important;
+        width: 100% !important;
     }
 
     .action-btn {
