@@ -58,10 +58,10 @@ YÊU CẦU QUAN TRỌNG VỀ NỘI DUNG (TUÂN THỦ 100%):
 2. PHẢI dự đoán người dùng hợp với MỘT trong 6 ngành/chuyên ngành sau (CHỈ NÊU TÊN NGÀNH, KHÔNG NÊU TÊN TRƯỜNG):
    - Kỹ thuật cơ khí
    - Cơ khí thủy sản thông minh - Minh Phú
-   - Chuyên ngành Thiết kế & Chế tạo số
+   - Thiết kế & Chế tạo số
    - Công nghệ chế tạo máy
-   - Kỹ thuật điện tử
-   - Chuyên ngành Hệ thống nhúng & IoT
+   - Kỹ thuật cơ điện tử
+   - Hệ thống nhúng & IoT
    Tên ngành BẮT BUỘC phải được đặt trong thẻ <b class="highlight">...</b> để làm nổi bật.
 3. Dự đoán phải kèm theo emoji trái tim ❤️.
 4. Giải thích ngắn gọn tại sao chỉ tay/tướng tay này hợp với ngành đó (bịa một cách logic và hài hước).
