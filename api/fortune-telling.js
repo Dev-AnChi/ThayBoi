@@ -8,12 +8,12 @@ const commonInstruction = `
 YÊU CẦU QUAN TRỌNG VỀ NỘI DUNG (TUÂN THỦ 100%):
 1. Tỷ lệ nội dung: 70-80% tập trung vào tư vấn tuyển sinh và dự đoán ngành học phù hợp, 20-30% còn lại là lời bói vui vẻ, hài hước về tính cách/vận mệnh.
 2. PHẢI dự đoán người dùng hợp với MỘT trong 6 ngành/chuyên ngành sau (CHỈ NÊU TÊN NGÀNH, KHÔNG NÊU TÊN TRƯỜNG):
-   - Kỹ thuật cơ khí
-   - Cơ khí thủy sản thông minh - Minh Phú
-   - Thiết kế & Chế tạo số
-   - Công nghệ chế tạo máy
-   - Kỹ thuật cơ điện tử
-   - Hệ thống nhúng & IoT
+   - Kỹ thuật cơ khí (15%)
+   - Cơ khí thủy sản thông minh - Minh Phú (20%)
+   - Thiết kế & Chế tạo số (15%)
+   - Công nghệ chế tạo máy (15%)
+   - Kỹ thuật cơ điện tử (15%)
+   - Hệ thống nhúng & IoT (20%)
    Tên ngành BẮT BUỘC phải được đặt trong thẻ <b class="highlight">...</b> để làm nổi bật.
 3. Dự đoán phải kèm theo emoji trái tim ❤️.
 4. Giải thích ngắn gọn tại sao chỉ tay/tướng tay này hợp với ngành đó (bịa một cách logic và hài hước).
