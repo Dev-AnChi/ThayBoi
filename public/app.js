@@ -164,8 +164,8 @@ async function getFortune() {
             throw new Error(data && data.message || 'API error');
         }
         if (data.success) {
-            // Increment usage counter
-            incrementUsageCount();
+            // Update usage counter display (backend already incremented)
+            loadUsageCount();
             
             playSound('fortuneComplete'); // Play mystical completion sound
             playSound('mysticalBell'); // Add ethereal bell effect
@@ -2288,7 +2288,7 @@ async function loadUsageCount() {
 
 async function incrementVisitCount() {
     try {
-        const res = await fetch('/api/visit');
+        const res = await fetch('/api/visit', { method: 'POST' });
         const data = await res.json();
         const visitEl = document.getElementById('visitCount');
         if (visitEl && data && data.success) {

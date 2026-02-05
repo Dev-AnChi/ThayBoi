@@ -473,7 +473,7 @@ app.post('/api/increment-usage', async (req, res) => {
   }
 });
 
-app.get('/api/visit', async (req, res) => {
+app.post('/api/visit', async (req, res) => {
   try {
     const usage = await logVisit();
     res.json({ success: true, visits: usage.visits || 0 });
