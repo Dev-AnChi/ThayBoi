@@ -2128,17 +2128,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Load usage count on page load
     loadUsageCount();
+    
     // Increment visit count
-    (async () => {
-        try {
-            const res = await fetch('/api/visit');
-            const data = await res.json();
-            const visitEl = document.getElementById('visitCount');
-            if (visitEl && data && data.success) {
-                visitEl.textContent = data.visits;
-            }
-        } catch {}
-    })();
+    incrementVisitCount();
     
     // Preload audio files
     preloadAudioFiles();
@@ -2279,23 +2271,30 @@ async function loadUsageCount() {
         if (data.success) {
             const countElement = document.getElementById('usageCount');
             if (countElement) {
-                countElement.textContent = data.count;
+                countElement.textContent = data.count ?? 0;
             }
             const visitEl = document.getElementById('visitCount');
-            if (visitEl && typeof data.visits !== 'undefined') {
-                visitEl.textContent = data.visits;
+            if (visitEl) {
+                visitEl.textContent = data.visits ?? 0;
             }
         }
     } catch (error) {
         const countElement = document.getElementById('usageCount');
-        if (countElement) {
-            countElement.textContent = '0';
-        }
+        if (countElement) countElement.textContent = '...';
         const visitEl = document.getElementById('visitCount');
-        if (visitEl) {
-            visitEl.textContent = '0';
-        }
+        if (visitEl) visitEl.textContent = '...';
     }
+}
+
+async function incrementVisitCount() {
+    try {
+        const res = await fetch('/api/visit');
+        const data = await res.json();
+        const visitEl = document.getElementById('visitCount');
+        if (visitEl && data && data.success) {
+            visitEl.textContent = data.visits;
+        }
+    } catch {}
 }
 
 async function incrementUsageCount() {
