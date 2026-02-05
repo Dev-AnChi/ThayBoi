@@ -183,8 +183,12 @@ async function logUsage(masterType) {
       const edge = createClient(process.env.EDGE_CONFIG);
       const current = await edge.get('usage_count') || 0;
       const newVal = parseInt(current) + 1;
-      await updateEdgeConfig('usage_count', newVal);
-      return { total: newVal, visits: (await edge.get('visit_count') || 0) };
+      const updated = await updateEdgeConfig('usage_count', newVal);
+      
+      if (updated) {
+        return { total: newVal, visits: (await edge.get('visit_count') || 0) };
+      }
+      console.log('Edge usage update failed (missing tokens?), falling back to local');
     } catch (e) {
       console.error('Edge Log Error:', e);
     }
@@ -207,8 +211,12 @@ async function logVisit() {
       const edge = createClient(process.env.EDGE_CONFIG);
       const current = await edge.get('visit_count') || 0;
       const newVal = parseInt(current) + 1;
-      await updateEdgeConfig('visit_count', newVal);
-      return { total: (await edge.get('usage_count') || 0), visits: newVal };
+      const updated = await updateEdgeConfig('visit_count', newVal);
+      
+      if (updated) {
+        return { total: (await edge.get('usage_count') || 0), visits: newVal };
+      }
+      console.log('Edge visit update failed (missing tokens?), falling back to local');
     } catch (e) {
       console.error('Edge Visit Error:', e);
     }
