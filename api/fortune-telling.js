@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import fs from 'fs';
 import path from 'path';
+import { createClient } from '@vercel/edge-config';
 
 // Fortune telling prompt
 // Fortune master prompts
@@ -49,8 +50,37 @@ function getFortuneMasterPrompt(masterType = 'funny') {
     return fortuneMasterPrompts[masterType] || fortuneMasterPrompts.funny;
 }
 
+// Edge Config Helper
+async function updateEdgeConfig(key, value) {
+    const edgeConfigId = process.env.EDGE_CONFIG_ID;
+    const vercelToken = process.env.VERCEL_TOKEN;
+    if (!edgeConfigId || !vercelToken) return false;
+    try {
+        const response = await fetch(`https://api.vercel.com/v1/edge-config/${edgeConfigId}/items`, {
+            method: 'PATCH',
+            headers: { 'Authorization': `Bearer ${vercelToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items: [{ operation: 'upsert', key, value }] })
+        });
+        return response.ok;
+    } catch (e) { console.error(e); return false; }
+}
+
 // Usage logging functions
-function logUsage(masterType) {
+async function logUsage(masterType) {
+    // Try Edge Config first
+    if (process.env.EDGE_CONFIG) {
+        try {
+            const edge = createClient(process.env.EDGE_CONFIG);
+            const current = await edge.get('usage_count') || 0;
+            const newVal = parseInt(current) + 1;
+            await updateEdgeConfig('usage_count', newVal);
+            // We can try to log byMaster too if needed, but keeping it simple for now
+            return;
+        } catch (e) {
+            console.error('Edge Log Error:', e);
+        }
+    }
+
     try {
         const logFile = path.join(process.cwd(), 'usage_log.json');
         let usageData = { total: 0, byMaster: {} };
@@ -93,6 +123,21 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Provide stats via GET for serverless deployments
+  if (req.method === 'GET') {
+    try {
+      const logFile = path.join(process.cwd(), 'usage_log.json');
+      let usageData = { total: 0, visits: 0, byMaster: {} };
+      if (fs.existsSync(logFile)) {
+        const data = fs.readFileSync(logFile, 'utf8');
+        usageData = JSON.parse(data);
+      }
+      return res.status(200).json({ success: true, count: usageData.total || 0, visits: usageData.visits || 0, byMaster: usageData.byMaster || {} });
+    } catch {
+      return res.status(200).json({ success: true, count: 0, visits: 0, byMaster: {} });
+    }
+  }
 
   if (req.method === 'OPTIONS') {
     res.status(200).end();
@@ -366,6 +411,9 @@ export default async function handler(req, res) {
       success: true,
       fortune: fortuneData
     });
+
+    // Log usage
+    await logUsage(masterType);
 
   } catch (error) {
     res.status(500).json({

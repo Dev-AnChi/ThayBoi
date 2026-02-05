@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const multer = require('multer');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { createClient } = require('@vercel/edge-config');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
@@ -103,6 +104,129 @@ Phong cách: Châm biếm, mỉa mai nhưng vẫn hướng nghiệp đúng đắ
 ${commonInstruction}
 Phong cách: Thơ ca, lãng mạn, ví von ngành học với thiên nhiên/vũ trụ.`
 };
+
+// Usage and visit logging utilities
+function getUsageLogPath() {
+  return path.join(process.cwd(), 'usage_log.json');
+}
+
+// Local file fallback
+function readLocalUsageData() {
+  const logFile = getUsageLogPath();
+  if (fs.existsSync(logFile)) {
+    try {
+      const data = fs.readFileSync(logFile, 'utf8');
+      return JSON.parse(data);
+    } catch {
+      return { total: 0, visits: 0, byMaster: {} };
+    }
+  }
+  return { total: 0, visits: 0, byMaster: {} };
+}
+
+function writeLocalUsageData(data) {
+  const logFile = getUsageLogPath();
+  fs.writeFileSync(logFile, JSON.stringify(data, null, 2));
+}
+
+// Edge Config helpers
+async function getEdgeConfigStats() {
+  if (!process.env.EDGE_CONFIG) return null;
+  try {
+    const edge = createClient(process.env.EDGE_CONFIG);
+    const usageCount = await edge.get('usage_count') || 0;
+    const visitCount = await edge.get('visit_count') || 0;
+    return { total: usageCount, visits: visitCount, byMaster: {} };
+  } catch (e) {
+    console.error('Edge Config Read Error:', e);
+    return null;
+  }
+}
+
+async function updateEdgeConfig(key, value) {
+  const edgeConfigId = process.env.EDGE_CONFIG_ID;
+  const vercelToken = process.env.VERCEL_TOKEN;
+  
+  if (!edgeConfigId || !vercelToken) return false;
+
+  try {
+    const response = await fetch(
+      `https://api.vercel.com/v1/edge-config/${edgeConfigId}/items`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${vercelToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          items: [
+            {
+              operation: 'upsert',
+              key: key,
+              value: value,
+            },
+          ],
+        }),
+      }
+    );
+    return response.ok;
+  } catch (e) {
+    console.error('Edge Config Update Error:', e);
+    return false;
+  }
+}
+
+async function logUsage(masterType) {
+  // Try Edge Config first
+  if (process.env.EDGE_CONFIG) {
+    try {
+      const edge = createClient(process.env.EDGE_CONFIG);
+      const current = await edge.get('usage_count') || 0;
+      const newVal = parseInt(current) + 1;
+      await updateEdgeConfig('usage_count', newVal);
+      return { total: newVal, visits: (await edge.get('visit_count') || 0) };
+    } catch (e) {
+      console.error('Edge Log Error:', e);
+    }
+  }
+
+  // Fallback to local
+  const usage = readLocalUsageData();
+  usage.total = (usage.total || 0) + 1;
+  usage.byMaster = usage.byMaster || {};
+  usage.byMaster[masterType] = (usage.byMaster[masterType] || 0) + 1;
+  usage.lastUsed = new Date().toISOString();
+  writeLocalUsageData(usage);
+  return usage;
+}
+
+async function logVisit() {
+  // Try Edge Config first
+  if (process.env.EDGE_CONFIG) {
+    try {
+      const edge = createClient(process.env.EDGE_CONFIG);
+      const current = await edge.get('visit_count') || 0;
+      const newVal = parseInt(current) + 1;
+      await updateEdgeConfig('visit_count', newVal);
+      return { total: (await edge.get('usage_count') || 0), visits: newVal };
+    } catch (e) {
+      console.error('Edge Visit Error:', e);
+    }
+  }
+
+  // Fallback to local
+  const usage = readLocalUsageData();
+  usage.visits = (usage.visits || 0) + 1;
+  usage.lastVisited = new Date().toISOString();
+  writeLocalUsageData(usage);
+  return usage;
+}
+
+async function getStats() {
+  const edgeStats = await getEdgeConfigStats();
+  if (edgeStats) return edgeStats;
+  return readLocalUsageData();
+}
 
 // Get fortune prompt based on master type
 function getFortuneMasterPrompt(masterType = 'funny') {
@@ -309,6 +433,9 @@ app.post('/api/fortune-telling', upload.single('palmImage'), async (req, res) =>
       fortune: fortuneData
     });
 
+    // Log usage count on successful generation
+    logUsage(masterType);
+
   } catch (error) {
     console.error('Fortune telling error:', error);
     
@@ -324,6 +451,34 @@ app.post('/api/fortune-telling', upload.single('palmImage'), async (req, res) =>
       message: statusCode === 503 ? 'Dịch vụ AI đang quá tải. Vui lòng thử lại sau ít phút.' : error.message
     };
     res.status(statusCode).json(payload);
+  }
+});
+
+// Stats endpoints
+app.get('/api/get-usage', async (req, res) => {
+  try {
+    const usage = await getStats();
+    res.json({ success: true, count: usage.total || 0, visits: usage.visits || 0, byMaster: usage.byMaster || {} });
+  } catch (e) {
+    res.json({ success: true, count: 0, visits: 0, byMaster: {} });
+  }
+});
+
+app.post('/api/increment-usage', async (req, res) => {
+  try {
+    const usage = await logUsage('unknown');
+    res.json({ success: true, count: usage.total || 0 });
+  } catch (e) {
+    res.json({ success: false, count: 0 });
+  }
+});
+
+app.get('/api/visit', async (req, res) => {
+  try {
+    const usage = await logVisit();
+    res.json({ success: true, visits: usage.visits || 0 });
+  } catch (e) {
+    res.json({ success: false, visits: 0 });
   }
 });
 
